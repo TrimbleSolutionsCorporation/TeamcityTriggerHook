@@ -1,0 +1,18 @@
+{namespace stash.config.example.hook.simple}
+
+/**
+ * @param config
+ * @param? errors
+ */
+{template .formContents}
+    {call aui.form.textField}
+        {param id: 'url' /}
+        {param value: $config['url'] /}
+        {param labelContent}
+            {stash_i18n('stash.web.test.hook.config.label', 'URL')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.web.test.hook.config.description', 'A URL to be notified') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['url'] : null /}
+    {/call}
+{/template}
