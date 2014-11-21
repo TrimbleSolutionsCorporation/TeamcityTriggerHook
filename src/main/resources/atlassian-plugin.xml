@@ -1,14 +1,14 @@
-<atlassian-plugin name="My Repository Hook Example" key="example.plugin.myhook" plugins-version="2">
+<atlassian-plugin name="Teamcity Remote Trigger Hook" key="com.trimble.tekla" plugins-version="2">
     <plugin-info>
-        <description>A basic post-receive hook that notifies a remote server when changes are pushed to Stash</description>
-        <vendor name="My Company" url="http://www.mycompany.com"/>
-        <version>1.0</version>
+    <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+    <description>${project.description}</description>
+    <version>${project.version}</version>
     </plugin-info>
 
-    <repository-hook key="examplehook" name="Webhook" class="com.mycompany.example.plugin.myhook.MyRepositoryHook">
-        <description>Webhook for notifying a configured endpoint of changes to this repository.</description>
+    <repository-hook key="TeamcityTriggerHook" name="Teamcity Trigger" class="com.trimble.tekla.TeamcityTriggerHook">
+        <description>Remote trigger checking for changed in Teamcity</description>
         <icon>icons/example.png</icon>
-        <config-form name="Simple Hook Config" key="simpleHook-config">
+        <config-form name="Teamcity Remote Trigger" key="tc-config">
             <view>stash.config.example.hook.simple.formContents</view>
             <directory location="/static/"/>
         </config-form>

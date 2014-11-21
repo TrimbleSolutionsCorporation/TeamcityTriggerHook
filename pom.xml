@@ -3,16 +3,15 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.atlassian.stash.plugin</groupId>
-    <artifactId>stash-example-async-post-receive-config</artifactId>
+    <groupId>com.trimble.tekla</groupId>
+    <artifactId>TeamcityTriggerHook</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <organization>
-        <name>Atlassian</name>
-        <url>http://www.atlassian.com/</url>
+        <name>Tekla</name>
+        <url>http://www.tekla.com/</url>
     </organization>
-
-    <name>Stash Example Asynchronous Post-Receive Hook Plugin with Configuration</name>
+    <name>Stash hook for teamcity trigger hook</name>
     <description>A simple repository hook plugin for notifying an external URL of changes to a repository.</description>
     <packaging>atlassian-plugin</packaging>
 
@@ -88,11 +87,22 @@
             <artifactId>gson</artifactId>
             <version>2.2.2-atlassian-1</version>
         </dependency>
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-all</artifactId>
+        <version>1.9.0</version>
+      </dependency>        
         <dependency>
             <groupId>org.mockito</groupId>
             <artifactId>mockito-all</artifactId>
             <version>1.8.5</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.stash</groupId>
+            <artifactId>stash-webapp</artifactId>
+            <version>3.4.3</version>
+            <type>war</type>
         </dependency>
     </dependencies>
     <build>
@@ -125,16 +135,9 @@
     </build>
 
     <properties>
-        <stash.version>2.2.0</stash.version>
-        <stash.data.version>2.2.0</stash.data.version>
-        <stash.containerId>tomcat7x</stash.containerId>
-        <amps.version>4.1.4</amps.version>
-        <plugin.testrunner.version>1.1</plugin.testrunner.version>
+        <stash.version>3.4.0</stash.version>
+        <stash.data.version>3.4.0</stash.data.version>
+        <amps.version>5.0.4</amps.version>
+        <plugin.testrunner.version>1.2.0</plugin.testrunner.version>
     </properties>
-
-    <scm>
-        <connection>scm:git:ssh://git@bitbucket.org/atlassian/stash-example-async-post-receive-config.git</connection>
-        <developerConnection>scm:git:ssh://git@bitbucket.org/atlassian/stash-example-async-post-receive-config.git</developerConnection>
-        <url>https://bitbucket.org/atlassian/stash-example-async-post-receive-config</url>
-    </scm>
 </project>

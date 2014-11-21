@@ -5,14 +5,110 @@
  * @param? errors
  */
 {template .formContents}
+
     {call aui.form.textField}
         {param id: 'url' /}
         {param value: $config['url'] /}
         {param labelContent}
-            {stash_i18n('stash.web.test.hook.config.label', 'URL')}
+            {stash_i18n('stash.web.test.hook.config.label', 'Teamcity Server Address')}
         {/param}
-        {param descriptionText: stash_i18n('stash.web.test.hook.config.description', 'A URL to be notified') /}
+        {param descriptionText: stash_i18n('stash.web.test.hook.config.description', 'Server Address') /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['url'] : null /}
     {/call}
+
+    {call aui.form.textField}
+        {param id: 'username' /}
+        {param value: $config['username'] /}
+        {param labelContent}
+            {stash_i18n('stash.web.test.hook.config.label', 'Teamcity Username')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.web.test.hook.config.description', 'User Name') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['url'] : null /}
+    {/call}
+
+    {call aui.form.passwordField}
+        {param id: 'password' /}
+        {param value: $config['password'] /}
+        {param labelContent}
+            {stash_i18n('stash.web.test.hook.config.label', 'Teamcity Password')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.web.test.hook.config.description', 'User Password') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['url'] : null /}
+    {/call}
+
+    <hr />
+
+    <h3>{stash_i18n('stash.webhook.advancedConfiguration.label', 'Advanced Configuration')}</h3>
+
+    {call aui.form.textField}
+        {param id: 'masterRule' /}
+        {param value: $config['masterRule'] /}
+        {param labelContent}
+            {stash_i18n('stash.webhook.masterRule.label', 'Master VCSRoot')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.webhook.masterRule.description', 'Build Configurations To Trigger. Space-delimited. Case-sensitive.') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['masterRule'] : null /}
+    {/call}
+
+    {call aui.form.textField}
+        {param id: 'bugFixRule' /}
+        {param value: $config['bugFixRule'] /}
+        {param labelContent}
+            {stash_i18n('stash.webhook.bugFixRule.label', 'BugFix VCSRoot')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.webhook.bugFixRule.description', 'Build Configurations To Trigger. Space-delimited. Case-sensitive.') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['bugFixRule'] : null /}
+    {/call}
+
+    {call aui.form.textField}
+        {param id: 'featureRule' /}
+        {param value: $config['featureRule'] /}
+        {param labelContent}
+            {stash_i18n('stash.webhook.featureRule.label', 'Features VCSRoot')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.webhook.featureRule.description', 'Build Configurations To Trigger. Space-delimited. Case-sensitive.') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['featureRule'] : null /}
+    {/call}
+
+    {call aui.form.textField}
+        {param id: 'hotfixRule' /}
+        {param value: $config['hotfixRule'] /}
+        {param labelContent}
+            {stash_i18n('stash.webhook.hotfixRule.label', 'Features VCSRoot')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.webhook.hotfixRule.description', 'Build Configurations To Trigger. Space-delimited. Case-sensitive.') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['hotfixRule'] : null /}
+    {/call}
+
+    {call aui.form.textField}
+        {param id: 'releaseRule' /}
+        {param value: $config['releaseRule'] /}
+        {param labelContent}
+            {stash_i18n('stash.webhook.releaseRule.label', 'Features VCSRoot')}
+        {/param}
+        {param descriptionText: stash_i18n('stash.webhook.releaseRule.description', 'Build Configurations To Trigger. Space-delimited. Case-sensitive.') /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['releaseRule'] : null /}
+    {/call}
+
+    <div class="field-group">
+        <label for="Custom Branch Definition">{stash_i18n('stash.webhook.repo.CustomBranchDef.label', 'Custom Branch Regx')}</label>
+        <input id="BranchDefinition" style="max-width: 200px" class="text" type="text" name="BranchDefinition" value="{($config['BranchDefinition'] != null) ? $config['BranchDefinition'] : ''}">
+        <div class="description">
+            {stash_i18n('stash.webhook.repo.BranchDefinition.description', 'Regular expression to match custom branchs, does not apply to master/bugfix/feature/hotfix/release')}
+        </div>
+        {(($errors) ? '<div class="error">' + $errors['branchOptionsBranches'] + '</div>' : '')|noAutoescape}
+        &nbsp;
+        <input id="BranchCustomTypes" style="max-width: 400px" class="text" type="text" name="BranchCustomTypes" value="{($config['BranchCustomTypes'] != null) ? $config['BranchCustomTypes'] : ''}">
+        <div class="description">
+            {stash_i18n('stash.webhook.repo.BranchCustomTypes.description', 'Vcs to trigger. Space-delimited. Case-sensitive.')}
+        </div
+    </div>
 {/template}
