@@ -149,7 +149,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
             for(String vcsRoot : definition.split("\\s+")) {
                 try
                 {                
-                    this.connector.TriggerCheckForChanges(conf, definition);
+                    this.connector.TriggerCheckForChanges(conf, vcsRoot);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }                     
