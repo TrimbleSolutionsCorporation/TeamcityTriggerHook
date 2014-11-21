@@ -1,5 +1,2 @@
-# Stash Asynchronous Simple Configuration Example Hook Plugin
+# Stash Hook to trigger Teamcity builds
 
-A simple repository hook plugin for notifying an external URL of changes to a repository.
-
-See the [developer docs](https://developer.atlassian.com/stash/docs/latest) for more details.
