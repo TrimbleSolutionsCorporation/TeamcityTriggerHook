@@ -1,2 +1,3 @@
 # Stash Hook to trigger Teamcity builds
 
+Req: Teamcity 8.x, Stash 3.x
