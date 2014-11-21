@@ -1,3 +1,5 @@
 # Stash Hook to trigger Teamcity builds
 
 Req: Teamcity 8.x, Stash 3.x
+
+https://github.com/jmecosta/TeamcityTriggerHook/releases/download/1.0/TeamcityTriggerHook-1.0-SNAPSHOT.jar
