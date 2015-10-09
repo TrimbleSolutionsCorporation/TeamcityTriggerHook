@@ -1,8 +1,8 @@
 package com.trimble.tekla;
 
-import com.atlassian.stash.hook.repository.*;
-import com.atlassian.stash.repository.*;
-import com.atlassian.stash.setting.*;
+import com.atlassian.bitbucket.hook.repository.*;
+import com.atlassian.bitbucket.repository.*;
+import com.atlassian.bitbucket.setting.*;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
