@@ -36,12 +36,13 @@
     <hr />
 
     <h3>Advanced Configuration</h3>
+    <h4>Ensure VCS root "checking interval" is set to random high value and VCS trigger is enabled for the configuration</h4>
 
     {call aui.form.textField}
         {param id: 'masterRule' /}
         {param value: $config['masterRule'] /}
         {param labelContent: 'Master VCSRoot' /}
-        {param descriptionText: 'Build Configurations To Trigger. Space-delimited. Case-sensitive.' /}
+        {param descriptionText: 'VCS Roots Ids To Trigger. Space-delimited. Case-sensitive.' /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['masterRule'] : null /}
     {/call}
@@ -50,7 +51,7 @@
         {param id: 'bugFixRule' /}
         {param value: $config['bugFixRule'] /}
         {param labelContent: 'BugFix VCSRoot' /}
-        {param descriptionText: 'Build Configurations To Trigger. Space-delimited. Case-sensitive.' /}
+        {param descriptionText: 'VCS Roots Ids To Trigger. Space-delimited. Case-sensitive.' /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['bugFixRule'] : null /}
     {/call}
@@ -59,7 +60,7 @@
         {param id: 'featureRule' /}
         {param value: $config['featureRule'] /}
         {param labelContent: 'Features VCSRoot' /}
-        {param descriptionText: 'Build Configurations To Trigger. Space-delimited. Case-sensitive.' /}
+        {param descriptionText: 'VCS Roots Ids To Trigger. Space-delimited. Case-sensitive.' /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['featureRule'] : null /}
     {/call}
@@ -68,7 +69,7 @@
         {param id: 'hotfixRule' /}
         {param value: $config['hotfixRule'] /}
         {param labelContent: 'HotFix VCSRoot' /}
-        {param descriptionText: 'Build Configurations To Trigger. Space-delimited. Case-sensitive.' /}
+        {param descriptionText: 'VCS Roots Ids To Trigger. Space-delimited. Case-sensitive.' /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['hotfixRule'] : null /}
     {/call}
@@ -77,7 +78,7 @@
         {param id: 'releaseRule' /}
         {param value: $config['releaseRule'] /}
         {param labelContent: 'Release VCSRoot' /}
-        {param descriptionText: 'Build Configurations To Trigger. Space-delimited. Case-sensitive.' /}
+        {param descriptionText: 'VCS Roots Ids To Trigger. Space-delimited. Case-sensitive.' /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['releaseRule'] : null /}
     {/call}
