@@ -1,17 +1,18 @@
 # Bitbucket Server Hook to trigger Teamcity builds
 
 Req: Min Teamcity 8.x, BitbucketServer 4.x
-Download: https://github.com/jmecosta/TeamcityTriggerHook/releases/download/1.0/TeamcityTriggerHook-1=2.0-SNAPSHOT.jar
+Download: https://github.com/jmecosta/TeamcityTriggerHook/releases/download/2.1-Snapshot/TeamcityTriggerHook-2.1-SNAPSHOT.jar
 
 # Teamcity Configuration
-* Create a vcs root and set the checking interval to a random high value to improve performance
-* Enable a VCS trigger
-* Save the VCS root id to be use in bitbucket configuration
+   Create a vcs root and set the checking interval to a random high value to improve performance
+   Enable a VCS trigger
+   Save the VCS root id to be use in bitbucket configuration
 
 # Bitbucket configuration
-* enable hook and set server, username and password
-* set one of the VCS roots to the value retrieved in previous section
+   enable hook and set server, username and password
+   set one of the VCS roots to the value retrieved in previous section
 
 
 # Stash
-Please use 1.0-SNAPSHOT https://github.com/jmecosta/TeamcityTriggerHook/releases/download/1.0/TeamcityTriggerHook-1.0-SNAPSHOT.jar
+Please use 1.0-SNAPSHOT 
+https://github.com/jmecosta/TeamcityTriggerHook/releases/download/1.0/TeamcityTriggerHook-1.0-SNAPSHOT.jar
