@@ -76,6 +76,7 @@ public class HttpConnector {
             connection.setRequestProperty("Authorization", "Basic " + authEncoded);
             
             if (payload != null) {
+                connection.setRequestProperty("Content-Type", "application/xml; charset=utf-8");
                 connection.setRequestProperty("Content-Length", Integer.toString(payload.length()));
                 connection.getOutputStream().write(payload.getBytes("UTF8"));
             }

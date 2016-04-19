@@ -8,17 +8,34 @@
 
     {call aui.form.radioField}
          {param id: 'useQueue' /}
-         {param legendContent: 'BuildQueue rest point' /}
+         {param legendContent: 'Trigger type' /}
          {param fields: [[
+                        'id': 'false',
+                        'labelText': 'Trigger VCS root check',
+                        'value': 'false',
+                        'descriptionText': 'This will make the VCS root to check for changes, triggering builds in all branches',
+                        'isChecked': $config['useQueue'] ? $config['useQueue'] == 'false' :  false
+                        ],
+                        [
                         'id': 'true',
-                        'labelText': 'Use build queue rest point, instead of trigger check for changes',
+                        'labelText': 'Queue build configuration',
                         'value': 'true',
-                        'isChecked': $config ? $config['useQueue'] == 'true' :  true
+                        'descriptionText': 'This will queue only the build configuration selected',
+                        'isChecked': $config['useQueue'] ? $config['useQueue'] == 'true' :  true
                         ]]
          /}
-         {param errorTexts: $errors ? $errors['mandatory'] : null /}
+         {param errorTexts: $errors ? $errors['useQueue'] : null /}
          {param isRequired: true /}
          {param isDisabled: false /}
+    {/call}
+
+    {call aui.form.textField}
+        {param id: 'bitbuckerUrl' /}
+        {param value: $config['bitbuckerUrl'] /}
+        {param labelContent: 'Bitbucker Base Url of project' /}
+        {param descriptionText: 'A link in comment will be added to teamcity build' /}
+        {param extraClasses: 'long' /}
+        {param errorTexts: $errors ? $errors['bitbuckerUrl'] : null /}
     {/call}
 
     {call aui.form.textField}
@@ -51,13 +68,15 @@
     <hr />
 
     <h3>Advanced Configuration</h3>
-    <h4>Ensure VCS root "checking interval" is set to random high value and VCS trigger is enabled for the configuration</h4>
+    <h4>########################################################################</h4>
+    <h6>Ensure VCS root "checking interval" is set to random high value and VCS trigger is enabled for the configuration, when vcs trigger is used.</h6>
+    <h6>Or ensure VCS trigger is disable when build trigger is enabled</h6>
 
     {call aui.form.textField}
         {param id: 'masterRule' /}
         {param value: $config['masterRule'] /}
-        {param labelContent: 'Master VCSRoot' /}
-        {param descriptionText: 'VCS Roots Ids To Trigger. Space-delimited. Case-sensitive.' /}
+        {param labelContent: 'Master' /}
+        {param descriptionText: 'VCS Roots Ids or BuildConfiguration Ids To Trigger. Space-delimited. Case-sensitive.' /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['masterRule'] : null /}
     {/call}
@@ -65,8 +84,8 @@
     {call aui.form.textField}
         {param id: 'bugFixRule' /}
         {param value: $config['bugFixRule'] /}
-        {param labelContent: 'BugFix VCSRoot' /}
-        {param descriptionText: 'VCS Roots Ids To Trigger. Space-delimited. Case-sensitive.' /}
+        {param labelContent: 'BugFix' /}
+        {param descriptionText: 'VCS Roots Ids or BuildConfiguration Ids To Trigger. Space-delimited. Case-sensitive.' /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['bugFixRule'] : null /}
     {/call}
@@ -74,8 +93,8 @@
     {call aui.form.textField}
         {param id: 'featureRule' /}
         {param value: $config['featureRule'] /}
-        {param labelContent: 'Features VCSRoot' /}
-        {param descriptionText: 'VCS Roots Ids To Trigger. Space-delimited. Case-sensitive.' /}
+        {param labelContent: 'Features' /}
+        {param descriptionText: 'VCS Roots Ids or BuildConfiguration Ids To Trigger. Space-delimited. Case-sensitive.' /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['featureRule'] : null /}
     {/call}
@@ -83,8 +102,8 @@
     {call aui.form.textField}
         {param id: 'hotfixRule' /}
         {param value: $config['hotfixRule'] /}
-        {param labelContent: 'HotFix VCSRoot' /}
-        {param descriptionText: 'VCS Roots Ids To Trigger. Space-delimited. Case-sensitive.' /}
+        {param labelContent: 'HotFix' /}
+        {param descriptionText: 'VCS Roots Ids or BuildConfiguration Ids To Trigger. Space-delimited. Case-sensitive.' /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['hotfixRule'] : null /}
     {/call}
@@ -92,8 +111,8 @@
     {call aui.form.textField}
         {param id: 'releaseRule' /}
         {param value: $config['releaseRule'] /}
-        {param labelContent: 'Release VCSRoot' /}
-        {param descriptionText: 'VCS Roots Ids To Trigger. Space-delimited. Case-sensitive.' /}
+        {param labelContent: 'Release' /}
+        {param descriptionText: 'VCS Roots Ids or BuildConfiguration Ids To Trigger. Space-delimited. Case-sensitive.' /}
         {param extraClasses: 'long' /}
         {param errorTexts: $errors ? $errors['releaseRule'] : null /}
     {/call}

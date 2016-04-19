@@ -62,12 +62,14 @@ public class TeamcityTriggerHookTest
         refChanges.add(change);
                         
         Settings settings = mock(Settings.class);
+        when(settings.getBoolean("useQueue", false)).thenReturn(false);
         when(settings.getString("masterRule")).thenReturn("");
         when(settings.getString("featureRule")).thenReturn("");
         when(settings.getString("bugFixRule")).thenReturn("");
         when(settings.getString("hotfixRule")).thenReturn("");
         when(settings.getString("releaseRule")).thenReturn(""); 
         when(settings.getString("BranchDefinition")).thenReturn("");
+        when(change.getFromHash()).thenReturn("31029831928309128");
         RepositoryHookContext context = mock(RepositoryHookContext.class);
         when(context.getSettings()).thenReturn(settings);        
         TeamcityConnector connector = mock(TeamcityConnector.class);                
@@ -86,12 +88,14 @@ public class TeamcityTriggerHookTest
         refChanges.add(change);
                         
         Settings settings = mock(Settings.class);
+        when(settings.getBoolean("useQueue", false)).thenReturn(false);
         when(settings.getString("masterRule")).thenReturn("vcsroot");
         when(settings.getString("featureRule")).thenReturn("");
         when(settings.getString("bugFixRule")).thenReturn("");
         when(settings.getString("hotfixRule")).thenReturn("");
         when(settings.getString("releaseRule")).thenReturn("");   
         when(settings.getString("BranchDefinition")).thenReturn("");
+        when(change.getFromHash()).thenReturn("31029831928309128");
         RepositoryHookContext context = mock(RepositoryHookContext.class);
         when(context.getSettings()).thenReturn(settings);
         
@@ -110,12 +114,14 @@ public class TeamcityTriggerHookTest
         refChanges.add(change);
                         
         Settings settings = mock(Settings.class);
+        when(settings.getBoolean("useQueue", false)).thenReturn(false);
         when(settings.getString("masterRule")).thenReturn("vcsroot vcsroot1");
         when(settings.getString("featureRule")).thenReturn("");
         when(settings.getString("bugFixRule")).thenReturn("");
         when(settings.getString("hotfixRule")).thenReturn("");
         when(settings.getString("releaseRule")).thenReturn("");   
         when(settings.getString("BranchDefinition")).thenReturn("");
+        when(change.getFromHash()).thenReturn("31029831928309128");
         RepositoryHookContext context = mock(RepositoryHookContext.class);
         when(context.getSettings()).thenReturn(settings);
         

@@ -43,9 +43,8 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
                         context.getSettings().getString("username"),
                         context.getSettings().getString("password") );
         
-        Set<String> uniqueBranches = new LinkedHashSet<String>();
-        
-        logger.warn("postReceive: "  + uniqueBranches.size());
+        Set<String> uniqueBranches = new LinkedHashSet<String>();                
+        logger.debug("[TeamcityTriggerHook] postReceive: "  + uniqueBranches.size() + " using queue trigger: " + useQueue);
         
         // combine branchs
         for(RefChange change : refChanges) {
@@ -53,8 +52,14 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
                 continue;
             }
             
-            uniqueBranches.add(change.getRefId());
-            this.TriggerChangesFetch(context, change.getRefId(), conf, useQueue);            
+            String fromChange = change.getFromHash();
+            logger.debug("[TeamcityTriggerHook] fromChage hash: "  + fromChange);
+            if (!fromChange.startsWith("0000000000000000")) {
+                uniqueBranches.add(change.getRefId());
+                this.TriggerChangesFetch(context, change.getRefId(), conf, useQueue);                        
+            } else {
+                System.out.println("[TeamcityTriggerHook] Skip trigger no commits in branch: " + change.getRefId());
+            }
         }
     }
            
@@ -93,17 +98,16 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         String masterVcsRoot = context.getSettings().getString("masterRule");
         if(!masterVcsRoot.isEmpty() && refId.toLowerCase().equals("refs/heads/master")) {
             if (useQueue) {
-                this.QueueBuild(masterVcsRoot, refId, conf);
+                this.QueueBuild(context, masterVcsRoot, "master", conf);
             } else {
                 this.TriggerWithDefinition(masterVcsRoot, conf);
-            }
-            
+            }            
         }
         
         String featureVcsRoot = context.getSettings().getString("featureRule");
         if(!featureVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/feature")) {
             if (useQueue) {
-                this.QueueBuild(featureVcsRoot, refId, conf);
+                this.QueueBuild(context, featureVcsRoot, refId.split("/")[3], conf);
             } else {            
                 this.TriggerWithDefinition(featureVcsRoot, conf);            
             }
@@ -112,7 +116,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         String bugfixVcsRoot = context.getSettings().getString("bugFixRule");
         if(!bugfixVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/bugfix")) {
             if (useQueue) {
-                this.QueueBuild(bugfixVcsRoot, refId, conf);
+                this.QueueBuild(context, bugfixVcsRoot, refId.split("/")[3], conf);
             } else {                
                 this.TriggerWithDefinition(bugfixVcsRoot, conf);            
             }
@@ -121,7 +125,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         String hotfixVcsRoot = context.getSettings().getString("hotfixRule");
         if(!hotfixVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/hotfix")) {
             if (useQueue) {
-                this.QueueBuild(hotfixVcsRoot, refId, conf);
+                this.QueueBuild(context, hotfixVcsRoot, refId.split("/")[3], conf);
             } else {            
                 this.TriggerWithDefinition(hotfixVcsRoot, conf);            
             }
@@ -130,7 +134,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         String releaseVcsRoot = context.getSettings().getString("releaseRule");
         if(!releaseVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/release")) {
             if (useQueue) {
-                this.QueueBuild(releaseVcsRoot, refId, conf);
+                this.QueueBuild(context, releaseVcsRoot, refId.split("/")[3], conf);
             } else {             
                 this.TriggerWithDefinition(releaseVcsRoot, conf);            
             }
@@ -139,7 +143,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         String branchDefinition = context.getSettings().getString("BranchDefinition");
         if(!branchDefinition.isEmpty() && this.ValidateRegx(refId, branchDefinition)) {
             if (useQueue) {
-                this.QueueBuild(context.getSettings().getString("BranchCustomTypes"), refId, conf);
+                this.QueueBuild(context, context.getSettings().getString("BranchCustomTypes"), refId.split("/")[3], conf);
             } else {              
                 this.TriggerWithDefinition(context.getSettings().getString("BranchCustomTypes"), conf);            
             }
@@ -179,29 +183,39 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
             for(String vcsRoot : definition.split("\\s+")) {
                 try
                 {                
+                    System.out.println("[TeamcityTriggerHook] Trigger Check for Changes in: " + vcsRoot);
                     this.connector.TriggerCheckForChanges(conf, vcsRoot);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("[TeamcityTriggerHook] Trigger Check for Changes in: " + vcsRoot + " Failed");
                 }                     
             }                
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("[TeamcityTriggerHook] Invalid vcs configuration data: " + definition);
         }  
     }
     
-    private void QueueBuild(String buildid, String branch, TeamcityConfiguration conf) {
+    private void QueueBuild(RepositoryHookContext context, String buildIdIn, String branch, TeamcityConfiguration conf) {
         try
-        {                
-            for(String vcsRoot : buildid.split("\\s+")) {
+        {                            
+            String baseUrl = context.getSettings().getString("bitbuckerUrl");
+            String comment = "remote trigger from bitbucket server : server address not specified in Bitbucket";
+            
+            if(!baseUrl.isEmpty()) {
+                comment = "remote trigger from bitbucket server : " + baseUrl + "/branches";
+            }
+            
+            System.out.println("[TeamcityTriggerHook] Trigger builds for branch: " + branch);            
+            for(String buildId : buildIdIn.split("\\s+")) {
                 try
                 {                
-                    this.connector.QueueBuild(conf, branch, buildid, "remote trigger");
+                    System.out.println("[TeamcityTriggerHook] Trigger BuildId: " + buildId);                    
+                    this.connector.QueueBuild(conf, branch, buildId, comment);
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    System.out.println("[TeamcityTriggerHook] BuildId: " + buildId + " Failed");
                 }                     
             }                
         } catch (Exception e) {
-            e.printStackTrace();
+            System.out.println("[TeamcityTriggerHook] Invalid build configuration data: " + buildIdIn);
         }  
     }    
 }
