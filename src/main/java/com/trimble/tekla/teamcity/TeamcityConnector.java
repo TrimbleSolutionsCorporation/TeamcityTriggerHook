@@ -20,4 +20,25 @@ public class TeamcityConnector  {
         this.connector.Post(conf, url, null);        
     }
     
+    public void QueueBuild(TeamcityConfiguration conf, String branch, String buildid, String comment) {
+        String url = "/app/rest/buildQueue";
+        this.connector.PostPayload(conf, url, GetPayload(branch, buildid, comment));        
+    }    
+    
+    private String GetPayload(String branch, String buildid, String comment) {
+        StringBuilder builder = new StringBuilder();
+        if (!"".equals(branch)) {
+            builder.append(String.format("<build branchName=\"%s\">", branch));
+            builder.append(String.format("<buildType id=\"%s\"/>", buildid));
+            builder.append(String.format("<comment><text>%s</text></comment>", comment));
+            builder.append("</build>");
+        } else {
+            builder.append("<build>");
+            builder.append(String.format("<buildType id=\"%s\"/>", buildid));
+            builder.append(String.format("<comment><text>%s</text></comment>", comment));
+            builder.append("</build>");        
+        }
+        
+        return builder.toString();
+    }
 }

@@ -6,6 +6,21 @@
  */
 {template .formContents}
 
+    {call aui.form.radioField}
+         {param id: 'useQueue' /}
+         {param legendContent: 'BuildQueue rest point' /}
+         {param fields: [[
+                        'id': 'true',
+                        'labelText': 'Use build queue rest point, instead of trigger check for changes',
+                        'value': 'true',
+                        'isChecked': $config ? $config['useQueue'] == 'true' :  true
+                        ]]
+         /}
+         {param errorTexts: $errors ? $errors['mandatory'] : null /}
+         {param isRequired: true /}
+         {param isDisabled: false /}
+    {/call}
+
     {call aui.form.textField}
         {param id: 'url' /}
         {param value: $config['url'] /}
