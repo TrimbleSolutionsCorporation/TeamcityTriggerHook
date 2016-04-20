@@ -2,6 +2,7 @@ package ut.com.trimble.tekla;
 
 import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
 import com.atlassian.bitbucket.repository.RefChange;
+import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.setting.Settings;
 import com.trimble.tekla.TeamcityTriggerHook;
 import com.trimble.tekla.teamcity.HttpConnector;
@@ -70,6 +71,7 @@ public class TeamcityTriggerHookTest
         when(settings.getString("releaseRule")).thenReturn(""); 
         when(settings.getString("BranchDefinition")).thenReturn("");
         when(change.getFromHash()).thenReturn("31029831928309128");
+        when(change.getType()).thenReturn(RefChangeType.ADD);
         RepositoryHookContext context = mock(RepositoryHookContext.class);
         when(context.getSettings()).thenReturn(settings);        
         TeamcityConnector connector = mock(TeamcityConnector.class);                
@@ -96,6 +98,7 @@ public class TeamcityTriggerHookTest
         when(settings.getString("releaseRule")).thenReturn("");   
         when(settings.getString("BranchDefinition")).thenReturn("");
         when(change.getFromHash()).thenReturn("31029831928309128");
+        when(change.getType()).thenReturn(RefChangeType.ADD);
         RepositoryHookContext context = mock(RepositoryHookContext.class);
         when(context.getSettings()).thenReturn(settings);
         
@@ -122,6 +125,7 @@ public class TeamcityTriggerHookTest
         when(settings.getString("releaseRule")).thenReturn("");   
         when(settings.getString("BranchDefinition")).thenReturn("");
         when(change.getFromHash()).thenReturn("31029831928309128");
+        when(change.getType()).thenReturn(RefChangeType.ADD);
         RepositoryHookContext context = mock(RepositoryHookContext.class);
         when(context.getSettings()).thenReturn(settings);
         

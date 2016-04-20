@@ -48,18 +48,24 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         
         // combine branchs
         for(RefChange change : refChanges) {
+                                    
             if (uniqueBranches.contains(change.getRefId())) {
                 continue;
             }
             
-            String fromChange = change.getFromHash();
-            logger.debug("[TeamcityTriggerHook] fromChage hash: "  + fromChange);
-            if (!fromChange.startsWith("0000000000000000")) {
-                uniqueBranches.add(change.getRefId());
-                this.TriggerChangesFetch(context, change.getRefId(), conf, useQueue);                        
-            } else {
-                System.out.println("[TeamcityTriggerHook] Skip trigger no commits in branch: " + change.getRefId());
+            if (change.getType().equals(RefChangeType.DELETE)) {
+                System.out.println("[TeamcityTriggerHook] Skip trigger for delete operation in branch: " + change.getRefId());
+                continue;            
             }
+            
+            String fromChange = change.getFromHash();
+            if (fromChange.startsWith("0000000000000000")) {
+                System.out.println("[TeamcityTriggerHook] Skip trigger no commits in branch: " + change.getRefId());
+                continue;            
+            }            
+                        
+            uniqueBranches.add(change.getRefId());
+            this.TriggerChangesFetch(context, change.getRefId(), conf, useQueue);
         }
     }
            
