@@ -5,6 +5,8 @@
     <version>${project.version}</version>
     </plugin-info>
 
+    <component-import key="gitScm" interface="com.atlassian.bitbucket.scm.git.GitScm"/>
+      
     <repository-hook key="TeamcityTriggerHook" name="Teamcity Trigger" class="com.trimble.tekla.TeamcityTriggerHook">
         <description>Remote trigger checking for changed in Teamcity</description>
         <icon>icons/example.png</icon>
@@ -13,5 +15,7 @@
             <directory location="/static/"/>
         </config-form>
     </repository-hook>
+    
 
+  
 </atlassian-plugin>

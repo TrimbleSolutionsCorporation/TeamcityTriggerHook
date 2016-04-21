@@ -3,6 +3,7 @@ package ut.com.trimble.tekla;
 import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
 import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
+import com.atlassian.bitbucket.scm.git.GitScm;
 import com.atlassian.bitbucket.setting.Settings;
 import com.trimble.tekla.TeamcityTriggerHook;
 import com.trimble.tekla.teamcity.HttpConnector;
@@ -28,7 +29,7 @@ public class TeamcityTriggerHookTest
     @Test
     public void validaFailsRegx()
     {
-        TeamcityTriggerHook component = new TeamcityTriggerHook(null);
+        TeamcityTriggerHook component = new TeamcityTriggerHook(null, null);
         assertFalse(component.ValidateRegx("refs/heads/14.0", ""));
         assertFalse(component.ValidateRegx("refs/heads/14.0", "feature"));
         assertFalse(component.ValidateRegx("refs/heads/14.0", "bugfix"));
@@ -50,7 +51,7 @@ public class TeamcityTriggerHookTest
     @Test
     public void validaRegx()
     {
-        TeamcityTriggerHook component = new TeamcityTriggerHook(null);
+        TeamcityTriggerHook component = new TeamcityTriggerHook(null, null);
         assertTrue(component.ValidateRegx("refs/heads/14.0", "refs/heads/[0-9.]*"));        
     }    
     
@@ -74,8 +75,9 @@ public class TeamcityTriggerHookTest
         when(change.getType()).thenReturn(RefChangeType.ADD);
         RepositoryHookContext context = mock(RepositoryHookContext.class);
         when(context.getSettings()).thenReturn(settings);        
-        TeamcityConnector connector = mock(TeamcityConnector.class);                
-        TeamcityTriggerHook component = new TeamcityTriggerHook(connector);        
+        TeamcityConnector connector = mock(TeamcityConnector.class);           
+        GitScm gitScm = mock(GitScm.class);
+        TeamcityTriggerHook component = new TeamcityTriggerHook(gitScm);        
         component.postReceive(context, refChanges);
         verify(connector, never()).TriggerCheckForChanges(any(TeamcityConfiguration.class), any(String.class));
     }     
@@ -102,8 +104,9 @@ public class TeamcityTriggerHookTest
         RepositoryHookContext context = mock(RepositoryHookContext.class);
         when(context.getSettings()).thenReturn(settings);
         
-        TeamcityConnector connector = mock(TeamcityConnector.class);                
-        TeamcityTriggerHook component = new TeamcityTriggerHook(connector);        
+        TeamcityConnector connector = mock(TeamcityConnector.class);    
+        GitScm gitScm = mock(GitScm.class);
+        TeamcityTriggerHook component = new TeamcityTriggerHook(connector, gitScm);        
         component.postReceive(context, refChanges);
         verify(connector).TriggerCheckForChanges(any(TeamcityConfiguration.class), eq("vcsroot"));
     }     
@@ -129,8 +132,9 @@ public class TeamcityTriggerHookTest
         RepositoryHookContext context = mock(RepositoryHookContext.class);
         when(context.getSettings()).thenReturn(settings);
         
-        TeamcityConnector connector = mock(TeamcityConnector.class);                
-        TeamcityTriggerHook component = new TeamcityTriggerHook(connector);        
+        TeamcityConnector connector = mock(TeamcityConnector.class);    
+        GitScm gitScm = mock(GitScm.class);
+        TeamcityTriggerHook component = new TeamcityTriggerHook(connector, gitScm);        
         component.postReceive(context, refChanges);
         verify(connector).TriggerCheckForChanges(any(TeamcityConfiguration.class), eq("vcsroot"));
         verify(connector).TriggerCheckForChanges(any(TeamcityConfiguration.class), eq("vcsroot1"));
