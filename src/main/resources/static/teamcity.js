@@ -66,8 +66,7 @@ define('trimble/teamcity/test', [
           $("#connectionStatusTeamcityId").text(status);
           $("#connectionStatusTeamcityId").css('color', color);
       }
-      
-      
+            
       $("#hookTableId tr").click(ClickOnRowEvent);
       
       $buttonAddHook.click(function() {
@@ -183,6 +182,80 @@ define('trimble/teamcity/test', [
         
         // Get the element with id="defaultOpen" and click on it
         document.getElementById("defaultOpen").click();
+        
+        // init values for check boxes
+        var isDefaultBranchMaster = document.getElementById("isDefaultBranch");
+        
+        if (isDefaultBranchMaster !== null && isDefaultBranchMaster.value === "true") {
+          document.getElementById("isDefaultBranchBox").checked = true;          
+        } else {
+          document.getElementById("isDefaultBranchBox").checked = false;
+        }
+        
+        // register jquery on change event
+        $('#isDefaultBranchBox').change(function() {
+            if($(this).is(":checked")) {
+              document.getElementById("isDefaultBranch").value = "true";
+            } else {
+              document.getElementById("isDefaultBranch").value = "false";
+            }            
+        });
+
+        var usePrForFeature = document.getElementById("usePrFromFeature");
+      
+        if (usePrForFeature !== null && usePrForFeature.value === "true") {
+          document.getElementById("prInsteadFeature").checked = true;          
+        } else {
+          document.getElementById("prInsteadFeature").checked = false;
+        }
+        
+        // register jquery on change event
+        $('#prInsteadFeature').change(function() {
+            if($(this).is(":checked")) {
+              document.getElementById("usePrFromFeature").value = "true";
+            } else {
+              document.getElementById("usePrFromFeature").value = "false";
+            }            
+        });
+        
+
+        var usePrForHotFix = document.getElementById("usePrFromhotFix");
+        
+        if (usePrForHotFix !== null && usePrForHotFix.value === "true") {
+          document.getElementById("prInsteadHotFix").checked = true;          
+        } else {
+          document.getElementById("prInsteadHotFix").checked = false;
+        }
+        
+        // register jquery on change event
+        $('#prInsteadHotFix').change(function() {
+            if($(this).is(":checked")) {
+              document.getElementById("usePrFromhotFix").value = "true";
+            } else {
+              document.getElementById("usePrFromhotFix").value = "false";
+            }            
+        });
+                
+        
+        var usePrForBugFix = document.getElementById("usePrFrombugFix");
+        if (usePrForBugFix !== null && usePrForBugFix.value === "true") {
+          document.getElementById("prInsteadBugFix").checked = true;          
+        } else {
+          document.getElementById("prInsteadBugFix").checked = false;
+        }
+        
+        // register jquery on change event
+        $('#prInsteadBugFix').change(function() {
+            if($(this).is(":checked")) {
+              document.getElementById("usePrFrombugFix").value = "true";
+            } else {
+              document.getElementById("usePrFrombugFix").value = "false";
+            }            
+        });
+                
+
+      
+      
         init();
         InitTableRows();
     }

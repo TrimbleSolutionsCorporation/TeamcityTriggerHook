@@ -95,7 +95,6 @@ public class TeamctiyRest extends RestResource {
     InputStream is = classloader.getResourceAsStream("public/" + page);
     String file = convertStreamToString(is);
     return file;
-            //"<html> " + "<title>" + "Hello Jersey" + "</title>" + "<body><h1>" + data + "</body></h1>" + "</html> ";
   }          
   
 /**
@@ -107,8 +106,6 @@ public class TeamctiyRest extends RestResource {
   @Path(value = "loadjs")
   @Produces("text/javascript")
   public String loadjs(@Context Repository repository, @QueryParam("page") String page) {
-    String data = "<p>hello world</p><a onclick=\"parent.abc();\" href=\"#\">Click Me</a>";
-    
     ClassLoader classloader = Thread.currentThread().getContextClassLoader();
     InputStream is = classloader.getResourceAsStream("public/" + page);
     String file = convertStreamToString(is);
@@ -119,7 +116,6 @@ public class TeamctiyRest extends RestResource {
   @Path(value = "loadcss")
   @Produces("text/css")
   public String loadcss(@Context Repository repository, @QueryParam("page") String page) {
-    
     ClassLoader classloader = Thread.currentThread().getContextClassLoader();
     InputStream is = classloader.getResourceAsStream("public/" + page);
     String file = convertStreamToString(is);
@@ -130,7 +126,6 @@ public class TeamctiyRest extends RestResource {
   @Path(value = "loadimg")
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
   public Response loadimg(@Context Repository repository, @QueryParam("img") String img) {    
-    ClassLoader classloader = Thread.currentThread().getContextClassLoader();    
     return Response.ok(getResourceAsFile("public/" + img), MediaType.APPLICATION_OCTET_STREAM)
       .header("Content-Disposition", "attachment; filename=\"" + img + "\"" )
       .build();
@@ -158,7 +153,6 @@ public class TeamctiyRest extends RestResource {
         }
         return tempFile;
     } catch (IOException e) {
-        e.printStackTrace();
         return null;
     }
   }
@@ -188,9 +182,9 @@ public class TeamctiyRest extends RestResource {
     TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     String branchtoLower = branch.toLowerCase();
     if (branchtoLower.startsWith("feature/") || branchtoLower.startsWith("bugfix/") || branchtoLower.startsWith("hotfix/")) {
-      this.connector.QueueBuild(conf, branch.split("/")[1], buildconfig, "Manual Trigger from Bitbucket");
+      this.connector.QueueBuild(conf, branch.split("/")[1], buildconfig, "Manual Trigger from Bitbucket", false);
     } else {
-      this.connector.QueueBuild(conf, branch, buildconfig, "Manual Trigger from Bitbucket");
+      this.connector.QueueBuild(conf, branch, buildconfig, "Manual Trigger from Bitbucket", false);
     }
         
     return "{\"status\": \"ok\" }";
@@ -354,8 +348,7 @@ public class TeamctiyRest extends RestResource {
         return "{\"status\": \"error\", \"message\": \"request throw exception" + ex.getMessage() +" \"}";
       }
   }
-  
-              
+                
 /**
    * Trigger a build on the Teamcity instance using vcs root
    * @param repository The repository to trigger

@@ -71,6 +71,7 @@
    <div class="field-group">
       <label for="MasterRulesUrl">master</label>
       <input id="masterRule" style="max-width: 400px" class="text" type="text" name="masterRule" value="{($config['masterRule'] != null) ? $config['masterRule'] : ''}">
+      <input id="isDefaultBranchBox" type="checkbox" name="isDefaultBranchBox">
       <div class="description">
          {getText('bitbucket.webhook.teamcity.rule.master')}
       </div>
@@ -80,7 +81,7 @@
    <div class="field-group">
       <label for="BugFixRuleUrl">bugfix</label>
       <input id="bugFixRule" style="max-width: 400px" class="text" type="text" name="bugFixRule" value="{($config['bugFixRule'] != null) ? $config['bugFixRule'] : ''}"> &nbsp;
-      <input id="prInsteadBugFix" type="checkbox" name="prInsteadBugFix" value="{($config['prInsteadBugFix']) ? true : false}">
+      <input id="prInsteadBugFix" type="checkbox">
       <div class="description">
          {getText('bitbucket.webhook.teamcity.rule.development.branch')}
       </div>
@@ -90,7 +91,7 @@
    <div class="field-group">
       <label for="featureRuleUrl">feature</label>
       <input id="featureRule" style="max-width: 400px" class="text" type="text" name="featureRule" value="{($config['featureRule'] != null) ? $config['featureRule'] : ''}"> &nbsp;
-      <input id="prInsteadFeature" type="checkbox" name="prInsteadFeature" value="{($config['prInsteadFeature']) ? true : false}">
+      <input id="prInsteadFeature" type="checkbox">
       <div class="description">
          {getText('bitbucket.webhook.teamcity.rule.development.branch')}
       </div>
@@ -100,7 +101,7 @@
    <div class="field-group">
       <label for="hotfixRuleUrl">hotfix</label>
       <input id="hotfixRule" style="max-width: 400px" class="text" type="text" name="hotfixRule" value="{($config['hotfixRule'] != null) ? $config['hotfixRule'] : ''}"> &nbsp;
-      <input id="prInsteadHotFix" type="checkbox" name="prInsteadHotFix" value="{($config['prInsteadHotFix']) ? true : false}">
+      <input id="prInsteadHotFix" type="checkbox">
       <div class="description">
          {getText('bitbucket.webhook.teamcity.rule.development.branch')}
       </div>
@@ -227,11 +228,25 @@
 
 </div>
 
-  <form id="ExternalBuildsTwoConfigurations" class="aui">
+  <form class="aui HiddenForms">
         <input id="ExternalHooksConfiguration" style="max-width: 400px" class="text" type="text" name="ExternalHooksConfiguration" value="{($config['ExternalHooksConfiguration'] != null) ? $config['ExternalHooksConfiguration'] : ''}">
   </form>
 
+  <form class="aui HiddenForms" style="visibility: hidden">      
+      <input id="isDefaultBranch" style="max-width: 400px" class="text" type="text" name="isDefaultBranch" value="{($config['isDefaultBranch'] != null) ? $config['isDefaultBranch'] : ''}">
+  </form>
 
+  <form class="aui HiddenForms" style="visibility: hidden">      
+      <input id="usePrFromFeature" style="max-width: 400px" class="text" type="text" name="usePrFromFeature" value="{($config['usePrFromFeature'] != null) ? $config['usePrFromFeature'] : ''}">
+  </form>
+
+  <form class="aui HiddenForms" style="visibility: hidden">      
+      <input id="usePrFrombugFix" style="max-width: 400px" class="text" type="text" name="usePrFrombugFix" value="{($config['usePrFrombugFix'] != null) ? $config['usePrFrombugFix'] : ''}">
+  </form>
+
+  <form class="aui HiddenForms" style="visibility: hidden">      
+      <input id="usePrFromhotFix" style="max-width: 400px" class="text" type="text" name="usePrFromhotFix" value="{($config['usePrFromhotFix'] != null) ? $config['usePrFromhotFix'] : ''}">
+  </form>
 <script>
    require('trimble/teamcity/test').onReady();
 </script>
