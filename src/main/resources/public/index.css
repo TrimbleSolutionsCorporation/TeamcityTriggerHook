@@ -1,0 +1,116 @@
+.navbar-nav > li > a, .navbar-brand {
+    padding-top:5px !important; padding-bottom:0 !important;
+    height: 62px;
+}
+.navbar {min-height:62px !important;}
+
+
+.scroll-area
+{
+  height:300px; 
+  overflow-y:scroll;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  /* Set the fixed height of the footer here */
+  height: 60px;
+  line-height: 60px; /* Vertically center the text there */
+  background-color: #f5f5f5;
+  border-radius: 2px;
+}
+
+
+.buttonhover {
+  color: greenyellow;
+  cursor:pointer;
+}
+
+.buttonhover:hover {
+  color: green;
+  background: gold;
+}
+
+
+tr:hover {background-color: #f5f5f5}
+
+th.triggerbuildcol {
+    width: 5px;
+    word-break:break-all;
+    text-align: center;
+    valign: middle;
+}
+
+th.buildconfigcol {
+    width: 150px;
+    word-break:break-all;
+    text-align: center;
+    valign: middle;
+}
+
+th.buildstatuscol {
+    width: 50px;
+    word-break:break-all;
+    text-align: center;
+    valign: middle;
+}
+
+th.buildqueuecol {
+    width: 50px;
+    word-break:break-all;
+    text-align: center;
+    valign: middle;
+}
+
+th.remarkscol {
+    width: 250px;
+    word-break:normal;
+    text-align: center;
+    valign: middle;
+}
+
+td.triggerbuildcol {
+    width: 5px;
+    word-break:break-all;
+    text-align: center;
+    valign: middle;
+}
+
+td.buildconfigcol {
+    width: 150px;
+    word-break:break-all;
+    valign: middle;
+}
+
+td.buildstatuscol {
+    width: 50px;
+    word-break:break-all;
+    text-align: center;
+    valign: middle;
+}
+
+td.buildqueuecol {
+    width: 50px;
+    word-break:break-all;
+    text-align: center;
+    valign: middle;
+}
+
+td.remarkscol {
+    width: 250px;
+    word-break:break-all;
+    valign: middle;
+}
+

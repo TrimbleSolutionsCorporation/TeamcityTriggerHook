@@ -11,7 +11,7 @@
         <name>Tekla</name>
         <url>http://www.tekla.com/</url>
     </organization>
-    <name>Stash hook for teamcity trigger hook</name>
+    <name>Bitbucket Server Webhook to Teamcity</name>
     <description>A simple repository hook plugin for notifying an external URL of changes to a repository.</description>
     <packaging>atlassian-plugin</packaging>
 
@@ -103,7 +103,19 @@
         <groupId>org.mockito</groupId>
         <artifactId>mockito-all</artifactId>
         <version>1.9.0</version>
-      </dependency>        
+      </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-webfragment-api</artifactId>
+            <version>4.0.1</version>
+            <type>jar</type>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.bitbucket.server</groupId>
+            <artifactId>bitbucket-ssh-api</artifactId>
+            <version>4.0.0</version>
+            <type>jar</type>
+        </dependency>
     </dependencies>
     <build>
         <plugins>
@@ -119,6 +131,10 @@
                             <instanceId>bitbucket</instanceId>
                             <version>${bitbucket.version}</version>
                             <dataVersion>${bitbucket.data.version}</dataVersion>
+                              <enableFastdev>false</enableFastdev>
+                              <enableDevToolbox>false</enableDevToolbox>
+                              <enablePde>false</enablePde>
+                              <enableQuickReload>true</enableQuickReload>
                         </product>
                     </products>
                 </configuration>

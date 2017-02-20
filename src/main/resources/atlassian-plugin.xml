@@ -4,13 +4,59 @@
     <description>${project.description}</description>
     <version>${project.version}</version>
     </plugin-info>
+    
+    <!-- deps components -->    
     <component-import key="gitScm" interface="com.atlassian.bitbucket.scm.git.GitScm"/>      
-    <repository-hook key="TeamcityTriggerHook" name="Teamcity Trigger" class="com.trimble.tekla.TeamcityTriggerHook">
+    
+    <!-- my comps -->
+    <component key="settingsRetriever" class="com.trimble.tekla.ConcreteSettingsService" />
+    <resource type="i18n" name="i18n" location="i18n/bitbucket-webhook-teamcity"/>
+    
+    <rest key="teamcity-rest" path="/teamcity" version="1.0">
+        <dispatcher>REQUEST</dispatcher>
+        <dispatcher>FORWARD</dispatcher>
+        <init-param>
+            <param-name>extension.filter.excludes</param-name>
+            <param-value>.*</param-value>
+        </init-param>
+        <package>com.trimble.tekla.rest</package>
+    </rest>
+        
+    <repository-hook key="TeamcityTriggerHook" i18n-name-key="bitbucket-webhook-teamcity.name" name="Teamcity Trigger" class="com.trimble.tekla.TeamcityTriggerHook">
+
         <description>Remote trigger checking for changed in Teamcity</description>
         <icon>icons/tc-hook.png</icon>
         <config-form name="Teamcity Remote Trigger" key="tc-config">
-            <view>stash.config.example.hook.simple.formContents</view>
+            <view>com.trimble.tekla.configuration.hook.formContents</view>
             <directory location="/static/"/>
         </config-form>
-    </repository-hook>     
+    </repository-hook>
+    
+   <client-resource key="teamcity-test-resources">
+        <directory location="/static/">
+            <exclude>/**/*.soy</exclude>
+        </directory>
+        <context>com.trimble.tekla.TeamcityTriggerHook</context>
+        <dependency>com.atlassian.auiplugin:aui-experimental-spinner</dependency>
+    </client-resource>    
+    
+    <web-item key="stash.teamcity.trigger" name="Trigger Build" weight="50" section="bitbucket.pull-request.toolbar.actions">
+        <conditions type="AND">
+            <condition class="com.atlassian.bitbucket.web.conditions.PullRequestInState">
+                <param name="state">OPEN</param>
+            </condition>
+            <condition class="com.atlassian.bitbucket.web.conditions.CanMergePullRequestCondition"/>
+            <condition class="com.trimble.tekla.WebhookIsEnabledCondition" />
+        </conditions>
+        <label key="stash.web.pull-request.toolbar.triggerTeamcity">build &amp; test</label>
+        <styleClass>triggerTeamcityBuild</styleClass>        
+        <dependency>com.atlassian.sal.api.message.I18nResolver</dependency>
+        <dependency>${project.groupId}-${project.artifactId}:teamcity-pr-triggerbutton</dependency>
+    </web-item>
+         
+    <web-resource key="teamcity-pr-triggerbutton">
+        <resource type="download" name="teamcity-pr-triggerbutton.js" location="/helpers/teamcity-pr-triggerbutton.js" />
+        <context>bitbucket.page.pullRequest.view</context>
+    </web-resource>
+       
 </atlassian-plugin>

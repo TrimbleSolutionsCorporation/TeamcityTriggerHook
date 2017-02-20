@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
+    <title>Trigger Builds Menu</title>
+
+    <!-- Bootstrap -->    
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link href="loadcss?page=index.css" rel="stylesheet" >
+    
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand">
+            <img alt="Brand" src="loadimg?img=tc-hook.png">
+          </a>
+        </div>
+      </div>
+    </nav>    
+    <div class="container-fluid">
+      <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#menu1">Builds</a></li>
+        <li><a data-toggle="tab" id="External1Id" href="#menu2">External #1</a></li>
+        <li><a data-toggle="tab" id="External2Id" href="#menu3">External #2</a></li>
+      </ul>
+
+    <div class="tab-content scroll-area">
+      <div id="menu1" class="tab-pane fade in active">
+        <table class="table" >
+          <thead class="thead-inverse">
+            <tr>
+              <th class="triggerbuildcol">#</th>
+              <th class="buildconfigcol">Build Configuration</th>
+              <th class="buildstatuscol">Status</th>
+              <th class="buildqueuecol">Queue</th>
+              <th class="remarkscol">Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="tableBuildsContentId">          
+          </tbody>
+        </table>      
+      </div>
+      <div id="menu2" class="tab-pane fade">
+        <p>Dependencies: dependent builds that are need to be green before other builds can be triggered.</p>
+        <table class="table" >
+          <thead class="thead-inverse">
+            <tr>
+              <th class="triggerbuildcol">#</th>
+              <th class="buildconfigcol">Build Configuration</th>
+              <th class="buildstatuscol">Status</th>
+              <th class="buildqueuecol">Queue</th>
+              <th class="remarkscol">Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="tableDependenciesId">          
+          </tbody>
+        </table>
+        <hr />
+        <p>Teamcity Builds : these are Teamcity builds that can be triggered once your main builds, for example integration tests.</p>
+        <table class="table" >
+          <thead class="thead-inverse">
+            <tr>
+              <th class="triggerbuildcol">#</th>
+              <th class="buildconfigcol">Build Configuration</th>
+              <th class="buildstatuscol">Status</th>
+              <th class="buildqueuecol">Queue</th>
+              <th class="remarkscol">Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="tableBuildsId">          
+          </tbody>
+        </table>      
+      </div>
+      <div id="menu3" class="tab-pane fade">
+        <p>Dependencies: dependent builds that are need to be green before other builds can be triggered.</p>
+        <table class="table" >
+          <thead class="thead-inverse">
+            <tr>
+              <th class="triggerbuildcol">#</th>
+              <th class="buildconfigcol">Build Configuration</th>
+              <th class="buildstatuscol">Status</th>
+              <th class="buildqueuecol">Queue</th>
+              <th class="remarkscol">Remarks</th>
+            </tr>
+          </thead>
+          <tbody id="tableDependenciesExternalTeamcityId">          
+          </tbody>
+        </table>      
+        <hr />        
+        <p>External Builds to Trigger: these are triggered from the main builds and are here for confirming the builds in next table can be triggered</p>
+        <div class="container-fluid" id="ExternalTeamcityBuildsContainerId">
+
+        </div>
+      </div>
+      
+      <div class="container-fluid">
+        <div class="row">
+            <p id="ErrorMessageId">
+            </p>            
+        </div>
+      </div>
+    </div>
+    </div>
+
+    <!-- footer content -->
+    <footer class="footer">
+      <div class="container">
+        <div class="row">
+          <div class="col-xs-1">
+            <span class="text-muted">
+              <a href="https://github.com/TrimbleSolutionsCorporation/TeamcityTriggerHook" target="_blank">Help...</a>
+            </span>            
+          </div>
+          <div class="col-xs-1">
+            <span class="text-muted">
+              <a id="ErrorMessageId"></a>
+            </span>            
+          </div>          
+          <div class="col-xs-8">
+            
+          </div>
+          <div class="col-xs-1">   
+            <button onclick="closeModal()" type="button" class="btn btn-primary">Close</button>
+          </div>
+        </div>
+      </div>
+    </footer>    
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js" integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>      
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+    <!-- my script -->
+    <script src="loadjs?page=index.js"></script>        
+</body>
+</html>

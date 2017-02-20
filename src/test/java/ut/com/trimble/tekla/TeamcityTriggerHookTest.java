@@ -64,7 +64,7 @@ public class TeamcityTriggerHookTest
         refChanges.add(change);
                         
         Settings settings = mock(Settings.class);
-        when(settings.getBoolean("useQueue", false)).thenReturn(false);
+        when(settings.getString("triggerType")).thenReturn("queue");
         when(settings.getString("masterRule")).thenReturn("");
         when(settings.getString("featureRule")).thenReturn("");
         when(settings.getString("bugFixRule")).thenReturn("");
@@ -92,7 +92,7 @@ public class TeamcityTriggerHookTest
         refChanges.add(change);
                         
         Settings settings = mock(Settings.class);
-        when(settings.getBoolean("useQueue", false)).thenReturn(false);
+        when(settings.getString("triggerType")).thenReturn("queue");
         when(settings.getString("masterRule")).thenReturn("vcsroot");
         when(settings.getString("featureRule")).thenReturn("");
         when(settings.getString("bugFixRule")).thenReturn("");
@@ -120,7 +120,7 @@ public class TeamcityTriggerHookTest
         refChanges.add(change);
                         
         Settings settings = mock(Settings.class);
-        when(settings.getBoolean("useQueue", false)).thenReturn(false);
+        when(settings.getString("triggerType")).thenReturn("queue");
         when(settings.getString("masterRule")).thenReturn("vcsroot vcsroot1");
         when(settings.getString("featureRule")).thenReturn("");
         when(settings.getString("bugFixRule")).thenReturn("");

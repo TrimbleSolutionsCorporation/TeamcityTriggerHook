@@ -1,0 +1,239 @@
+{namespace com.trimble.tekla.configuration.hook}
+
+/**
+ * @param config
+ * @param? errors
+ */
+{template .formContents}
+
+<div class="tab">
+   <a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'Connection')" id="defaultOpen">Connection</a>
+   <a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'Configs')">Build Configurations</a>
+   <a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'Teamcity')">Teamcity Triggers</a>
+   <a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'ExternalConfig')">External Triggers</a>
+</div>
+<div id="Connection" class="tabcontent">
+   <form id="bitbuckerUrlForm" class="aui">
+      <div class="field-group">
+         <label for="bitbuckerUrl">{getText('bitbucket.webhook.teamcity.url')}</label>
+         <input id="bitbuckerUrl" style="max-width: 400px" class="text" type="text" name="bitbuckerUrl" value="{($config['bitbuckerUrl'] != null) ? $config['bitbuckerUrl'] : ''}">
+      </div>
+   </form>
+   <form id="TriggerType" class="aui">
+      <div class="field-group">
+         <label for="TeamCityUrl">{getText('bitbucket.webhook.teamcity.trigger.method')}</label>
+         <select class="select" id="triggerType" name="triggerType" style="max-width: 200px">
+         <option value="vcs" {($config[ 'triggerType']=='vcs' ) ? 'selected="selected"' : ''}>vcs</option>
+         <option value="buildConfig" {($config[ 'triggerType']=='buildConfig' ) ? 'selected="selected"' : ''}>build</option>
+         </select>
+         &nbsp;
+      </div>
+   </form>
+   <form id="TeamcityConnection" class="aui">
+      <div class="field-group">
+         <label for="teamcity_url">{getText('bitbucket.webhook.teamcity.url')}</label>
+         <input id="TeamCityUrl" style="max-width: 400px" class="text" type="text" name="TeamCityUrl" value="{($config['TeamCityUrl'] != null) ? $config['TeamCityUrl'] : ''}">
+      </div>
+      <div class="field-group">
+         <label for="teamcity_username">{getText('bitbucket.webhook.teamcity.username')}</label>
+         <input id="TeamCityUserName" style="max-width: 400px" class="text" type="text" name="TeamCityUserName" value="{($config['TeamCityUserName'] != null) ? $config['TeamCityUserName'] : ''}">
+      </div>
+      <div class="field-group">
+         <label for="teamcity_password">{getText('bitbucket.webhook.teamcity.password')}</label>
+         <input id="TeamCityPassword" style="max-width: 400px" class="form-control" type="password" name="TeamCityPassword" value="{($config['TeamCityPassword'] != null) ? $config['TeamCityPassword'] : ''}">
+      </div>
+      <div class="field-group">
+         <input style="width: 125px" value="Test Connection" id="testTeamcityConnectionButtonId" class="button">
+         <span id="connectionStatusTeamcityId" style='margin-left: 10px;'></span>
+      </div>
+
+      {(($errors) ? ($errors['TeamCityUrl'] ? '<div style="color:red" class="error">' + $errors['TeamCityUrl'] + '</div>' : '') : '')|noAutoescape}
+      {(($errors) ? ($errors['TeamCityUserName'] ? '<div style="color:red" class="error">' + $errors['TeamCityUserName'] + '</div>' : '') : '')|noAutoescape}
+      {(($errors) ? ($errors['TeamCityPassword'] ? '<div style="color:red" class="error">' + $errors['TeamCityPassword'] + '</div>' : '') : '')|noAutoescape} &nbsp;
+      {(($errors) ? ($errors['ExternalBuildsTwoDepId'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsTwoDepId'] + '</div>' : '') : '')|noAutoescape}
+      {(($errors) ? ($errors['ExternalHooksConfiguration'] ? '<div style="color:red" class="error">' + $errors['ExternalHooksConfiguration'] + '</div>' : '') : '')|noAutoescape} &nbsp;
+      {(($errors) ? ($errors['masterRule'] ? '<div style="color:red" class="error">' + $errors['masterRule'] + '</div>' : '') : '')|noAutoescape}
+      {(($errors) ? ($errors['bugFixRule'] ? '<div style="color:red" class="error">' + $errors['bugFixRule'] + '</div>' : '') : '')|noAutoescape}
+      {(($errors) ? ($errors['featureRule'] ? '<div style="color:red" class="error">' + $errors['featureRule'] + '</div>' : '') : '')|noAutoescape} &nbsp;
+      {(($errors) ? ($errors['ExternalBuildsOneConfigurationsId'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsOneConfigurationsId'] + '</div>' : '') : '')|noAutoescape}
+      {(($errors) ? ($errors['ExternalBuildsOneDepId'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsOneDepId'] + '</div>' : '') : '')|noAutoescape} &nbsp;
+   </form>
+</div>
+
+<div id="Configs" class="tabcontent">
+  <form class="aui">
+    <div class="description">
+      Ensure VCS root "checking interval" is set to random high value and VCS trigger is enabled for the configuration, when vcs trigger is used. Or ensure VCS trigger is disable when build trigger is enabled.
+    </div>
+  </form>
+
+<form id="MasterRulesId" class="aui">
+   <div class="field-group">
+      <label for="MasterRulesUrl">master</label>
+      <input id="masterRule" style="max-width: 400px" class="text" type="text" name="masterRule" value="{($config['masterRule'] != null) ? $config['masterRule'] : ''}">
+      <div class="description">
+         {getText('bitbucket.webhook.teamcity.rule.master')}
+      </div>
+   </div>
+</form>
+<form id="bugFixRuleId" class="aui">
+   <div class="field-group">
+      <label for="BugFixRuleUrl">bugfix</label>
+      <input id="bugFixRule" style="max-width: 400px" class="text" type="text" name="bugFixRule" value="{($config['bugFixRule'] != null) ? $config['bugFixRule'] : ''}"> &nbsp;
+      <input id="prInsteadBugFix" type="checkbox" name="prInsteadBugFix" value="{($config['prInsteadBugFix']) ? true : false}">
+      <div class="description">
+         {getText('bitbucket.webhook.teamcity.rule.development.branch')}
+      </div>
+   </div>
+</form>
+<form id="featureRuleId" class="aui">
+   <div class="field-group">
+      <label for="featureRuleUrl">feature</label>
+      <input id="featureRule" style="max-width: 400px" class="text" type="text" name="featureRule" value="{($config['featureRule'] != null) ? $config['featureRule'] : ''}"> &nbsp;
+      <input id="prInsteadFeature" type="checkbox" name="prInsteadFeature" value="{($config['prInsteadFeature']) ? true : false}">
+      <div class="description">
+         {getText('bitbucket.webhook.teamcity.rule.development.branch')}
+      </div>
+   </div>
+</form>
+<form id="hotfixRuleId" class="aui">
+   <div class="field-group">
+      <label for="hotfixRuleUrl">hotfix</label>
+      <input id="hotfixRule" style="max-width: 400px" class="text" type="text" name="hotfixRule" value="{($config['hotfixRule'] != null) ? $config['hotfixRule'] : ''}"> &nbsp;
+      <input id="prInsteadHotFix" type="checkbox" name="prInsteadHotFix" value="{($config['prInsteadHotFix']) ? true : false}">
+      <div class="description">
+         {getText('bitbucket.webhook.teamcity.rule.development.branch')}
+      </div>
+   </div>
+</form>
+<form id="releaseRuleId" class="aui">
+   <div class="field-group">
+      <label for="releaseRuleUrl">release</label>
+      <input id="releaseRule" style="max-width: 400px" class="text" type="text" name="releaseRule" value="{($config['releaseRule'] != null) ? $config['releaseRule'] : ''}"> &nbsp;
+      <div class="description">
+         {getText('bitbucket.webhook.teamcity.rule.master')}
+      </div>
+   </div>
+</form>
+<form id="releaseRuleId" class="aui">
+   <div class="field-group">
+      <label for="Custom Branch Definition">Custom Branch Regx</label>
+      <input id="BranchDefinition" style="max-width: 200px" class="text" type="text" name="BranchDefinition" value="{($config['BranchDefinition'] != null) ? $config['BranchDefinition'] : ''}">
+      <div class="description">
+         Regular expression to match custom branchs, does not apply to master/bugfix/feature/hotfix/release
+      </div>
+      <input id="BranchCustomTypes" style="max-width: 400px" class="text" type="text" name="BranchCustomTypes" value="{($config['BranchCustomTypes'] != null) ? $config['BranchCustomTypes'] : ''}">
+      <div class="description">
+         Vcs to trigger. Space-delimited. Case-sensitive.
+      </div>
+      </div>
+</form>
+</div>
+<div id="Teamcity" class="tabcontent">
+  <form class="aui">
+    <div class="description">
+      This will enable a special tab in the trigger builds in pr to trigger external builds. For example integration tests
+    </div>
+  </form>
+   <form id="ExternalBuildsOneName" class="aui">
+      <div class="field-group">
+         <label for="ExternalBuildsOneNameLabel">Name</label>
+         <input id="ExternalBuildsOneNameId" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneNameId" value="{($config['ExternalBuildsOneNameId'] != null) ? $config['ExternalBuildsOneNameId'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.name')}
+         </div>
+      </div>
+   </form>
+   <form id="ExternalBuildsOneDep" class="aui">
+      <div class="field-group">
+         <label for="ExternalBuildsOneDepLabel">Dependencies</label>
+         <input id="ExternalBuildsOneDepId" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneDepId" value="{($config['ExternalBuildsOneDepId'] != null) ? $config['ExternalBuildsOneDepId'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.dep')}
+         </div>
+      </div>
+   </form>
+   <form id="ExternalBuildsOneConfigurations" class="aui">
+      <div class="field-group">
+         <label for="ExternalBuildsOneConfigurationsLabel">Configurations</label>
+         <input id="ExternalBuildsOneConfigurationsId" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneConfigurationsId" value="{($config['ExternalBuildsOneConfigurationsId'] != null) ? $config['ExternalBuildsOneConfigurationsId'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.configurations')}
+         </div>
+      </div>
+
+   </form>
+</div>
+<div id="ExternalConfig" class="tabcontent">
+  <form class="aui">
+    <div class="description">
+      This will enable a special tab in the trigger builds in pr to trigger external systems, these dont run in teamcity. For example functional tests
+    </div>
+  </form>
+   
+   <form id="ExternalBuildsTwoName" class="aui">
+      <div class="field-group">
+         <label for="ExternalBuildsTwoNameLabel">Name</label>
+         <input id="ExternalBuildsTwoNameId" style="max-width: 400px" class="text" type="text" name="ExternalBuildsTwoNameId" value="{($config['ExternalBuildsTwoNameId'] != null) ? $config['ExternalBuildsTwoNameId'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.two.build.name')}
+         </div>
+      </div>
+   </form>
+   <form id="ExternalBuildsTwoDep" class="aui">
+      <div class="field-group">
+         <label for="ExternalBuildsTwoDepLabel">Dependencies</label>
+         <input id="ExternalBuildsTwoDepId" style="max-width: 400px" class="text" type="text" name="ExternalBuildsTwoDepId" value="{($config['ExternalBuildsTwoDepId'] != null) ? $config['ExternalBuildsTwoDepId'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.two.build.dep')}
+         </div>
+      </div>
+   </form>
+
+   <form id="ExternalSetup" class="aui">
+      <div class="field-group">
+         <label>External Hook</label>
+         <select class="select" id="externalTriggerType" name="externalTriggerType" style="width: 200px">
+          <option value="newtab">open in new tab</option>
+          <option value="rest">rest</option>
+         </select>
+      </div>
+      <div class="field-group">
+         <input id="DescriptionOfExtHook" style="max-width: 400px" class="text" type="text">
+         <div class="description">Description will be available in the hook page.</div>
+         <input id="HookUrl" style="max-width: 400px" class="text" type="text">
+         <div class="description">Url that will be called</div>
+      </div>
+        <div class="field-group">
+           <button style="width: 125px" value="Add" id="AddExternalHookButtonId" type="button" class="button">Add</button>
+           <button style="width: 125px" value="Remove" id="RemoveExternalHookButtonId" type="button" class="button">Remove</button>
+        </div>         
+
+        <div class="field-group">
+           <span id="AddRemoveExternalHookButtonStatusId" style='margin-left: 10px;'></span>
+        </div>         
+
+        <div class="field-group">
+          <table id="hookTableId" style="width:100%">
+            <tr id="headerTableId">
+              <th>Type</th>
+              <th>Description</th> 
+              <th>Url</th>
+            </tr>
+          </table>
+        </div>         
+
+   </form>
+
+</div>
+
+  <form id="ExternalBuildsTwoConfigurations" class="aui">
+        <input id="ExternalHooksConfiguration" style="max-width: 400px" class="text" type="text" name="ExternalHooksConfiguration" value="{($config['ExternalHooksConfiguration'] != null) ? $config['ExternalHooksConfiguration'] : ''}">
+  </form>
+
+
+<script>
+   require('trimble/teamcity/test').onReady();
+</script>
+
+{/template}

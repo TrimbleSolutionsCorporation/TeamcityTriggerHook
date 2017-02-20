@@ -1,0 +1,55 @@
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+th, td {
+    text-align: left;
+    padding: 8px;
+}
+
+td {border: 1px #DDD solid; padding: 5px; cursor: pointer;}
+
+.rowselected {
+    background-color: brown;
+    color: #FFF;
+}
+
+#ExternalBuildsTwoConfigurations {
+    visibility: hidden;
+}
+
+/* Style the tab */
+div.tab {
+    overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1;
+}
+
+/* Style the links inside the tab */
+div.tab a {
+    float: left;
+    display: block;
+    color: black;
+    text-align: center;
+    padding: 12px 14px;
+    text-decoration: none;
+    transition: 0.3s;
+    font-size: 12px;
+}
+
+/* Change background color of links on hover */
+div.tab a:hover {
+    background-color: #ddd;
+}
+
+/* Create an active/current tablink class */
+div.tab a:focus, .active {
+    background-color: #ccc;
+}
+
+/* Style the tab content */
+.tabcontent {
+    display: none;
+    border-top: none;
+}

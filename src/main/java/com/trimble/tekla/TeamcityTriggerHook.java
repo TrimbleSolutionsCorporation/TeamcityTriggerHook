@@ -21,7 +21,7 @@ import java.util.regex.Pattern;
  */
 public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, RepositorySettingsValidator {
     
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("StashTeamcityHook-TeamcityTriggerHook");
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("TeamcityTriggerHook");
     
     private final TeamcityConnector connector;
     private GitScm gitScm;
@@ -42,7 +42,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
      */
     @Override
     public void postReceive(RepositoryHookContext context, Collection<RefChange> refChanges) {
-        boolean useQueue = context.getSettings().getBoolean("useQueue", false);
+        boolean useQueue = context.getSettings().getString("triggerType").equals("vcs");
         TeamcityConfiguration conf = 
                 new TeamcityConfiguration(
                         context.getSettings().getString("url"),
@@ -52,7 +52,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         final Repository repository = context.getRepository();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());        
         Set<String> uniqueBranches = new LinkedHashSet<String>();                
-        logger.debug("[TeamcityTriggerHook] postReceive: "  + uniqueBranches.size() + " using queue trigger: " + useQueue);
+        logger.debug("[TeamcityTriggerHook] postReceive: "  + uniqueBranches.size() + " using trigger: " + context.getSettings().getString("cloneType"));
         
         // combine branchs
         for(RefChange change : refChanges) {
@@ -97,18 +97,18 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
     @Override
     public void validate(Settings settings, SettingsValidationErrors errors, Repository repository) {
         boolean areAutenticationSettingsSet = true;
-        if (settings.getString("url", "").isEmpty()) {
-            errors.addFieldError("url", "Url field is blank, please provide teamcity server address and port");
+        if (settings.getString("TeamCityUrl", "").isEmpty()) {
+            errors.addFieldError("TeamCityUrl", "Url field is blank, please provide teamcity server address and port");
             areAutenticationSettingsSet = false;
         }
 
-        if (settings.getString("username", "").isEmpty()) {
-            errors.addFieldError("username", "Username needs to be defined");
+        if (settings.getString("TeamCityUserName", "").isEmpty()) {
+            errors.addFieldError("TeamCityUserName", "Username needs to be defined");
             areAutenticationSettingsSet = false;
         }
         
-        if (settings.getString("password", "").isEmpty()) {
-            errors.addFieldError("password", "User Password needs to be defined");
+        if (settings.getString("TeamCityPassword", "").isEmpty()) {
+            errors.addFieldError("TeamCityPassword", "User Password needs to be defined");
             areAutenticationSettingsSet = false;
         }        
         
@@ -117,11 +117,28 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         }
         
         if (settings.getString("masterRule", "").isEmpty() && settings.getString("bugFixRule", "").isEmpty() && settings.getString("featureRule", "").isEmpty()) {
-
             errors.addFieldError("masterRule", "At least on configuration should be set");
             errors.addFieldError("bugFixRule", "At least on configuration should be set");
             errors.addFieldError("featureRule", "At least on configuration should be set");
-        }                 
+        }
+        
+        if (!settings.getString("ExternalBuildsOneNameId", "").isEmpty()) {
+          if (settings.getString("ExternalBuildsOneDepId", "").isEmpty()) {
+            errors.addFieldError("ExternalBuildsOneDepId", "At least one dependency should be set");
+          }
+          if (settings.getString("ExternalBuildsOneConfigurationsId", "").isEmpty()) {
+            errors.addFieldError("ExternalBuildsOneConfigurationsId", "At least one configuration should be set");
+          }          
+        }
+        
+        if (!settings.getString("ExternalBuildsTwoNameId", "").isEmpty()) {
+          if (settings.getString("ExternalBuildsTwoDepId", "").isEmpty()) {
+            errors.addFieldError("ExternalBuildsTwoDepId", "At least one dependency should be set");
+          }
+          if (settings.getString("ExternalHooksConfiguration", "").isEmpty()) {
+            errors.addFieldError("ExternalHooksConfiguration", "At least one hook should be set for  external hooks");
+          }          
+        }        
     }
 
     private void TriggerChangesFetch(RepositoryHookContext context, String refId, TeamcityConfiguration conf, boolean useQueue, String timestamp) {
