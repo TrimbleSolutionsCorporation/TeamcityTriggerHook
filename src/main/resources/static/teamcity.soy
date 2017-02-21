@@ -40,16 +40,16 @@
       </div>
       <div class="field-group">
          <label for="teamcity_password">{getText('bitbucket.webhook.teamcity.password')}</label>
-         <input id="TeamCityPassword" style="max-width: 400px" class="form-control" type="password" name="TeamCityPassword" value="{($config['TeamCityPassword'] != null) ? $config['TeamCityPassword'] : ''}">
+         <input id="TeamCityPassword" style="max-width: 400px" class="form-control" type="password" name="TeamCityPassword">
       </div>
       <div class="field-group">
-         <input style="width: 125px" value="Test Connection" id="testTeamcityConnectionButtonId" class="button">
+         <input style="width: auto" value="Test and Save Connection" id="testTeamcityConnectionButtonId" class="button">
          <span id="connectionStatusTeamcityId" style='margin-left: 10px;'></span>
       </div>
 
       {(($errors) ? ($errors['TeamCityUrl'] ? '<div style="color:red" class="error">' + $errors['TeamCityUrl'] + '</div>' : '') : '')|noAutoescape}
       {(($errors) ? ($errors['TeamCityUserName'] ? '<div style="color:red" class="error">' + $errors['TeamCityUserName'] + '</div>' : '') : '')|noAutoescape}
-      {(($errors) ? ($errors['TeamCityPassword'] ? '<div style="color:red" class="error">' + $errors['TeamCityPassword'] + '</div>' : '') : '')|noAutoescape} &nbsp;
+      {(($errors) ? ($errors['TeamCityPasswordOk'] ? '<div style="color:red" class="error">' + $errors['TeamCityPasswordOk'] + '</div>' : '') : '')|noAutoescape} &nbsp;
       {(($errors) ? ($errors['ExternalBuildsTwoDepId'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsTwoDepId'] + '</div>' : '') : '')|noAutoescape}
       {(($errors) ? ($errors['ExternalHooksConfiguration'] ? '<div style="color:red" class="error">' + $errors['ExternalHooksConfiguration'] + '</div>' : '') : '')|noAutoescape} &nbsp;
       {(($errors) ? ($errors['masterRule'] ? '<div style="color:red" class="error">' + $errors['masterRule'] + '</div>' : '') : '')|noAutoescape}
@@ -247,6 +247,11 @@
   <form class="aui HiddenForms" style="visibility: hidden">      
       <input id="usePrFromhotFix" style="max-width: 400px" class="text" type="text" name="usePrFromhotFix" value="{($config['usePrFromhotFix'] != null) ? $config['usePrFromhotFix'] : ''}">
   </form>
+
+  <form class="aui HiddenForms" style="visibility: hidden">      
+      <input id="TeamCityPasswordOk" style="max-width: 400px" class="text" type="text" name="TeamCityPasswordOk" value="{($config['TeamCityPasswordOk'] != null) ? $config['TeamCityPasswordOk'] : ''}">
+  </form>
+
 <script>
    require('trimble/teamcity/test').onReady();
 </script>

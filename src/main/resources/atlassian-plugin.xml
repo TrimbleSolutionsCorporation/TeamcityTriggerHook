@@ -9,6 +9,7 @@
     <component-import key="gitScm" interface="com.atlassian.bitbucket.scm.git.GitScm"/>      
     
     <!-- my comps -->
+    <component key="connectionSettings" class="com.trimble.tekla.TeamcityConnectionSettings"/>
     <component key="settingsRetriever" class="com.trimble.tekla.ConcreteSettingsService" />
     <resource type="i18n" name="i18n" location="i18n/bitbucket-webhook-teamcity"/>
     

@@ -152,13 +152,14 @@ define('trimble/teamcity/test', [
         var password = $( "#TeamCityPassword" ).val();
 
         var restpoint = resourceUrl('testconnection') + "?url=" + url + "&username=" + username + "&password=" + password;          
-
         
         setStatus("Trying...", "green");
         $.get(restpoint)
         .success(function(data) {
           if (data.status == "ok") {
             setStatus("Ok...", "green");  
+            var current = document.getElementById("TeamCityPasswordOk");
+            current.value = "OkPassword";
           } else {
             setStatus("Fail... " + data.message, "red");  
           }                   

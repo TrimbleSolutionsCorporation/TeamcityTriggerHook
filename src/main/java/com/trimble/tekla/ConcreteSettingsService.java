@@ -22,7 +22,7 @@ public class ConcreteSettingsService implements SettingsService {
   private static final Logger LOGGER = 
       LoggerFactory.getLogger(ConcreteSettingsService.class);
   
-  private static String KEY = "com.trimble.tekla:TeamcityTriggerHook";
+  public static String KEY = "com.trimble.tekla:TeamcityTriggerHook";
 
   private RepositoryHookService hookService;
   private SecurityService securityService;

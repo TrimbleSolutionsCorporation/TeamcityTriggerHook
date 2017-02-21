@@ -11,6 +11,7 @@ import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.sun.jersey.spi.resource.Singleton;
 import com.trimble.tekla.SettingsService;
+import com.trimble.tekla.TeamcityConnectionSettings;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
@@ -44,10 +45,9 @@ public class TeamctiyRest extends RestResource {
 
   private static final Logger log = LoggerFactory.getLogger(TeamctiyRest.class);
   
-  private final PermissionValidationService permissionService;
-  private final RefService refService;
   private final TeamcityConnector connector;
   private SettingsService settingsService;
+  private TeamcityConnectionSettings connectionSettings;
 
   /**
    * Creates Rest resource for testing the Jenkins configuration
@@ -59,24 +59,19 @@ public class TeamctiyRest extends RestResource {
    * @param httpScmProtocol Resolver for generating default http clone url
    * @param refService Service to get default Branch
    */
-  public TeamctiyRest(PermissionValidationService permissionValidationService,
-                         I18nService i18nService,
-                         RefService refService,
-                         SettingsService settingsService) {
+  public TeamctiyRest(I18nService i18nService,                      
+                      SettingsService settingsService,
+                      TeamcityConnectionSettings connectionSettings) {
     super(i18nService);
+    this.connectionSettings = connectionSettings;
     this.settingsService = settingsService;
-    this.permissionService = permissionValidationService;
-    this.refService = refService;
     this.connector = new TeamcityConnector(new HttpConnector());
   }
 
-  public TeamctiyRest(PermissionValidationService permissionValidationService,
-                         I18nService i18nService,
-                         RefService refService,
-                         TeamcityConnector connector) {
+  public TeamctiyRest(
+          I18nService i18nService,
+          TeamcityConnector connector) {    
     super(i18nService);
-    this.permissionService = permissionValidationService;
-    this.refService = refService;
     this.connector = connector;
   }    
     
@@ -173,7 +168,7 @@ public class TeamctiyRest extends RestResource {
     
     String url = settings.getString("TeamCityUrl", "");
     String username = settings.getString("TeamCityUserName", "");
-    String password = settings.getString("TeamCityPassword", "");
+    String password = this.connectionSettings.getPassword(repository);
     
     if (url.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
@@ -202,7 +197,11 @@ public class TeamctiyRest extends RestResource {
     
     String url = settings.getString("TeamCityUrl", "");
     String username = settings.getString("TeamCityUserName", "");
-    String password = settings.getString("TeamCityPassword", "");
+    String password = this.connectionSettings.getPassword(repository);
+        
+    if (password.isEmpty()) {
+      return "{\"status\": \"error\", \"message\": \"password is empty\"}";
+    }
     
     if (url.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
@@ -253,7 +252,7 @@ public class TeamctiyRest extends RestResource {
     Settings settings = this.settingsService.getSettings(repository);    
     String url = settings.getString("TeamCityUrl", "");
     String username = settings.getString("TeamCityUserName", "");
-    String password = settings.getString("TeamCityPassword", "");
+    String password = this.connectionSettings.getPassword(repository);
 
     if (url.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
@@ -390,10 +389,9 @@ public class TeamctiyRest extends RestResource {
         }
         else {
           return "{\"status\": \"failed\", \"message\": \" Host is not reachable\" }";          
-        }
-         
-        
+        }                 
       } else {
+        this.connectionSettings.SavePassword(password, repository);
         return "{\"status\": \"ok\"}";
       }
   }
@@ -412,7 +410,7 @@ public class TeamctiyRest extends RestResource {
     
     String url = settings.getString("TeamCityUrl", "");
     String username = settings.getString("TeamCityUserName", "");
-    String password = settings.getString("TeamCityPassword", "");
+    String password = this.connectionSettings.getPassword(repository);
     
     if (url.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";

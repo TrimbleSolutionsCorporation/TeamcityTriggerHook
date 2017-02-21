@@ -5,6 +5,7 @@ import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.scm.git.GitScm;
 import com.atlassian.bitbucket.setting.Settings;
+import com.trimble.tekla.TeamcityConnectionSettings;
 import com.trimble.tekla.TeamcityTriggerHook;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
@@ -77,7 +78,8 @@ public class TeamcityTriggerHookTest
         when(context.getSettings()).thenReturn(settings);        
         TeamcityConnector connector = mock(TeamcityConnector.class);           
         GitScm gitScm = mock(GitScm.class);
-        TeamcityTriggerHook component = new TeamcityTriggerHook(gitScm);        
+        TeamcityConnectionSettings connectioSettings = mock(TeamcityConnectionSettings.class);
+        TeamcityTriggerHook component = new TeamcityTriggerHook(gitScm, connectioSettings);        
         component.postReceive(context, refChanges);
         verify(connector, never()).TriggerCheckForChanges(any(TeamcityConfiguration.class), any(String.class));
     }     
@@ -106,7 +108,8 @@ public class TeamcityTriggerHookTest
         
         TeamcityConnector connector = mock(TeamcityConnector.class);    
         GitScm gitScm = mock(GitScm.class);
-        TeamcityTriggerHook component = new TeamcityTriggerHook(connector, gitScm);        
+        TeamcityConnectionSettings connectioSettings = mock(TeamcityConnectionSettings.class);
+        TeamcityTriggerHook component = new TeamcityTriggerHook(connector, gitScm, connectioSettings);        
         component.postReceive(context, refChanges);
         verify(connector).TriggerCheckForChanges(any(TeamcityConfiguration.class), eq("vcsroot"));
     }     
@@ -134,7 +137,8 @@ public class TeamcityTriggerHookTest
         
         TeamcityConnector connector = mock(TeamcityConnector.class);    
         GitScm gitScm = mock(GitScm.class);
-        TeamcityTriggerHook component = new TeamcityTriggerHook(connector, gitScm);        
+        TeamcityConnectionSettings connectioSettings = mock(TeamcityConnectionSettings.class);
+        TeamcityTriggerHook component = new TeamcityTriggerHook(connector, gitScm, connectioSettings);        
         component.postReceive(context, refChanges);
         verify(connector).TriggerCheckForChanges(any(TeamcityConfiguration.class), eq("vcsroot"));
         verify(connector).TriggerCheckForChanges(any(TeamcityConfiguration.class), eq("vcsroot1"));

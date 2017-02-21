@@ -1,6 +1,5 @@
 package com.trimble.tekla;
 
-import com.atlassian.bitbucket.hook.HookResponse;
 import com.atlassian.bitbucket.hook.repository.*;
 import com.atlassian.bitbucket.repository.*;
 import com.atlassian.bitbucket.scm.git.GitScm;
@@ -25,16 +24,19 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
     
     private final TeamcityConnector connector;
     private GitScm gitScm;
+    private TeamcityConnectionSettings connectionSettings;
 
-    public  TeamcityTriggerHook(final GitScm gitScm)
+    public  TeamcityTriggerHook(final GitScm gitScm, TeamcityConnectionSettings connectionSettings)
     {
         this.gitScm = gitScm;
+        this.connectionSettings = connectionSettings;
         this.connector = new TeamcityConnector(new HttpConnector());
     }    
     
-    public  TeamcityTriggerHook(TeamcityConnector connector, final GitScm gitScm)
+    public  TeamcityTriggerHook(TeamcityConnector connector, final GitScm gitScm, TeamcityConnectionSettings connectionSettings)
     {
         this.connector = connector;        
+        this.connectionSettings = connectionSettings;        
     }    
     
     /**
@@ -43,12 +45,18 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
     @Override
     public void postReceive(RepositoryHookContext context, Collection<RefChange> refChanges) {
         boolean useQueue = context.getSettings().getString("triggerType").equals("vcs");
+        String password = this.connectionSettings.getPassword(context.getRepository());
         
+        if (password.isEmpty()) {
+          logger.debug("[TeamcityTriggerHook] postReceive: Teamcity secret password not set. Please set password so accounts dont get locked.");
+          return;
+        }
+                
         TeamcityConfiguration conf = 
                 new TeamcityConfiguration(
                         context.getSettings().getString("TeamCityUrl"),
                         context.getSettings().getString("TeamCityUserName"),
-                        context.getSettings().getString("TeamCityPassword") );
+                        password);
         
         final Repository repository = context.getRepository();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());        
@@ -108,9 +116,15 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
             areAutenticationSettingsSet = false;
         }
         
-        if (settings.getString("TeamCityPassword", "").isEmpty()) {
-            errors.addFieldError("TeamCityPassword", "User Password needs to be defined");
+        String teamCityPasswordOk = settings.getString("TeamCityPasswordOk", "");
+        if (teamCityPasswordOk.isEmpty()) {          
+            errors.addFieldError("TeamCityPasswordOk", "Test and Save Connection needs to be clicked to validate user credentials");
             areAutenticationSettingsSet = false;
+        } else {
+          if(!teamCityPasswordOk.equals("OkPassword")) {
+            errors.addFieldError("TeamCityPasswordOk", "Credentials are incorrect.");
+            areAutenticationSettingsSet = false;
+          }
         }        
         
         if ( !areAutenticationSettingsSet) {
