@@ -258,6 +258,10 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
     }
 
+    if (password.isEmpty()) {
+      return "{\"status\": \"error\", \"message\": \"password is empty\"}";
+    }
+    
     TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     try {
 
@@ -414,6 +418,10 @@ public class TeamctiyRest extends RestResource {
     
     if (url.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
+    }
+    
+    if (password.isEmpty()) {
+      return "{\"status\": \"error\", \"message\": \"password is empty\"}";
     }
     
     TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);    

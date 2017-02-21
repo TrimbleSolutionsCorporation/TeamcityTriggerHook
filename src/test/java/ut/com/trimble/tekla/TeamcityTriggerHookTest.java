@@ -79,6 +79,7 @@ public class TeamcityTriggerHookTest
         TeamcityConnector connector = mock(TeamcityConnector.class);           
         GitScm gitScm = mock(GitScm.class);
         TeamcityConnectionSettings connectioSettings = mock(TeamcityConnectionSettings.class);
+        when(connectioSettings.getPassword(null)).thenReturn("password");
         TeamcityTriggerHook component = new TeamcityTriggerHook(gitScm, connectioSettings);        
         component.postReceive(context, refChanges);
         verify(connector, never()).TriggerCheckForChanges(any(TeamcityConfiguration.class), any(String.class));
@@ -109,6 +110,7 @@ public class TeamcityTriggerHookTest
         TeamcityConnector connector = mock(TeamcityConnector.class);    
         GitScm gitScm = mock(GitScm.class);
         TeamcityConnectionSettings connectioSettings = mock(TeamcityConnectionSettings.class);
+        when(connectioSettings.getPassword(null)).thenReturn("password");
         TeamcityTriggerHook component = new TeamcityTriggerHook(connector, gitScm, connectioSettings);        
         component.postReceive(context, refChanges);
         verify(connector).TriggerCheckForChanges(any(TeamcityConfiguration.class), eq("vcsroot"));
@@ -138,6 +140,7 @@ public class TeamcityTriggerHookTest
         TeamcityConnector connector = mock(TeamcityConnector.class);    
         GitScm gitScm = mock(GitScm.class);
         TeamcityConnectionSettings connectioSettings = mock(TeamcityConnectionSettings.class);
+        when(connectioSettings.getPassword(null)).thenReturn("password");
         TeamcityTriggerHook component = new TeamcityTriggerHook(connector, gitScm, connectioSettings);        
         component.postReceive(context, refChanges);
         verify(connector).TriggerCheckForChanges(any(TeamcityConfiguration.class), eq("vcsroot"));
