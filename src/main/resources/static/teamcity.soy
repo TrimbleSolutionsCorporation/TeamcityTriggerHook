@@ -15,7 +15,7 @@
 <div id="Connection" class="tabcontent">
    <form id="bitbuckerUrlForm" class="aui">
       <div class="field-group">
-         <label for="bitbuckerUrl">{getText('bitbucket.webhook.teamcity.url')}</label>
+         <label for="bitbuckerUrl">{getText('bitbucket.webhook.teamcity.bitbucket.url')}</label>
          <input id="bitbuckerUrl" style="max-width: 400px" class="text" type="text" name="bitbuckerUrl" value="{($config['bitbuckerUrl'] != null) ? $config['bitbuckerUrl'] : ''}">
       </div>
    </form>
@@ -23,8 +23,8 @@
       <div class="field-group">
          <label for="TeamCityUrl">{getText('bitbucket.webhook.teamcity.trigger.method')}</label>
          <select class="select" id="triggerType" name="triggerType" style="max-width: 200px">
-         <option value="vcs" {($config[ 'triggerType']=='vcs' ) ? 'selected="selected"' : ''}>vcs</option>
          <option value="buildConfig" {($config[ 'triggerType']=='buildConfig' ) ? 'selected="selected"' : ''}>build</option>
+         <option value="vcs" {($config[ 'triggerType']=='vcs' ) ? 'selected="selected"' : ''}>vcs</option>
          </select>
          &nbsp;
       </div>
@@ -40,7 +40,7 @@
       </div>
       <div class="field-group">
          <label for="teamcity_password">{getText('bitbucket.webhook.teamcity.password')}</label>
-         <input id="TeamCityPassword" style="max-width: 400px" class="form-control" type="password" name="TeamCityPassword">
+         <input id="FormIdForPassword" style="max-width: 400px" class="form-control" type="password">
       </div>
       <div class="field-group">
          <input style="width: auto" value="Test and Save Connection" id="testTeamcityConnectionButtonId" class="button">

@@ -48,7 +48,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         String password = this.connectionSettings.getPassword(context.getRepository());
         
         if (password.isEmpty()) {
-          logger.debug("[TeamcityTriggerHook] postReceive: Teamcity secret password not set. Please set password so accounts dont get locked.");
+          System.out.println("[TeamcityTriggerHook] postReceive: Teamcity secret password not set. Please set password so accounts dont get locked.");
           return;
         }
                 
@@ -61,7 +61,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         final Repository repository = context.getRepository();
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());        
         Set<String> uniqueBranches = new LinkedHashSet<String>();                
-        logger.debug("[TeamcityTriggerHook] postReceive: "  + uniqueBranches.size());
+        System.out.println("[TeamcityTriggerHook] postReceive: "  + uniqueBranches.size());
         
         // combine branchs
         for(RefChange change : refChanges) {
@@ -99,6 +99,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
             }            
                         
             uniqueBranches.add(change.getRefId());
+            System.out.println("[TeamcityTriggerHook] Trigger From Ref: " + change.getRefId());
             this.TriggerChangesFetch(context, change.getRefId(), conf, useQueue, timeStamp);
         }
     }
@@ -205,9 +206,12 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         }        
         
         String branchDefinition = context.getSettings().getString("BranchDefinition");
+        System.out.println("[TeamcityTriggerHook] : Regx Branch Definition: " + branchDefinition);
         if(!branchDefinition.isEmpty() && this.ValidateRegx(refId, branchDefinition)) {
+            System.out.println("[TeamcityTriggerHook] : Regx Validated");
             if (useQueue == false) {
-                this.QueueBuild(context, context.getSettings().getString("BranchCustomTypes"), refId.split("/")[3], conf, timestamp, false);
+                String [] elemets = refId.split("/");                
+                this.QueueBuild(context, context.getSettings().getString("BranchCustomTypes"), elemets[elemets.length - 1], conf, timestamp, false);
             } else {              
                 this.TriggerWithDefinition(context.getSettings().getString("BranchCustomTypes"), conf);            
             }
@@ -237,7 +241,7 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         }
                                 
         Pattern pattern = Pattern.compile(regx);
-	Matcher matcher = pattern.matcher(data);                
+	    Matcher matcher = pattern.matcher(data);                
         return matcher.matches();
     }
 
