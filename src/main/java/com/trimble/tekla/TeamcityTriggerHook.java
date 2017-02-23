@@ -171,29 +171,41 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         
         String featureVcsRoot = context.getSettings().getString("featureRule");
         if(!featureVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/feature")) {
-            if (useQueue == false) {
-                this.QueueBuild(context, featureVcsRoot, refId.split("/")[3], conf, timestamp, false);
-            } else {            
-                this.TriggerWithDefinition(featureVcsRoot, conf);            
-            }
+          Boolean isTriggerOnPr = context.getSettings().getBoolean("usePrFromFeature", false);
+          if (isTriggerOnPr) {
+            return;
+          }
+          if (useQueue == false) {
+              this.QueueBuild(context, featureVcsRoot, refId.split("/")[3], conf, timestamp, false);
+          } else {            
+              this.TriggerWithDefinition(featureVcsRoot, conf);            
+          }
         }
         
         String bugfixVcsRoot = context.getSettings().getString("bugFixRule");
         if(!bugfixVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/bugfix")) {
-            if (useQueue == false) {
-                this.QueueBuild(context, bugfixVcsRoot, refId.split("/")[3], conf, timestamp, false);
-            } else {                
-                this.TriggerWithDefinition(bugfixVcsRoot, conf);            
-            }
+          Boolean isTriggerOnPr = context.getSettings().getBoolean("usePrFrombugFix", false);
+          if (isTriggerOnPr) {
+            return;
+          }          
+          if (useQueue == false) {
+              this.QueueBuild(context, bugfixVcsRoot, refId.split("/")[3], conf, timestamp, false);
+          } else {                
+              this.TriggerWithDefinition(bugfixVcsRoot, conf);            
+          }
         }
         
         String hotfixVcsRoot = context.getSettings().getString("hotfixRule");
         if(!hotfixVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/hotfix")) {
-            if (useQueue == false) {
-                this.QueueBuild(context, hotfixVcsRoot, refId.split("/")[3], conf, timestamp, false);
-            } else {            
-                this.TriggerWithDefinition(hotfixVcsRoot, conf);            
-            }
+          Boolean isTriggerOnPr = context.getSettings().getBoolean("usePrFromhotFix", false);
+          if (isTriggerOnPr) {
+            return;
+          }          
+          if (useQueue == false) {
+              this.QueueBuild(context, hotfixVcsRoot, refId.split("/")[3], conf, timestamp, false);
+          } else {            
+              this.TriggerWithDefinition(hotfixVcsRoot, conf);            
+          }
         }
         
         String releaseVcsRoot = context.getSettings().getString("releaseRule");

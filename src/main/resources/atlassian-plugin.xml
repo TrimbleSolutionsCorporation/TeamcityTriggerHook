@@ -11,6 +11,8 @@
     <!-- my comps -->
     <component key="connectionSettings" class="com.trimble.tekla.TeamcityConnectionSettings"/>
     <component key="settingsRetriever" class="com.trimble.tekla.ConcreteSettingsService" />
+    <component key="TeamcityPullRequestEventListener" class="com.trimble.tekla.TeamcityPullrequestEventListener"/>
+
     <resource type="i18n" name="i18n" location="i18n/bitbucket-webhook-teamcity"/>
     
     <rest key="teamcity-rest" path="/teamcity" version="1.0">
