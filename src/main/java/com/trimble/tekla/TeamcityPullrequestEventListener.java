@@ -6,9 +6,7 @@
 package com.trimble.tekla;
 
 import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestReopenedEvent;
 import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
-import com.atlassian.bitbucket.event.pull.PullRequestUpdatedEvent;
 import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
@@ -89,7 +87,7 @@ public class TeamcityPullrequestEventListener {
         password);
     
     String buildIdIn = settings.getString(buildKey, "");    
-    String branch = ref.getDisplayId().toLowerCase();
+    String branch = ref.getDisplayId();
     String branchtoLower = branch.toLowerCase();
     for(String buildId : buildIdIn.split("\\s+")) {
       if (branchtoLower.startsWith("feature/") || branchtoLower.startsWith("bugfix/") || branchtoLower.startsWith("hotfix/")) {

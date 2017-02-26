@@ -273,6 +273,14 @@ function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName, wr
 
 function GetExternalBuildConfigurationsGroup(id) {
   parent.GetExternalBuildsConfigurations(id, function(data, branchName, prid) {
+    
+    if (typeof data.status !== 'undefined') {
+      // the variable is defined
+      if (data.status === "error") {
+        return;
+      }
+    }
+    
     if (data) {
       if (id === 'External1Id') {
         var name = JSON.parse(data["ExternalBuildsOneNameId"]).name;
@@ -380,6 +388,12 @@ function GetExternalBuildConfigurationsGroup(id) {
 function GetMainBuilds() {  
   parent.GetBuildsConfigurations(function(data, branchName) {
 
+    if (typeof data.status !== 'undefined') {
+      // the variable is defined
+      if (data.status === "error") {
+        return;
+      }
+    }
     var rowdata = "";
     var builds = [];
     for (var key in data) {

@@ -58,8 +58,8 @@ define('trimble/teamcity/test', [
       if (data !== "") {        
         externalHooksConfiguration = $.parseJSON(data);
         
-        var current = document.getElementById("ExternalHooksConfiguration");            
-        current.value = "";        
+        //var current = document.getElementById("ExternalHooksConfiguration");            
+        //current.value = "";        
       }      
       
       function setStatus(status, color) {

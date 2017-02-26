@@ -45,17 +45,6 @@ define('plugin/teamcity/pr-triggerbutton', [
   }    
 
   $(".triggerTeamcityBuild").click(function() {
-    //wrapperDiv = document.createElement("div");
-    //wrapperDiv.setAttribute("style", "position: absolute; left: 0px; top: 0px; background-color: rgb(255, 255, 255); opacity: 0.5; z-index: 2000; height: 1083px; width: 100%;");
-    //wrapperDiv.setAttribute("id", "modalWindow");
-
-    //var iframeElementDisableBackground = document.createElement("iframe"); 
-    //iframeElementDisableBackground.setAttribute("id", "iframeElementId");
-    //iframeElementDisableBackground.setAttribute("style", "width: 100%; height: 100%;");
-    //wrapperDiv.appendChild(iframeElementDisableBackground);  
-
-    //document.body.appendChild(wrapperDiv);         
-
     modalDialogParentDiv.setAttribute("style", "border-radius: 2px; position: absolute; width: 800px; height: 500px; border: 1px solid #f5f5f5; padding: 3px; background-color: rgb(255, 255, 255); z-index: 2001; top: 20%; left: 25%; margin: -1px 0 0 -1px;");
     BuildWindowLaunched = true;
   });  
@@ -81,8 +70,7 @@ function GetBuildInformation(buildid, htmlid, callback) {
       callback(data, htmlid);
     })
     .error(function(data) {
-      var data = JSON.parse(data.responseText);
-      callback(data, id);
+      console.log("Error : " + data);
     })        
     .done(function( data ) {
     });      
@@ -100,8 +88,7 @@ function TriggerExternalUrl(url, id, callback) {
       callback(data, id);
     })
     .error(function(data) {
-      var data = JSON.parse(data.responseText);
-      callback(data, id);
+      console.log("Error Trigger External Url : " + id);
     })        
     .done(function( data ) {
     });      
@@ -119,8 +106,7 @@ function TriggerBuildConfiguration(buildid, branch, callback) {
         callback(data);
       })
       .error(function(data) {
-        var data = JSON.parse(data.responseText);
-        callback(data);
+        console.log("Error : " + data);
       })        
       .done(function( data ) {
       });  
@@ -142,8 +128,7 @@ function GetBuildsConfigurations(callback) {
         callback(data, fromRef.getDisplayId());
       })
       .error(function(data) {
-        var data = JSON.parse(data.responseText);
-        callback(data);
+        console.log("Error : " + data);
       })        
       .done(function( data ) {
       });  
@@ -166,29 +151,7 @@ function GetExternalBuildsConfigurations(id, callback) {
         callback(data, fromRef.getDisplayId(), pr.id);
       })
       .error(function(data) {
-        var data = JSON.parse(data.responseText);
-        callback(data, fromRef.getDisplayId());
-      })        
-      .done(function( data ) {
-      });  
-      // do things with the file-handlers module and some other module.
-  });
-}
-
-function CallTrigger() {
-  require(['jquery'], function($) {
-    var restpoint = parent.resourceUrl('testconnection') + "?url=http://teamcity&username=buildmaster&password=sads";          
-      $.get(restpoint)
-      .success(function(data) {
-        if (data.status == "ok") {
-          console.log(data.status);  
-        } else {
-            console.log(data.message);  
-        }                   
-      })
-      .error(function(data) {
-        var data = JSON.parse(data.responseText);
-          console.log(data.message);  
+        console.log("Error : " + data);
       })        
       .done(function( data ) {
       });  
