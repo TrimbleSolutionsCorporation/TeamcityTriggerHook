@@ -277,12 +277,6 @@ function GetExternalBuildConfigurationsGroup(id, typeBranch) {
     if (typeof data.status !== 'undefined') {
       // the variable is defined
       if (data.status === "error") {
-        if (typeof typeOfBranch !== 'undefined') {
-          document.getElementById(id + typeOfBranch).style.display = 'none';
-        } else {
-          document.getElementById(id).style.display = 'none';
-        }
-
         return;
       }
     }
@@ -295,8 +289,9 @@ function GetExternalBuildConfigurationsGroup(id, typeBranch) {
           return;
         }
         
-        document.getElementById(id + typeOfBranch).style.display = 'visible';
         document.getElementById(id + typeOfBranch).innerHTML = name;        
+        document.getElementById(id + typeOfBranch).style.display = 'inherit';
+        
 
         // get dependent builds
         var canTriggerBuilds = true;
@@ -350,8 +345,8 @@ function GetExternalBuildConfigurationsGroup(id, typeBranch) {
             return;
           }
           
-          document.getElementById(id).style.display = 'visible';
-          document.getElementById(id).innerHTML = name;           
+          document.getElementById(id).innerHTML = name;
+          document.getElementById(id).style.display = "inherit";               
 
           // get dependent builds
           var canTriggerBuilds = true;
@@ -439,6 +434,10 @@ function ReloadData() {
 $(document).ready(function() {  
    console.log( "ready!" );
    buildDependencies = [];
+   document.getElementById('External2Id').style.display = 'none';
+   document.getElementById('External1IdFeature').style.display = 'none';
+   document.getElementById('External1IdBugFix').style.display = 'none';
+   document.getElementById('External1IdHotFix').style.display = 'none';
    GetMainBuilds();
    GetExternalBuildConfigurationsGroup('External1Id', 'Feature');
    GetExternalBuildConfigurationsGroup('External1Id', 'BugFix');

@@ -258,10 +258,6 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
     }
     
-    if (!branch.toLowerCase().contains("feature/")) {
-        return "{\"status\": \"error\", \"message\": \"available only for feature branches\"}";
-    }
-
     if (password.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"password is empty\"}";
     }
@@ -272,7 +268,11 @@ public class TeamctiyRest extends RestResource {
         JSONObject jObj = new JSONObject();
         if ("External1IdFeature".equals(id)) {
           String name = settings.getString("ExternalBuildsOneNameIdFeature");
-
+          
+          if (!branch.toLowerCase().contains("feature/")) {
+            return "{\"status\": \"error\", \"message\": \"applies only to feature branch\"}";
+          }
+          
           String json = "";
           if (name == null) {
             json = "{\"status\": \"ok\", \"name\": \"\"}";
@@ -315,7 +315,15 @@ public class TeamctiyRest extends RestResource {
           return jObj.toString();
 
         } else if ("External1IdBugFix".equals(id)) {
+          if (!branch.toLowerCase().contains("bugfix/")) {
+            return "{\"status\": \"error\", \"message\": \"applies only to bugfix branch\"}";
+          }
+          
           String name = settings.getString("ExternalBuildsOneNameIdBugFix");
+          
+          if (name == null) {
+            return "{\"status\": \"error\", \"message\": \"BugFix rule not defined\"}";
+          }
 
           String json = "";
           if (name == null) {
@@ -359,8 +367,15 @@ public class TeamctiyRest extends RestResource {
           return jObj.toString();
 
         }else if ("External1IdHotFix".equals(id)) {
+          if (!branch.toLowerCase().contains("hotfix/")) {
+            return "{\"status\": \"error\", \"message\": \"applies only to hotfix branch\"}";
+          }
+          
           String name = settings.getString("ExternalBuildsOneNameIdHotFix");
 
+          if (name == null) {
+            return "{\"status\": \"error\", \"message\": \"HotFix rule not defined\"}";
+          }
           String json = "";
           if (name == null) {
             json = "{\"status\": \"ok\", \"name\": \"\"}";
@@ -403,6 +418,9 @@ public class TeamctiyRest extends RestResource {
           return jObj.toString();
 
         } else if ("External2Id".equals(id)) {
+          if (!branch.toLowerCase().contains("feature/")) {
+            return "{\"status\": \"error\", \"message\": \"applies only to feature branch\"}";
+          }
           String name = settings.getString("ExternalBuildsTwoNameId", "");
           String json = "";
           if (name.isEmpty()) {
@@ -414,7 +432,7 @@ public class TeamctiyRest extends RestResource {
             jObj.put("ExternalBuildsTwoNameId", json);
           }
           
-          String dependencies = settings.getString("ExternalBuildsOneDepIdFeature");
+          String dependencies = settings.getString("ExternalBuildsTwoDepId");
 
           for(String buildId : dependencies.split("\\s+")) {
             String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
