@@ -136,19 +136,19 @@ function GetBuildsConfigurations(callback) {
   });
 }
 
-function GetExternalBuildsConfigurations(id, callback) {
+function GetExternalBuildsConfigurations(id, typeOfBranch, callback) {
   require(['jquery'], function($) {
     var pr = pageStateLocal.getPullRequest();
     var fromRef = pr.getFromRef();
     var restpoint = parent.resourceUrl('externalbuilds') +
-            "?id=" + id +
+            "?id=" + id + typeOfBranch +
             "&prid=" + pr.id +
             "&branch=" + fromRef.getDisplayId() +
             "&hash=" + fromRef.getLatestCommit();
     
       $.get(restpoint)
       .success(function(data) {
-        callback(data, fromRef.getDisplayId(), pr.id);
+        callback(data, fromRef.getDisplayId(), pr.id, typeOfBranch);
       })
       .error(function(data) {
         console.log("Error : " + data);

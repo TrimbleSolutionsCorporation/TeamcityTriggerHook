@@ -257,6 +257,10 @@ public class TeamctiyRest extends RestResource {
     if (url.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
     }
+    
+    if (!branch.toLowerCase().contains("feature/")) {
+        return "{\"status\": \"error\", \"message\": \"available only for feature branches\"}";
+    }
 
     if (password.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"password is empty\"}";
@@ -266,8 +270,8 @@ public class TeamctiyRest extends RestResource {
     try {
 
         JSONObject jObj = new JSONObject();
-        if ("External1Id".equals(id)) {
-          String name = settings.getString("ExternalBuildsOneNameId");
+        if ("External1IdFeature".equals(id)) {
+          String name = settings.getString("ExternalBuildsOneNameIdFeature");
 
           String json = "";
           if (name == null) {
@@ -276,9 +280,9 @@ public class TeamctiyRest extends RestResource {
             json = "{\"status\": \"ok\", \"name\": \" " + name + "\"}";
           }
 
-          jObj.put("ExternalBuildsOneNameId", json);
+          jObj.put("ExternalBuildsOneNameIdFeature", json);
 
-          String dependencies = settings.getString("ExternalBuildsOneDepId");
+          String dependencies = settings.getString("ExternalBuildsOneDepIdFeature");
 
           for(String buildId : dependencies.split("\\s+")) {
             String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
@@ -293,7 +297,95 @@ public class TeamctiyRest extends RestResource {
             jObj.put(buildId + "_dep_queue", queueData);                
           }
           
-          String configurationsToTrigger = settings.getString("ExternalBuildsOneConfigurationsId");
+          String configurationsToTrigger = settings.getString("ExternalBuildsOneConfigurationsIdFeature");
+          
+          for(String buildId : configurationsToTrigger.split("\\s+")) {
+            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+            if (returnData.contains("\"count\":0")) {
+              String [] elems = branch.split("/");
+              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+            }
+            
+            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+            jObj.put(buildId + "_build", returnData);
+            jObj.put(buildId + "_build_wref", url + "/viewType.html?buildTypeId=" + buildId);
+            jObj.put(buildId + "_build_queue", queueData);                
+          }          
+        
+          return jObj.toString();
+
+        } else if ("External1IdBugFix".equals(id)) {
+          String name = settings.getString("ExternalBuildsOneNameIdBugFix");
+
+          String json = "";
+          if (name == null) {
+            json = "{\"status\": \"ok\", \"name\": \"\"}";
+          } else {
+            json = "{\"status\": \"ok\", \"name\": \" " + name + "\"}";
+          }
+
+          jObj.put("ExternalBuildsOneNameIdBugFix", json);
+
+          String dependencies = settings.getString("ExternalBuildsOneDepIdBugFix");
+
+          for(String buildId : dependencies.split("\\s+")) {
+            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+            if (returnData.contains("\"count\":0")) {
+              String [] elems = branch.split("/");
+              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+            }
+            
+            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+            jObj.put(buildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + buildId);
+            jObj.put(buildId + "_dep", returnData);
+            jObj.put(buildId + "_dep_queue", queueData);                
+          }
+          
+          String configurationsToTrigger = settings.getString("ExternalBuildsOneConfigurationsIdBugFix");
+          
+          for(String buildId : configurationsToTrigger.split("\\s+")) {
+            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+            if (returnData.contains("\"count\":0")) {
+              String [] elems = branch.split("/");
+              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+            }
+            
+            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+            jObj.put(buildId + "_build", returnData);
+            jObj.put(buildId + "_build_wref", url + "/viewType.html?buildTypeId=" + buildId);
+            jObj.put(buildId + "_build_queue", queueData);                
+          }          
+        
+          return jObj.toString();
+
+        }else if ("External1IdHotFix".equals(id)) {
+          String name = settings.getString("ExternalBuildsOneNameIdHotFix");
+
+          String json = "";
+          if (name == null) {
+            json = "{\"status\": \"ok\", \"name\": \"\"}";
+          } else {
+            json = "{\"status\": \"ok\", \"name\": \" " + name + "\"}";
+          }
+
+          jObj.put("ExternalBuildsOneNameIdHotFix", json);
+
+          String dependencies = settings.getString("ExternalBuildsOneDepIdHotFix");
+
+          for(String buildId : dependencies.split("\\s+")) {
+            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+            if (returnData.contains("\"count\":0")) {
+              String [] elems = branch.split("/");
+              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+            }
+            
+            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+            jObj.put(buildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + buildId);
+            jObj.put(buildId + "_dep", returnData);
+            jObj.put(buildId + "_dep_queue", queueData);                
+          }
+          
+          String configurationsToTrigger = settings.getString("ExternalBuildsOneConfigurationsIdHotFix");
           
           for(String buildId : configurationsToTrigger.split("\\s+")) {
             String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
@@ -322,7 +414,7 @@ public class TeamctiyRest extends RestResource {
             jObj.put("ExternalBuildsTwoNameId", json);
           }
           
-          String dependencies = settings.getString("ExternalBuildsOneDepId");
+          String dependencies = settings.getString("ExternalBuildsOneDepIdFeature");
 
           for(String buildId : dependencies.split("\\s+")) {
             String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
@@ -466,7 +558,7 @@ public class TeamctiyRest extends RestResource {
     }
     
     if (branch.toLowerCase().startsWith("refs/heads/bugfix/") || branch.toLowerCase().startsWith("bugfix/")) {
-      String featuresConfigs = settings.getString("bugfixRule", "");
+      String featuresConfigs = settings.getString("bugFixRule", "");
       if (!featuresConfigs.isEmpty()) {
         for(String buildId : featuresConfigs.split("\\s+")) {
           configs.add(buildId);        

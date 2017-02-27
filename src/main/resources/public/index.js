@@ -271,26 +271,32 @@ function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName, wr
   }
 }
 
-function GetExternalBuildConfigurationsGroup(id) {
-  parent.GetExternalBuildsConfigurations(id, function(data, branchName, prid) {
+function GetExternalBuildConfigurationsGroup(id, typeBranch) {
+  parent.GetExternalBuildsConfigurations(id, typeBranch, function(data, branchName, prid, typeOfBranch) {
     
     if (typeof data.status !== 'undefined') {
       // the variable is defined
       if (data.status === "error") {
+        if (typeof typeOfBranch !== 'undefined') {
+          document.getElementById(id + typeOfBranch).style.display = 'none';
+        } else {
+          document.getElementById(id).style.display = 'none';
+        }
+
         return;
       }
     }
     
     if (data) {
       if (id === 'External1Id') {
-        var name = JSON.parse(data["ExternalBuildsOneNameId"]).name;
+        var name = JSON.parse(data["ExternalBuildsOneNameId" + typeOfBranch]).name;
         if (name === "") {
-          document.getElementById(id).style.display = 'none';          
+          document.getElementById(id + typeOfBranch).style.display = 'none';          
           return;
         }
         
-        document.getElementById(id).style.display = 'visible';
-        document.getElementById(id).innerHTML = name;        
+        document.getElementById(id + typeOfBranch).style.display = 'visible';
+        document.getElementById(id + typeOfBranch).innerHTML = name;        
 
         // get dependent builds
         var canTriggerBuilds = true;
@@ -325,7 +331,7 @@ function GetExternalBuildConfigurationsGroup(id) {
           rowdata += CreateBuildRow(build, false, false);
         });
                                    
-        var tableBody = document.getElementById('tableDependenciesId');
+        var tableBody = document.getElementById('tableDependenciesId' + typeOfBranch);
         tableBody.innerHTML = rowdata;
         
         var rowdata  = "";
@@ -333,7 +339,7 @@ function GetExternalBuildConfigurationsGroup(id) {
           rowdata += CreateBuildRow(build, canTriggerBuilds, "TriggerExternalTeamcityBuild", true);
         });
                                    
-        var tableBody = document.getElementById('tableBuildsId');
+        var tableBody = document.getElementById('tableBuildsId' + typeOfBranch);
         tableBody.innerHTML = rowdata;                
       }
       
@@ -420,8 +426,10 @@ function ReloadData() {
   setTimeout(function () {
     if (parent.BuildWindowLaunched === true) {
       GetMainBuilds();
-      GetExternalBuildConfigurationsGroup('External1Id');
-      GetExternalBuildConfigurationsGroup('External2Id');           
+      GetExternalBuildConfigurationsGroup('External1Id', 'Feature');
+      GetExternalBuildConfigurationsGroup('External1Id', 'BugFix');
+      GetExternalBuildConfigurationsGroup('External1Id', 'HotFix');
+      GetExternalBuildConfigurationsGroup('External2Id', '');           
     }
     ReloadData();      
   }, 5000);
@@ -432,7 +440,9 @@ $(document).ready(function() {
    console.log( "ready!" );
    buildDependencies = [];
    GetMainBuilds();
-   GetExternalBuildConfigurationsGroup('External1Id');
+   GetExternalBuildConfigurationsGroup('External1Id', 'Feature');
+   GetExternalBuildConfigurationsGroup('External1Id', 'BugFix');
+   GetExternalBuildConfigurationsGroup('External1Id', 'HotFix');
    GetExternalBuildConfigurationsGroup('External2Id');   
    ReloadData();
 });

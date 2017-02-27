@@ -55,8 +55,11 @@
       {(($errors) ? ($errors['masterRule'] ? '<div style="color:red" class="error">' + $errors['masterRule'] + '</div>' : '') : '')|noAutoescape}
       {(($errors) ? ($errors['bugFixRule'] ? '<div style="color:red" class="error">' + $errors['bugFixRule'] + '</div>' : '') : '')|noAutoescape}
       {(($errors) ? ($errors['featureRule'] ? '<div style="color:red" class="error">' + $errors['featureRule'] + '</div>' : '') : '')|noAutoescape} &nbsp;
-      {(($errors) ? ($errors['ExternalBuildsOneConfigurationsId'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsOneConfigurationsId'] + '</div>' : '') : '')|noAutoescape}
-      {(($errors) ? ($errors['ExternalBuildsOneDepId'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsOneDepId'] + '</div>' : '') : '')|noAutoescape} &nbsp;
+      {(($errors) ? ($errors['ExternalBuildsOneConfigurationsIdFeature'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsOneConfigurationsIdFeature'] + '</div>' : '') : '')|noAutoescape}
+      {(($errors) ? ($errors['ExternalBuildsOneDepIdFeature'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsOneDepIdFeature'] + '</div>' : '') : '')|noAutoescape} &nbsp;
+      {(($errors) ? ($errors['ExternalBuildsOneInvalidDepFeature'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsOneInvalidDepFeature'] + '</div>' : '') : '')|noAutoescape} &nbsp;
+      {(($errors) ? ($errors['ExternalBuildsOneInvalidDepHotFix'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsOneInvalidDepHotFix'] + '</div>' : '') : '')|noAutoescape} &nbsp;
+      {(($errors) ? ($errors['ExternalBuildsOneInvalidDepBugFix'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsOneInvalidDepBugFix'] + '</div>' : '') : '')|noAutoescape} &nbsp;
    </form>
 </div>
 
@@ -130,45 +133,109 @@
       </div>
 </form>
 </div>
+
+
+
+
+
+
+
+
+
+
+
 <div id="Teamcity" class="tabcontent">
   <form class="aui">
     <div class="description">
       This will enable a special tab in the trigger builds in pr to trigger external builds. For example integration tests
     </div>
   </form>
-   <form id="ExternalBuildsOneName" class="aui">
+  <form id="ExternalBuildsOneNameFeature" class="aui">
       <div class="field-group">
-         <label for="ExternalBuildsOneNameLabel">Name</label>
-         <input id="ExternalBuildsOneNameId" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneNameId" value="{($config['ExternalBuildsOneNameId'] != null) ? $config['ExternalBuildsOneNameId'] : ''}">
+         <label for="ExternalBuildsOneNameLabelFeature">Name</label>
+         <input id="ExternalBuildsOneNameIdFeature" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneNameIdFeature" value="{($config['ExternalBuildsOneNameIdFeature'] != null) ? $config['ExternalBuildsOneNameIdFeature'] : ''}">
          <div class="description">
-            {getText('bitbucket.webhook.teamcity.external.one.build.name')}
+            {getText('bitbucket.webhook.teamcity.external.one.build.name.feature')}
+         </div>
+      </div>
+      <div class="field-group">
+         <label for="ExternalBuildsOneDepLabelFeature">Dependencies</label>
+         <input id="ExternalBuildsOneDepIdFeature" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneDepIdFeature" value="{($config['ExternalBuildsOneDepIdFeature'] != null) ? $config['ExternalBuildsOneDepIdFeature'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.dep.feature')}
+         </div>
+      </div>
+      <div class="field-group">
+         <label for="ExternalBuildsOneConfigurationsLabelFeature">Configurations</label>
+         <input id="ExternalBuildsOneConfigurationsIdFeature" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneConfigurationsIdFeature" value="{($config['ExternalBuildsOneConfigurationsIdFeature'] != null) ? $config['ExternalBuildsOneConfigurationsIdFeature'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.configurations.feature')}
          </div>
       </div>
    </form>
-   <form id="ExternalBuildsOneDep" class="aui">
-      <div class="field-group">
-         <label for="ExternalBuildsOneDepLabel">Dependencies</label>
-         <input id="ExternalBuildsOneDepId" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneDepId" value="{($config['ExternalBuildsOneDepId'] != null) ? $config['ExternalBuildsOneDepId'] : ''}">
-         <div class="description">
-            {getText('bitbucket.webhook.teamcity.external.one.build.dep')}
-         </div>
-      </div>
-   </form>
-   <form id="ExternalBuildsOneConfigurations" class="aui">
-      <div class="field-group">
-         <label for="ExternalBuildsOneConfigurationsLabel">Configurations</label>
-         <input id="ExternalBuildsOneConfigurationsId" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneConfigurationsId" value="{($config['ExternalBuildsOneConfigurationsId'] != null) ? $config['ExternalBuildsOneConfigurationsId'] : ''}">
-         <div class="description">
-            {getText('bitbucket.webhook.teamcity.external.one.build.configurations')}
-         </div>
-      </div>
 
+  <form id="ExternalBuildsOneNameBugFix" class="aui">
+      <div class="field-group">
+         <label for="ExternalBuildsOneNameLabelBugFix">Name</label>
+         <input id="ExternalBuildsOneNameIdBugFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneNameIdBugFix" value="{($config['ExternalBuildsOneNameIdBugFix'] != null) ? $config['ExternalBuildsOneNameIdBugFix'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.name.bugfix')}
+         </div>
+      </div>
+      <div class="field-group">
+         <label for="ExternalBuildsOneDepLabelBugFix">Dependencies</label>
+         <input id="ExternalBuildsOneDepIdBugFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneDepIdBugFix" value="{($config['ExternalBuildsOneDepIdBugFix'] != null) ? $config['ExternalBuildsOneDepIdBugFix'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.dep.bugfix')}
+         </div>
+      </div>
+      <div class="field-group">
+         <label for="ExternalBuildsOneConfigurationsLabelBugFix">Configurations</label>
+         <input id="ExternalBuildsOneConfigurationsIdBugFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneConfigurationsIdBugFix" value="{($config['ExternalBuildsOneConfigurationsIdBugFix'] != null) ? $config['ExternalBuildsOneConfigurationsIdBugFix'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.configurations.bugfix')}
+         </div>
+      </div>
+   </form>
+
+  <form id="ExternalBuildsOneNameHotFix" class="aui">
+      <div class="field-group">
+         <label for="ExternalBuildsOneNameLabelHotFix">Name</label>
+         <input id="ExternalBuildsOneNameIdHotFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneNameIdHotFix" value="{($config['ExternalBuildsOneNameIdHotFix'] != null) ? $config['ExternalBuildsOneNameIdHotFix'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.name.hotfix')}
+         </div>
+      </div>
+      <div class="field-group">
+         <label for="ExternalBuildsOneDepLabelHotFix">Dependencies</label>
+         <input id="ExternalBuildsOneDepIdHotFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneDepIdHotFix" value="{($config['ExternalBuildsOneDepIdHotFix'] != null) ? $config['ExternalBuildsOneDepIdHotFix'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.dep.hotfix')}
+         </div>
+      </div>
+      <div class="field-group">
+         <label for="ExternalBuildsOneConfigurationsLabelHotFix">Configurations</label>
+         <input id="ExternalBuildsOneConfigurationsIdHotFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneConfigurationsIdHotFix" value="{($config['ExternalBuildsOneConfigurationsIdHotFix'] != null) ? $config['ExternalBuildsOneConfigurationsIdHotFix'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.one.build.configurations.hotfix')}
+         </div>
+      </div>
    </form>
 </div>
+
+
+
+
+
+
+
+
+
+
 <div id="ExternalConfig" class="tabcontent">
   <form class="aui">
     <div class="description">
-      This will enable a special tab in the trigger builds in pr to trigger external systems, these dont run in teamcity. For example functional tests
+      This will enable a special tab in the trigger builds in pr to trigger external systems, these dont run in teamcity. For example functional tests. Applies only to feature branches.
     </div>
   </form>
    

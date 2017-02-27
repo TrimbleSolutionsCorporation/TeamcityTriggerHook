@@ -132,22 +132,58 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
             return;
         }
         
-        if (settings.getString("masterRule", "").isEmpty() && settings.getString("bugFixRule", "").isEmpty() && settings.getString("featureRule", "").isEmpty()) {
+        if (settings.getString("masterRule", "").isEmpty() && 
+                settings.getString("bugFixRule", "").isEmpty() && 
+                settings.getString("featureRule", "").isEmpty() && 
+                settings.getString("hotfixRule", "").isEmpty()) {
             errors.addFieldError("masterRule", "At least on configuration should be set");
             errors.addFieldError("bugFixRule", "At least on configuration should be set");
+            errors.addFieldError("hotfixRule", "At least on configuration should be set");
             errors.addFieldError("featureRule", "At least on configuration should be set");
         }
         
-        if (!settings.getString("ExternalBuildsOneNameId", "").isEmpty()) {
-          if (settings.getString("ExternalBuildsOneDepId", "").isEmpty()) {
-            errors.addFieldError("ExternalBuildsOneDepId", "At least one dependency should be set");
+        if (!settings.getString("ExternalBuildsOneNameIdFeature", "").isEmpty()) {
+          if (settings.getString("ExternalBuildsOneDepIdFeature", "").isEmpty()) {
+            errors.addFieldError("ExternalBuildsOneDepIdFeature", "At least one dependency should be set");
           }
-          String configuration = settings.getString("ExternalBuildsOneConfigurationsId", "");
+          String configuration = settings.getString("ExternalBuildsOneConfigurationsIdFeature", "");
           if (configuration.isEmpty()) {
-            errors.addFieldError("ExternalBuildsOneConfigurationsId", "At least one configuration should be set");
-          }          
+            errors.addFieldError("ExternalBuildsOneConfigurationsIdFeature", "At least one configuration should be set");
+          }
+          
+          if (settings.getString("featureRule", "").isEmpty()) {
+            errors.addFieldError("ExternalBuildsOneInvalidDepFeature", "External builds have been set, a rule for feature branch needs to be set in the build configuration rules.");            
+          }
         }
         
+        if (!settings.getString("ExternalBuildsOneNameIdBugFix", "").isEmpty()) {
+          if (settings.getString("ExternalBuildsOneDepIdBugFix", "").isEmpty()) {
+            errors.addFieldError("ExternalBuildsOneDepIdBugFix", "At least one dependency should be set");
+          }
+          String configuration = settings.getString("ExternalBuildsOneConfigurationsIdBugFix", "");
+          if (configuration.isEmpty()) {
+            errors.addFieldError("ExternalBuildsOneConfigurationsIdBugFix", "At least one configuration should be set");
+          }
+          
+          if (settings.getString("bugFixRule", "").isEmpty()) {
+            errors.addFieldError("ExternalBuildsOneInvalidDepBugFix", "External builds have been set, a rule for bugfix branch needs to be set in the build configuration rules.");            
+          }
+        }
+
+        if (!settings.getString("ExternalBuildsOneNameIdHotFix", "").isEmpty()) {
+          if (settings.getString("ExternalBuildsOneDepIdHotFix", "").isEmpty()) {
+            errors.addFieldError("ExternalBuildsOneDepIdHotFix", "At least one dependency should be set");
+          }
+          String configuration = settings.getString("ExternalBuildsOneConfigurationsIdHotFix", "");
+          if (configuration.isEmpty()) {
+            errors.addFieldError("ExternalBuildsOneConfigurationsIdHotFix", "At least one configuration should be set");
+          }
+          
+          if (settings.getString("hotfixRule", "").isEmpty()) {
+            errors.addFieldError("ExternalBuildsOneInvalidDepHotFix", "External builds have been set, a rule for hotfix branch needs to be set in the build configuration rules.");            
+          }
+        }
+                
         if (!settings.getString("ExternalBuildsTwoNameId", "").isEmpty()) {
           if (settings.getString("ExternalBuildsTwoDepId", "").isEmpty()) {
             errors.addFieldError("ExternalBuildsTwoDepId", "At least one dependency should be set");
