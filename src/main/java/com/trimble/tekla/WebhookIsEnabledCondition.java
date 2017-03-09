@@ -58,12 +58,15 @@ public class WebhookIsEnabledCondition implements Condition {
     PullRequest pullrequest = (PullRequest) pr;
     RepositoryHook hook = settingsService.getRepositoryHook(repo);
     Settings settings = settingsService.getSettings(repo);
-    
+
+    if (settings == null) {
+      return false;
+    }
+
     // check if builds are configured
     PullRequestRef ref = pullrequest.getFromRef();
     String branch = ref.getId();
-    
-    
+        
     String root = settings.getString("featureRule", "");
     Boolean isConfigured = false;
     if(!root.isEmpty() && 

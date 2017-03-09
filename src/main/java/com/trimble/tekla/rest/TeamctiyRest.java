@@ -160,11 +160,15 @@ public class TeamctiyRest extends RestResource {
   @GET
   @Path(value = "triggerbuild")
   @Produces(MediaType.APPLICATION_JSON)
-  public String getBuildsConfiguration(@Context Repository repository,
+  public String triggerBuild(@Context Repository repository,
       @QueryParam("buildconfig") String buildconfig,
       @QueryParam("branch") String branch) {
     
     Settings settings = this.settingsService.getSettings(repository);
+    
+    if (settings == null) {
+      return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
+    }    
     
     String url = settings.getString("TeamCityUrl", "");
     String username = settings.getString("TeamCityUserName", "");
@@ -194,6 +198,14 @@ public class TeamctiyRest extends RestResource {
       @QueryParam("hash") String hash) {
         
     Settings settings = this.settingsService.getSettings(repository);
+    
+    if (settings == null) {
+      return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
+    }    
+    
+    if (settings == null) {
+      return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
+    }
     
     String url = settings.getString("TeamCityUrl", "");
     String username = settings.getString("TeamCityUserName", "");
@@ -249,7 +261,16 @@ public class TeamctiyRest extends RestResource {
       @QueryParam("branch") String branch,
       @QueryParam("hash") String hash) {
 
-    Settings settings = this.settingsService.getSettings(repository);    
+    Settings settings = this.settingsService.getSettings(repository);
+
+    if (settings == null) {
+      return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
+    }    
+    
+    if (settings == null) {
+      return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
+    }
+    
     String url = settings.getString("TeamCityUrl", "");
     String username = settings.getString("TeamCityUserName", "");
     String password = this.connectionSettings.getPassword(repository);
@@ -522,6 +543,10 @@ public class TeamctiyRest extends RestResource {
 
     Settings settings = this.settingsService.getSettings(repository);
     
+    if (settings == null) {
+      return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
+    }
+        
     String url = settings.getString("TeamCityUrl", "");
     String username = settings.getString("TeamCityUserName", "");
     String password = this.connectionSettings.getPassword(repository);
