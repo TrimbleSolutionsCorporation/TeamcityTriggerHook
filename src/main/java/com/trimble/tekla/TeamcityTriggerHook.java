@@ -66,12 +66,12 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
         // combine branchs
         for(RefChange change : refChanges) {
                                     
-            if (uniqueBranches.contains(change.getRefId())) {
+            if (uniqueBranches.contains(change.getRef().getId())) {
                 continue;
             }
             
             if (change.getType().equals(RefChangeType.DELETE)) {
-                System.out.println("[TeamcityTriggerHook] " + timeStamp + " Skip trigger for delete operation in branch: " + change.getRefId());
+                System.out.println("[TeamcityTriggerHook] " + timeStamp + " Skip trigger for delete operation in branch: " + change.getRef().getId());
                 continue;            
             }
             
@@ -91,16 +91,16 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
                 String[] branches = result.trim().split("\n");
                 
                 if (branches.length > 1) {
-                    System.out.println("[TeamcityTriggerHook] " + timeStamp + " Skip trigger no commits in branch: " + change.getRefId());
+                    System.out.println("[TeamcityTriggerHook] " + timeStamp + " Skip trigger no commits in branch: " + change.getRef().getId());
                     System.out.println("[TeamcityTriggerHook] " + timeStamp + " From Hash: " + fromChange);
                     System.out.println("[TeamcityTriggerHook] " + timeStamp + " RefChange Type: " + change.getType());
                     continue;                  
                 }          
             }            
                         
-            uniqueBranches.add(change.getRefId());
-            System.out.println("[TeamcityTriggerHook] Trigger From Ref: " + change.getRefId());
-            this.TriggerChangesFetch(context, change.getRefId(), conf, useQueue, timeStamp);
+            uniqueBranches.add(change.getRef().getId());
+            System.out.println("[TeamcityTriggerHook] Trigger From Ref: " + change.getRef().getId());
+            this.TriggerChangesFetch(context, change.getRef().getId(), conf, useQueue, timeStamp);
         }
     }
            

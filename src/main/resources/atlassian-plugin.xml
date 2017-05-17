@@ -1,8 +1,9 @@
 <atlassian-plugin name="Teamcity Remote Trigger Hook" key="com.trimble.tekla" plugins-version="2">
     <plugin-info>
-    <vendor name="${project.organization.name}" url="${project.organization.url}"/>
-    <description>${project.description}</description>
-    <version>${project.version}</version>
+        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <description>${project.description}</description>
+        <version>${project.version}</version>
+        <param name="atlassian-data-center-compatible">true</param>
     </plugin-info>
     
     <!-- deps components -->    
@@ -26,7 +27,6 @@
     </rest>
         
     <repository-hook key="TeamcityTriggerHook" i18n-name-key="bitbucket-webhook-teamcity.name" name="Teamcity Trigger" class="com.trimble.tekla.TeamcityTriggerHook">
-
         <description>Remote trigger checking for changed in Teamcity</description>
         <icon>icons/tc-hook.png</icon>
         <config-form name="Teamcity Remote Trigger" key="tc-config">
