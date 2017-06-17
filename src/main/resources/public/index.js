@@ -376,7 +376,8 @@ function GetExternalBuildConfigurationsGroup(id, typeBranch) {
         var dataRow = ""; 
         var extData = JSON.parse(data["ext_references"]);
         HookId = 0;
-        extData.forEach(function(hook) {            
+        extData.forEach(function(datainternal) {            
+            var hook = JSON.parse(datainternal);
             var href = hook.url.replace("{branch}", branchName).replace("{pr}", prid);            
             dataRow += CreateButtonWithRef(hook.type, hook.desc, href, canTriggerBuilds);          
         });        

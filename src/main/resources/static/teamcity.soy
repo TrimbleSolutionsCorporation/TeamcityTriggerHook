@@ -248,15 +248,6 @@
          </div>
       </div>
    </form>
-   <form id="ExternalBuildsTwoDep" class="aui">
-      <div class="field-group">
-         <label for="ExternalBuildsTwoDepLabel">Dependencies</label>
-         <input id="ExternalBuildsTwoDepId" style="max-width: 400px" class="text" type="text" name="ExternalBuildsTwoDepId" value="{($config['ExternalBuildsTwoDepId'] != null) ? $config['ExternalBuildsTwoDepId'] : ''}">
-         <div class="description">
-            {getText('bitbucket.webhook.teamcity.external.two.build.dep')}
-         </div>
-      </div>
-   </form>
 
    <form id="ExternalSetup" class="aui">
       <div class="field-group">
@@ -265,6 +256,18 @@
           <option value="newtab">open in new tab</option>
           <option value="rest">rest</option>
          </select>
+      </div>
+      <div class="field-group">
+         <select class="select" id="sourceTriggerType" name="sourceTriggerType" style="width: 200px">
+          <option value="feature">feature</option>
+          <option value="bugfix">bugfix</option>
+         </select>
+      </div>
+      <div class="field-group">
+         <input id="ExternalBuildsTwoDepId" style="max-width: 400px" class="text" type="text" name="ExternalBuildsTwoDepId" value="{($config['ExternalBuildsTwoDepId'] != null) ? $config['ExternalBuildsTwoDepId'] : ''}">
+         <div class="description">
+            {getText('bitbucket.webhook.teamcity.external.two.build.dep')}
+         </div>
       </div>
       <div class="field-group">
          <input id="DescriptionOfExtHook" style="max-width: 400px" class="text" type="text">
@@ -285,7 +288,9 @@
           <table id="hookTableId" style="width:100%">
             <tr id="headerTableId">
               <th>Type</th>
+              <th>Source</th>
               <th>Description</th> 
+              <th>Dependencies</th> 
               <th>Url</th>
             </tr>
           </table>

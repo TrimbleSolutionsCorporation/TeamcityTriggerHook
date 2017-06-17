@@ -29,6 +29,7 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -439,8 +440,10 @@ public class TeamctiyRest extends RestResource {
           return jObj.toString();
 
         } else if ("External2Id".equals(id)) {
-          if (!branch.toLowerCase().contains("feature/")) {
-            return "{\"status\": \"error\", \"message\": \"applies only to feature branch\"}";
+          if (branch.toLowerCase().contains("feature/") || branch.toLowerCase().contains("bugfix/")) {
+          
+          } else {
+            return "{\"status\": \"error\", \"message\": \"applies only to feature and bugfix branch\"}";
           }
           String name = settings.getString("ExternalBuildsTwoNameId", "");
           String json = "";
@@ -453,23 +456,40 @@ public class TeamctiyRest extends RestResource {
             jObj.put("ExternalBuildsTwoNameId", json);
           }
           
-          String dependencies = settings.getString("ExternalBuildsTwoDepId");
+          String hookconfig = settings.getString("ExternalHooksConfiguration");
 
-          for(String buildId : dependencies.split("\\s+")) {
-            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
-            if (returnData.contains("\"count\":0")) {
-              String [] elems = branch.split("/");
-              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+          JSONArray jsonObj = new JSONArray(hookconfig);
+          JSONArray extRef = new JSONArray();
+          
+
+          for (int i = 0; i < jsonObj.length(); i++) {
+            JSONObject build = jsonObj.getJSONObject(i);
+            String dependencies = build.getString("dependencies");
+            String source = build.getString("source");
+            
+            if (!branch.toLowerCase().startsWith(source)) {
+                continue;
             }
             
-            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
-            jObj.put(buildId + "_dep", returnData);
-            jObj.put(buildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + buildId);
-            jObj.put(buildId + "_dep_queue", queueData);                
+            for(String buildId : dependencies.split("\\s+")) {
+                String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+                if (returnData.contains("\"count\":0")) {
+                  String [] elems = branch.split("/");
+                  returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+                }
+
+                String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+                jObj.put(buildId + "_dep", returnData);
+                jObj.put(buildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + buildId);
+                jObj.put(buildId + "_dep_queue", queueData);         
+            }
+            
+            
+            extRef.put(build.toString());
+            
+
           }
-          
-          String configurationsToTrigger = settings.getString("ExternalHooksConfiguration");
-          jObj.put("ext_references", configurationsToTrigger);
+          jObj.put("ext_references", extRef.toString());          
           
           return jObj.toString();
         } else {

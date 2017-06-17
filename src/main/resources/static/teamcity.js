@@ -24,12 +24,16 @@ define('trimble/teamcity/test', [
 
       $(this).addClass('rowselected');        
       var type = $('.rowselected').children()[0].innerHTML;
-      var desc = $('.rowselected').children()[1].innerHTML;
-      var url = $('.rowselected').children()[2].innerHTML;
+      var source = $('.rowselected').children()[1].innerHTML;
+      var desc = $('.rowselected').children()[2].innerHTML;
+      var dependencies = $('.rowselected').children()[3].innerHTML;
+      var url = $('.rowselected').children()[4].innerHTML;
 
       $("#DescriptionOfExtHook").val(desc);
-      $("#HookUrl").val(url);
       $('#externalTriggerType').val(type).change();
+      $("#sourceTriggerType").val(source);
+      $("#ExternalBuildsTwoDepId").val(dependencies);
+      $("#HookUrl").val(url);
     }
 
     function InitTableRows() {
@@ -40,9 +44,13 @@ define('trimble/teamcity/test', [
         var cell1 = row.insertCell(0);
         var cell2 = row.insertCell(1);
         var cell3 = row.insertCell(2);
+        var cell4 = row.insertCell(3);
+        var cell5 = row.insertCell(4);
         cell1.innerHTML = elem.type;
-        cell2.innerHTML = elem.desc;        
-        cell3.innerHTML = elem.url;              
+        cell2.innerHTML = elem.source;
+        cell3.innerHTML = elem.desc;                     
+        cell4.innerHTML = elem.dependencies;
+        cell5.innerHTML = elem.url;
       });        
     }
     
@@ -79,11 +87,17 @@ define('trimble/teamcity/test', [
           return;
         }
                 
+        var sourceSel = document.getElementById('sourceTriggerType');
+        var source = sourceSel.value;
+
         var sel = document.getElementById('externalTriggerType');
         var type = sel.value;
-                
+
+        var dependenciesSel = document.getElementById('ExternalBuildsTwoDepId');
+        var dependencies = dependenciesSel.value;
+
         var found = externalHooksConfiguration.find(function(elem) {
-           if (elem.type === type && desc === elem.desc && elem.url === url) {
+           if (elem.type === type && desc === elem.desc && elem.url === url && elem.source === source && elem.dependencies === dependencies) {
             $("#AddRemoveExternalHookButtonStatusId").text("hook already defined.");
             $("#AddRemoveExternalHookButtonStatusId").css('color', "red");
             return true;
@@ -100,12 +114,17 @@ define('trimble/teamcity/test', [
         var cell1 = row.insertCell(0);
         var cell2 = row.insertCell(1);
         var cell3 = row.insertCell(2);
+        var cell4 = row.insertCell(3);
+        var cell5 = row.insertCell(4);
+
         cell1.innerHTML = type;
-        cell2.innerHTML = desc;        
-        cell3.innerHTML = url;    
+        cell2.innerHTML = source;        
+        cell3.innerHTML = desc;    
+        cell4.innerHTML = dependencies;
+        cell5.innerHTML = url;
         
         // append element to table and to configuration
-        externalHooksConfiguration.push({type:type, desc:desc, url:url});
+        externalHooksConfiguration.push({type:type, source:source, desc:desc, url:url, dependencies:dependencies});
         
         var current = document.getElementById("ExternalHooksConfiguration");
         current.value = JSON.stringify(externalHooksConfiguration);                  
@@ -118,8 +137,10 @@ define('trimble/teamcity/test', [
       $buttonRemoveHook.click(function() {
         var selectedRow = $('.rowselected');
         var type = selectedRow.children()[0].innerHTML;
-        var desc = selectedRow.children()[1].innerHTML;
-        var url = selectedRow.children()[2].innerHTML;
+        var source = selectedRow.children()[1].innerHTML;
+        var desc = selectedRow.children()[2].innerHTML;
+        var dependencies = selectedRow.children()[3].innerHTML;
+        var url = selectedRow.children()[4].innerHTML;
         
         if (selectedRow) {
           document.getElementById("hookTableId").deleteRow(selectedRow.index());
@@ -132,7 +153,9 @@ define('trimble/teamcity/test', [
           
           if(externalHooksConfiguration[i].type === type && 
               externalHooksConfiguration[i].desc === desc && 
-              externalHooksConfiguration[i].url === url) {
+              externalHooksConfiguration[i].url === url && 
+              externalHooksConfiguration[i].dependencies === dependencies && 
+              externalHooksConfiguration[i].source === source) {
             externalHooksConfiguration.splice(i, 1);
             
             var current = document.getElementById("ExternalHooksConfiguration");
