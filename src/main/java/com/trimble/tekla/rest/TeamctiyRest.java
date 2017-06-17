@@ -456,7 +456,7 @@ public class TeamctiyRest extends RestResource {
             jObj.put("ExternalBuildsTwoNameId", json);
           }
           
-          String hookconfig = settings.getString("ExternalHooksConfiguration");
+          String hookconfig = settings.getString("ExternalHooksConfigurationV2");
 
           JSONArray jsonObj = new JSONArray(hookconfig);
           JSONArray extRef = new JSONArray();

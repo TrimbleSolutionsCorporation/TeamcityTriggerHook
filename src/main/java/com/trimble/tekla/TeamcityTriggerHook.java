@@ -188,9 +188,9 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
           if (settings.getString("ExternalBuildsTwoDepId", "").isEmpty()) {
             errors.addFieldError("ExternalBuildsTwoDepId", "At least one dependency should be set");
           }
-          String configuration = settings.getString("ExternalHooksConfiguration", "");
-          if (configuration.isEmpty() || configuration.equals("[]")) { 
-            errors.addFieldError("ExternalHooksConfiguration", "At least one hook should be set for  external hooks");
+          String configuration = settings.getString("ExternalHooksConfigurationV2", "");
+          if (configuration.isEmpty() || configuration.equals("[]") || configuration.equals("{}")) { 
+            errors.addFieldError("ExternalHooksConfigurationV2", "At least one hook should be set for  external hooks");
           }          
         }        
     }

@@ -51,7 +51,7 @@
       {(($errors) ? ($errors['TeamCityUserName'] ? '<div style="color:red" class="error">' + $errors['TeamCityUserName'] + '</div>' : '') : '')|noAutoescape}
       {(($errors) ? ($errors['TeamCityPasswordOk'] ? '<div style="color:red" class="error">' + $errors['TeamCityPasswordOk'] + '</div>' : '') : '')|noAutoescape} &nbsp;
       {(($errors) ? ($errors['ExternalBuildsTwoDepId'] ? '<div style="color:red" class="error">' + $errors['ExternalBuildsTwoDepId'] + '</div>' : '') : '')|noAutoescape}
-      {(($errors) ? ($errors['ExternalHooksConfiguration'] ? '<div style="color:red" class="error">' + $errors['ExternalHooksConfiguration'] + '</div>' : '') : '')|noAutoescape} &nbsp;
+      {(($errors) ? ($errors['ExternalHooksConfigurationV2'] ? '<div style="color:red" class="error">' + $errors['ExternalHooksConfigurationV2'] + '</div>' : '') : '')|noAutoescape} &nbsp;
       {(($errors) ? ($errors['masterRule'] ? '<div style="color:red" class="error">' + $errors['masterRule'] + '</div>' : '') : '')|noAutoescape}
       {(($errors) ? ($errors['bugFixRule'] ? '<div style="color:red" class="error">' + $errors['bugFixRule'] + '</div>' : '') : '')|noAutoescape}
       {(($errors) ? ($errors['featureRule'] ? '<div style="color:red" class="error">' + $errors['featureRule'] + '</div>' : '') : '')|noAutoescape} &nbsp;
@@ -301,7 +301,7 @@
 </div>
 
   <form class="aui HiddenForms">
-        <input id="ExternalHooksConfiguration" style="max-width: 400px" class="text" type="text" name="ExternalHooksConfiguration" value="{($config['ExternalHooksConfiguration'] != null) ? $config['ExternalHooksConfiguration'] : ''}">
+        <input id="ExternalHooksConfigurationV2" style="max-width: 400px" class="text" type="text" name="ExternalHooksConfigurationV2" value="{($config['ExternalHooksConfigurationV2'] != null) ? $config['ExternalHooksConfigurationV2'] : ''}">
   </form>
 
   <form class="aui HiddenForms" style="visibility: hidden">      

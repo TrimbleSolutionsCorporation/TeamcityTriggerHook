@@ -62,13 +62,12 @@ define('trimble/teamcity/test', [
       var $buttonRemoveHook = $("#RemoveExternalHookButtonId");
       
       // parse json string
-      var data = $("#ExternalHooksConfiguration").val();
-      if (data !== "") {        
-        externalHooksConfiguration = $.parseJSON(data);
-        
-        //var current = document.getElementById("ExternalHooksConfiguration");            
-        //current.value = "";        
-      }      
+      var data = $("#ExternalHooksConfigurationV2").val();
+      if (data !== "{}") {        
+        externalHooksConfiguration = $.parseJSON(data);        
+      } else {
+        externalHooksConfiguration = [];
+      }
       
       function setStatus(status, color) {
           $("#connectionStatusTeamcityId").text(status);
@@ -96,14 +95,20 @@ define('trimble/teamcity/test', [
         var dependenciesSel = document.getElementById('ExternalBuildsTwoDepId');
         var dependencies = dependenciesSel.value;
 
-        var found = externalHooksConfiguration.find(function(elem) {
-           if (elem.type === type && desc === elem.desc && elem.url === url && elem.source === source && elem.dependencies === dependencies) {
-            $("#AddRemoveExternalHookButtonStatusId").text("hook already defined.");
-            $("#AddRemoveExternalHookButtonStatusId").css('color', "red");
-            return true;
-           }          
-        });
-        
+        var found = false;
+        try
+        {
+            var found = externalHooksConfiguration.find(function(elem) {
+               if (elem.type === type && desc === elem.desc && elem.url === url && elem.source === source && elem.dependencies === dependencies) {
+                $("#AddRemoveExternalHookButtonStatusId").text("hook already defined.");
+                $("#AddRemoveExternalHookButtonStatusId").css('color', "red");
+                return true;
+               }          
+            });
+        } catch(err) {
+
+        }
+
         if (found) {
           return;
         }
@@ -126,7 +131,7 @@ define('trimble/teamcity/test', [
         // append element to table and to configuration
         externalHooksConfiguration.push({type:type, source:source, desc:desc, url:url, dependencies:dependencies});
         
-        var current = document.getElementById("ExternalHooksConfiguration");
+        var current = document.getElementById("ExternalHooksConfigurationV2");
         current.value = JSON.stringify(externalHooksConfiguration);                  
         
         if (externalHooksConfiguration.length === 0) {
@@ -158,8 +163,8 @@ define('trimble/teamcity/test', [
               externalHooksConfiguration[i].source === source) {
             externalHooksConfiguration.splice(i, 1);
             
-            var current = document.getElementById("ExternalHooksConfiguration");
-            current.value = JSON.stringify(externalHooksConfiguration);
+            var current = document.getElementById("ExternalHooksConfigurationV2");
+            current.value = JSON.stringify(ExternalHooksConfigurationV2);
             
             return;
           }
