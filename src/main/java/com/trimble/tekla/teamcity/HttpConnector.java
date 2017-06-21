@@ -51,7 +51,7 @@ public class HttpConnector {
                 dataout.append(line);
             }
             
-            logger.warn("Hook Reply: "  + line);
+            logger.debug("Hook Reply: "  + line);
             
         } catch (Exception e) {
             logger.debug("Hook Exception: "  + e.getMessage());
@@ -64,7 +64,7 @@ public class HttpConnector {
             String urlstr = conf.getUrl() + url;
 
             URL urldata = new URL(urlstr);
-            logger.warn("Hook Request: "  + urlstr);
+            logger.debug("Hook Request: "  + urlstr);
             
             String authStr = conf.getUserName() + ":" + conf.getPassWord();
             String authEncoded = Base64.encodeBase64String(authStr.getBytes());
@@ -87,7 +87,7 @@ public class HttpConnector {
                 dataout.append(line);
             }
             
-            logger.warn("Hook Reply: "  + line);
+            logger.debug("Hook Reply: "  + line);
             
             return dataout.toString();
        
@@ -98,7 +98,7 @@ public class HttpConnector {
             String urlstr = url;
 
             URL urldata = new URL(urlstr);
-            logger.warn("Hook Request: "  + urlstr);
+            logger.debug("Hook Request: "  + urlstr);
             
             
             HttpURLConnection connection = (HttpURLConnection) urldata.openConnection();
@@ -118,7 +118,7 @@ public class HttpConnector {
                 dataout.append(line);
             }
             
-            logger.warn("Hook Reply: "  + line);
+            logger.debug("Hook Reply: "  + line);
             
             return dataout.toString();
        
@@ -131,7 +131,7 @@ public class HttpConnector {
             String urlstr = conf.getUrl() + url;
 
             URL urldata = new URL(urlstr);
-            logger.warn("Hook Request: "  + urlstr);
+            logger.debug("Hook Request: "  + urlstr);
             
             String authStr = conf.getUserName() + ":" + conf.getPassWord();
             String authEncoded = Base64.encodeBase64String(authStr.getBytes());
@@ -158,7 +158,7 @@ public class HttpConnector {
                 dataout.append(line);
             }
             
-            logger.warn("Hook Reply: "  + line);
+            logger.debug("Hook Reply: "  + line);
             
         } catch (Exception e) {
             logger.debug("Hook Exception: "  + e.getMessage());

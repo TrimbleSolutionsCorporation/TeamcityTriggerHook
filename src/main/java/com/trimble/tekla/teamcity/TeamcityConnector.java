@@ -40,7 +40,6 @@ public class TeamcityConnector  {
         return "Ok";
       } catch (Exception e) {
         logger.debug("Hook Exception: "  + e.getMessage());
-        e.printStackTrace();
         return "Not able to Connect to Teamcity Server : " + e.getMessage();
       }        
     }
