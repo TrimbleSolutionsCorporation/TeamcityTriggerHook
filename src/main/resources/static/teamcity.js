@@ -179,7 +179,7 @@ define('trimble/teamcity/test', [
         var username = $( "#TeamCityUserName" ).val();
         var password = $( "#FormIdForPassword" ).val();
 
-        var restpoint = resourceUrl('testconnection') + "?url=" + url + "&username=" + username + "&password=" + password;          
+        var restpoint = resourceUrl('testconnection') + "?url=" + url + "&username=" + username + "&password=" + encodeURIComponent(password);          
         
         setStatus("Trying...", "green");
         $.get(restpoint)
