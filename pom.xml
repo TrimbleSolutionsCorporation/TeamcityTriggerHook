@@ -4,14 +4,14 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.trimble.tekla</groupId>
-    <artifactId>TeamcityTriggerHook</artifactId>
+    <artifactId>TeamCityTriggerHook</artifactId>
     <version>3.1.0</version>
 
     <organization>
         <name>Tekla</name>
         <url>http://www.tekla.com/</url>
     </organization>
-    <name>Bitbucket Server Webhook to Teamcity</name>
+    <name>Bitbucket Server Webhook to TeamCity</name>
     <description>A simple repository hook plugin for notifying an external URL of changes to a repository.</description>
     <packaging>atlassian-plugin</packaging>
 

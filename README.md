@@ -1,6 +1,6 @@
-# Bitbucket Server Hook to trigger Teamcity builds
+# Bitbucket Server Hook to trigger TeamCity builds
 
-Req: Min Teamcity 8.x, BitbucketServer 4.x
+Req: Min TeamCity 8.x, BitbucketServer 4.x
 Download last release from: https://github.com/TrimbleSolutionsCorporation/TeamcityTriggerHook/releases
 
 # Features

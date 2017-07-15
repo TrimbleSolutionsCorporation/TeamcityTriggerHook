@@ -135,10 +135,10 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
             && settings.getString("bugFixRule", "").isEmpty()
             && settings.getString("featureRule", "").isEmpty()
             && settings.getString("hotfixRule", "").isEmpty()) {
-      errors.addFieldError("masterRule", "At least on configuration should be set");
-      errors.addFieldError("bugFixRule", "At least on configuration should be set");
-      errors.addFieldError("hotfixRule", "At least on configuration should be set");
-      errors.addFieldError("featureRule", "At least on configuration should be set");
+      errors.addFieldError("masterRule", "At least one configuration should be set");
+      errors.addFieldError("bugFixRule", "At least one configuration should be set");
+      errors.addFieldError("hotfixRule", "At least one configuration should be set");
+      errors.addFieldError("featureRule", "At least one configuration should be set");
     }
 
     if (!settings.getString("ExternalBuildsOneNameIdFeature", "").isEmpty()) {
