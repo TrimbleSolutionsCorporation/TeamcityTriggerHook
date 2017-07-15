@@ -5,6 +5,7 @@
  */
 package com.trimble.tekla;
 
+import com.trimble.tekla.teamcity.TeamcityLogger;
 import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
 import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
 import com.atlassian.bitbucket.pull.PullRequestRef;
@@ -21,31 +22,32 @@ import com.trimble.tekla.teamcity.TeamcityConnector;
  */
 public class TeamcityPullrequestEventListener {
 
+  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("TeamcityTriggerHook");
   private final TeamcityConnectionSettings connectionSettings;
   private final SettingsService settingsService;
   private final TeamcityConnector connector;
+
   public TeamcityPullrequestEventListener(TeamcityConnectionSettings connectionSettings, SettingsService settingsService) {
     this.connectionSettings = connectionSettings;
     this.settingsService = settingsService;
     this.connector = new TeamcityConnector(new HttpConnector());
   }
 
-  
   @EventListener
   public void onPullRequestOpenedEvent(PullRequestOpenedEvent event) {
     PullRequestRef ref = event.getPullRequest().getFromRef();
-    
+
     if (ref.getDisplayId().toLowerCase().contains("bugfix/")) {
       TriggerBuildFromPullRequest(ref, "usePrFrombugFix", "bugFixRule");
     }
-    
+
     if (ref.getDisplayId().toLowerCase().contains("feature/")) {
       TriggerBuildFromPullRequest(ref, "usePrFromFeature", "featureRule");
     }
 
     if (ref.getDisplayId().toLowerCase().contains("hotfix/")) {
       TriggerBuildFromPullRequest(ref, "usePrFromhotFix", "hotFixRule");
-    }        
+    }
   }
 
   @EventListener
@@ -53,15 +55,15 @@ public class TeamcityPullrequestEventListener {
     PullRequestRef ref = event.getPullRequest().getFromRef();
     String previousFromHash = event.getPreviousFromHash();
     String currentFromHash = ref.getLatestCommit();
-    
+
     if (currentFromHash.equals(previousFromHash)) {
       return;
     }
-    
+
     if (ref.getDisplayId().toLowerCase().contains("bugfix/")) {
       TriggerBuildFromPullRequest(ref, "usePrFrombugFix", "bugFixRule");
     }
-    
+
     if (ref.getDisplayId().toLowerCase().contains("feature/")) {
       TriggerBuildFromPullRequest(ref, "usePrFromFeature", "featureRule");
     }
@@ -78,23 +80,33 @@ public class TeamcityPullrequestEventListener {
     if (!isTriggerOnPr) {
       return;
     }
-    
-    String password = this.connectionSettings.getPassword(ref.getRepository());    
-    TeamcityConfiguration conf = 
-      new TeamcityConfiguration(
-        settings.getString("TeamCityUrl"),
-        settings.getString("TeamCityUserName"),
-        password);
-    
-    String buildIdIn = settings.getString(buildKey, "");    
+
+    String password = this.connectionSettings.getPassword(ref.getRepository());
+    TeamcityConfiguration conf
+            = new TeamcityConfiguration(
+                    settings.getString("TeamCityUrl"),
+                    settings.getString("TeamCityUserName"),
+                    password);
+
+    String buildIdIn = settings.getString(buildKey, "");
     String branch = ref.getDisplayId();
     String branchtoLower = branch.toLowerCase();
-    for(String buildId : buildIdIn.split("\\s+")) {
-      if (branchtoLower.startsWith("feature/") || branchtoLower.startsWith("bugfix/") || branchtoLower.startsWith("hotfix/")) {
-        this.connector.QueueBuild(conf, branch.split("/")[1], buildId, "Pull request Trigger from Bitbucket", false);
-      } else {
-        this.connector.QueueBuild(conf, branch, buildId, "Pull request Trigger from Bitbucket", false);
-      }    
+    String branchToUse = branch;
+    if (branchtoLower.startsWith("feature/") || branchtoLower.startsWith("bugfix/") || branchtoLower.startsWith("hotfix/")) {
+      branchToUse = branch.split("/")[1];
+    }    
+    for (String buildId : buildIdIn.split("\\s+")) {
+      TeamcityLogger.logMessage(settings, "Trigger BuildId: " + buildId);
+      try {
+        if (this.connector.IsInQueue(conf, buildId, branchToUse, settings)) {
+          TeamcityLogger.logMessage(settings, "Skip already in queue: " + buildId);
+          continue;
+        }
+      } catch (Exception ex) {
+        TeamcityLogger.logMessage(settings, "Exception: " + ex.getMessage());
+      }
+
+      this.connector.QueueBuild(conf, branchToUse, buildId, "Pull request Trigger from Bitbucket", false, settings);
     }
   }
 }

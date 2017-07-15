@@ -182,9 +182,9 @@ public class TeamctiyRest extends RestResource {
     TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     String branchtoLower = branch.toLowerCase();
     if (branchtoLower.startsWith("feature/") || branchtoLower.startsWith("bugfix/") || branchtoLower.startsWith("hotfix/")) {
-      this.connector.QueueBuild(conf, branch.split("/")[1], buildconfig, "Manual Trigger from Bitbucket", false);
+      this.connector.QueueBuild(conf, branch.split("/")[1], buildconfig, "Manual Trigger from Bitbucket", false, settings);
     } else {
-      this.connector.QueueBuild(conf, branch, buildconfig, "Manual Trigger from Bitbucket", false);
+      this.connector.QueueBuild(conf, branch, buildconfig, "Manual Trigger from Bitbucket", false, settings);
     }
         
     return "{\"status\": \"ok\" }";
@@ -234,13 +234,13 @@ public class TeamctiyRest extends RestResource {
       for (String buildConfig : configurations) {
         
         
-        String returnData = this.connector.GetBuildsForBranch(conf, branch, buildConfig);
+        String returnData = this.connector.GetBuildsForBranch(conf, branch, buildConfig, settings);
         if (returnData.contains("\"count\":0")) {
           String [] elems = branch.split("/");
-          returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildConfig);
+          returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildConfig, settings);
         }
 
-        String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig);        
+        String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig, settings);        
         jObj.put(buildConfig, returnData);
         jObj.put(buildConfig + "_queue", queueData);        
         jObj.put(buildConfig + "_wref", url + "/viewType.html?buildTypeId=" + buildConfig);
@@ -307,13 +307,13 @@ public class TeamctiyRest extends RestResource {
           String dependencies = settings.getString("ExternalBuildsOneDepIdFeature");
 
           for(String buildId : dependencies.split("\\s+")) {
-            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId, settings);
             if (returnData.contains("\"count\":0")) {
               String [] elems = branch.split("/");
-              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId, settings);
             }
             
-            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId, settings);        
             jObj.put(buildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + buildId);
             jObj.put(buildId + "_dep", returnData);
             jObj.put(buildId + "_dep_queue", queueData);                
@@ -322,13 +322,13 @@ public class TeamctiyRest extends RestResource {
           String configurationsToTrigger = settings.getString("ExternalBuildsOneConfigurationsIdFeature");
           
           for(String buildId : configurationsToTrigger.split("\\s+")) {
-            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId, settings);
             if (returnData.contains("\"count\":0")) {
               String [] elems = branch.split("/");
-              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId, settings);
             }
             
-            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId, settings);        
             jObj.put(buildId + "_build", returnData);
             jObj.put(buildId + "_build_wref", url + "/viewType.html?buildTypeId=" + buildId);
             jObj.put(buildId + "_build_queue", queueData);                
@@ -359,13 +359,13 @@ public class TeamctiyRest extends RestResource {
           String dependencies = settings.getString("ExternalBuildsOneDepIdBugFix");
 
           for(String buildId : dependencies.split("\\s+")) {
-            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId, settings);
             if (returnData.contains("\"count\":0")) {
               String [] elems = branch.split("/");
-              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId, settings);
             }
             
-            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId, settings);        
             jObj.put(buildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + buildId);
             jObj.put(buildId + "_dep", returnData);
             jObj.put(buildId + "_dep_queue", queueData);                
@@ -374,13 +374,13 @@ public class TeamctiyRest extends RestResource {
           String configurationsToTrigger = settings.getString("ExternalBuildsOneConfigurationsIdBugFix");
           
           for(String buildId : configurationsToTrigger.split("\\s+")) {
-            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId, settings);
             if (returnData.contains("\"count\":0")) {
               String [] elems = branch.split("/");
-              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId, settings);
             }
             
-            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId, settings);        
             jObj.put(buildId + "_build", returnData);
             jObj.put(buildId + "_build_wref", url + "/viewType.html?buildTypeId=" + buildId);
             jObj.put(buildId + "_build_queue", queueData);                
@@ -410,13 +410,13 @@ public class TeamctiyRest extends RestResource {
           String dependencies = settings.getString("ExternalBuildsOneDepIdHotFix");
 
           for(String buildId : dependencies.split("\\s+")) {
-            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId, settings);
             if (returnData.contains("\"count\":0")) {
               String [] elems = branch.split("/");
-              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId, settings);
             }
             
-            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId, settings);        
             jObj.put(buildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + buildId);
             jObj.put(buildId + "_dep", returnData);
             jObj.put(buildId + "_dep_queue", queueData);                
@@ -425,13 +425,13 @@ public class TeamctiyRest extends RestResource {
           String configurationsToTrigger = settings.getString("ExternalBuildsOneConfigurationsIdHotFix");
           
           for(String buildId : configurationsToTrigger.split("\\s+")) {
-            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId, settings);
             if (returnData.contains("\"count\":0")) {
               String [] elems = branch.split("/");
-              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId, settings);
             }
             
-            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+            String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId, settings);        
             jObj.put(buildId + "_build", returnData);
             jObj.put(buildId + "_build_wref", url + "/viewType.html?buildTypeId=" + buildId);
             jObj.put(buildId + "_build_queue", queueData);                
@@ -472,13 +472,13 @@ public class TeamctiyRest extends RestResource {
             }
             
             for(String buildId : dependencies.split("\\s+")) {
-                String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId);
+                String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId, settings);
                 if (returnData.contains("\"count\":0")) {
                   String [] elems = branch.split("/");
-                  returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId);
+                  returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId, settings);
                 }
 
-                String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId);        
+                String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId, settings);        
                 jObj.put(buildId + "_dep", returnData);
                 jObj.put(buildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + buildId);
                 jObj.put(buildId + "_dep_queue", queueData);         
@@ -517,7 +517,7 @@ public class TeamctiyRest extends RestResource {
       HttpConnector dummyConnector = new HttpConnector();
       String returnData;
     try {
-      returnData = dummyConnector.Get(url);
+      returnData = dummyConnector.Get(url, this.settingsService.getSettings(repository));
       return "{\"status\": \"ok\", \"message\": \" " + returnData + "\" }";
     } catch (IOException ex) {
       return "{\"status\": \"failed\", \"message\": \" " + ex.getMessage() + "\" }";
@@ -537,7 +537,7 @@ public class TeamctiyRest extends RestResource {
       @QueryParam("password") String password) {
 
       TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
-      String returnData = this.connector.TestTeamcityConnection(conf);
+      String returnData = this.connector.TestTeamcityConnection(conf, this.settingsService.getSettings(repository));
       if (!"Ok".equals(returnData)) {
         if (returnData.contains("401")) {
           return "{\"status\": \"failed\", \"message\": \" User or password invalid\" }";
@@ -581,7 +581,7 @@ public class TeamctiyRest extends RestResource {
     
     TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);    
     try {    
-      return this.connector.GetBuild(conf, id);
+      return this.connector.GetBuild(conf, id, this.settingsService.getSettings(repository));
     } catch (IOException ex) {
       return "{\"status\": \"error\", \"message\": \"" + ex.getMessage()+ "\"}";
     }

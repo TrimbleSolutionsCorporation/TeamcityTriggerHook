@@ -5,6 +5,7 @@
  */
 package com.trimble.tekla.teamcity;
 
+import com.atlassian.bitbucket.setting.Settings;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,7 +24,7 @@ public class HttpConnector {
     
     private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("BitbucketTeamcityHook");
     
-    public void Post(TeamcityConfiguration conf, String url, Map<String, String> parameters) {
+    public void Post(TeamcityConfiguration conf, String url, Map<String, String> parameters, Settings settings) {
         
         try {                  
             
@@ -51,20 +52,20 @@ public class HttpConnector {
                 dataout.append(line);
             }
             
-            logger.debug("Hook Reply: "  + line);
+            TeamcityLogger.logMessage(settings, "Hook Reply: "  + line);
             
         } catch (Exception e) {
-            logger.debug("Hook Exception: "  + e.getMessage());
+            TeamcityLogger.logMessage(settings, "Hook Exception: "  + e.getMessage());
             e.printStackTrace();
         }         
     }
 
-    public String Get(TeamcityConfiguration conf, String url) throws MalformedURLException, IOException {
+    public String Get(TeamcityConfiguration conf, String url, Settings settings) throws MalformedURLException, IOException {
         
             String urlstr = conf.getUrl() + url;
 
             URL urldata = new URL(urlstr);
-            logger.debug("Hook Request: "  + urlstr);
+            TeamcityLogger.logMessage(settings, "Hook Request: "  + urlstr);
             
             String authStr = conf.getUserName() + ":" + conf.getPassWord();
             String authEncoded = Base64.encodeBase64String(authStr.getBytes());
@@ -87,18 +88,18 @@ public class HttpConnector {
                 dataout.append(line);
             }
             
-            logger.debug("Hook Reply: "  + line);
+            TeamcityLogger.logMessage(settings, "Hook Reply: "  + line);
             
             return dataout.toString();
        
     }
     
-    public String Get(String url) throws MalformedURLException, IOException {
+    public String Get(String url, Settings settings) throws MalformedURLException, IOException {
         
             String urlstr = url;
 
             URL urldata = new URL(urlstr);
-            logger.debug("Hook Request: "  + urlstr);
+            TeamcityLogger.logMessage(settings, "Hook Request: "  + urlstr);
             
             
             HttpURLConnection connection = (HttpURLConnection) urldata.openConnection();
@@ -118,20 +119,20 @@ public class HttpConnector {
                 dataout.append(line);
             }
             
-            logger.debug("Hook Reply: "  + line);
+            TeamcityLogger.logMessage(settings, "Hook Reply: "  + line);
             
             return dataout.toString();
        
     }
     
-    public void PostPayload(TeamcityConfiguration conf, String url, String payload) {
+    public void PostPayload(TeamcityConfiguration conf, String url, String payload, Settings settings) {
         
         try {                  
             
             String urlstr = conf.getUrl() + url;
 
             URL urldata = new URL(urlstr);
-            logger.debug("Hook Request: "  + urlstr);
+            TeamcityLogger.logMessage(settings, "Hook Request: "  + urlstr);
             
             String authStr = conf.getUserName() + ":" + conf.getPassWord();
             String authEncoded = Base64.encodeBase64String(authStr.getBytes());
@@ -158,10 +159,10 @@ public class HttpConnector {
                 dataout.append(line);
             }
             
-            logger.debug("Hook Reply: "  + line);
+            TeamcityLogger.logMessage(settings, "Hook Reply: "  + line);
             
         } catch (Exception e) {
-            logger.debug("Hook Exception: "  + e.getMessage());
+            TeamcityLogger.logMessage(settings, "Hook Exception: "  + e.getMessage());
             e.printStackTrace();
         }         
     }    

@@ -282,7 +282,21 @@ define('trimble/teamcity/test', [
             }            
         });
                 
-
+        var useDebugEnabled = document.getElementById("useDebugEnabled");
+        if (useDebugEnabled !== null && useDebugEnabled.value === "true") {
+          document.getElementById("isDebugEnabled").checked = true;          
+        } else {
+          document.getElementById("isDebugEnabled").checked = false;
+        }
+        
+        // register jquery on change event
+        $('#isDebugEnabled').change(function() {
+            if($(this).is(":checked")) {
+              document.getElementById("useDebugEnabled").value = "true";
+            } else {
+              document.getElementById("useDebugEnabled").value = "false";
+            }            
+        });
       
       
         init();
