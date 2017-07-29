@@ -1,7 +1,7 @@
 # Bitbucket Server Hook to trigger TeamCity builds
 
 Req: Min TeamCity 8.x, BitbucketServer 4.x
-Download last release from: https://github.com/TrimbleSolutionsCorporation/TeamcityTriggerHook/releases
+Download last release from: MarketPlace
 
 # Features
    The plugin works in 2 different ways, the default will request a VCS root to check for changes. In this case, all build configurations that use the VCS root will be triggered. 
