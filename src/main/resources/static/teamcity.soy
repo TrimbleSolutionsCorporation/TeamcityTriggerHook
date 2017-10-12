@@ -5,7 +5,6 @@
  * @param? errors
  */
 {template .formContents}
-
 <div class="tab">
    <a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'Connection')" id="defaultOpen">Connection</a>
    <a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'Configs')">Build Configurations</a>
@@ -16,15 +15,15 @@
    <form id="bitbuckerUrlForm" class="aui">
       <div class="field-group">
          <label for="bitbuckerUrl">{getText('bitbucket.webhook.teamcity.bitbucket.url')}</label>
-         <input id="bitbuckerUrl" style="max-width: 400px" class="text" type="text" name="bitbuckerUrl" value="{($config['bitbuckerUrl'] != null) ? $config['bitbuckerUrl'] : ''}">
+         <input id="bitbuckerUrl" style="max-width: 400px" class="text" type="text" >
       </div>
    </form>
    <form id="TriggerType" class="aui">
       <div class="field-group">
          <label for="TeamCityUrl">{getText('bitbucket.webhook.teamcity.trigger.method')}</label>
-         <select class="select" id="triggerType" name="triggerType" style="max-width: 200px">
-         <option value="buildConfig" {($config[ 'triggerType']=='buildConfig' ) ? 'selected="selected"' : ''}>build</option>
-         <option value="vcs" {($config[ 'triggerType']=='vcs' ) ? 'selected="selected"' : ''}>vcs</option>
+         <select class="select" id="triggerType" style="max-width: 200px">
+         <option value="buildConfig">build</option>
+         <option value="vcs">vcs</option>
          </select>
          &nbsp;
       </div>
@@ -32,11 +31,11 @@
    <form id="TeamcityConnection" class="aui">
       <div class="field-group">
          <label for="teamcity_url">{getText('bitbucket.webhook.teamcity.url')}</label>
-         <input id="TeamCityUrl" style="max-width: 400px" class="text" type="text" name="TeamCityUrl" value="{($config['TeamCityUrl'] != null) ? $config['TeamCityUrl'] : ''}">
+         <input id="TeamCityUrl" style="max-width: 400px" class="text" type="text">
       </div>
       <div class="field-group">
          <label for="teamcity_username">{getText('bitbucket.webhook.teamcity.username')}</label>
-         <input id="TeamCityUserName" style="max-width: 400px" class="text" type="text" name="TeamCityUserName" value="{($config['TeamCityUserName'] != null) ? $config['TeamCityUserName'] : ''}">
+         <input id="TeamCityUserName" style="max-width: 400px" class="text" type="text" >
       </div>
       <div class="field-group">
          <label for="teamcity_password">{getText('bitbucket.webhook.teamcity.password')}</label>
@@ -49,7 +48,7 @@
 
       <div class="field-group">
         <label for="teamcity_debug">{getText('bitbucket.webhook.teamcity.debug')}</label>
-        <input id="isDebugEnabled" type="checkbox" name="isDebugEnabled">
+        <input id="isDebugEnabled" type="checkbox">
       </div>
 
         {(($errors) ? ($errors['TeamCityUrl'] ? '<div style="color:red" class="error">' + $errors['TeamCityUrl'] + '</div>' : '') : '')|noAutoescape}
@@ -78,7 +77,7 @@
 <form id="MasterRulesId" class="aui">
    <div class="field-group">
       <label for="MasterRulesUrl">master</label>
-      <input id="masterRule" style="max-width: 400px" class="text" type="text" name="masterRule" value="{($config['masterRule'] != null) ? $config['masterRule'] : ''}">
+      <input id="masterRule" style="max-width: 400px" class="text" type="text">
       <input id="isDefaultBranchBox" type="checkbox" name="isDefaultBranchBox">
       <div class="description">
          {getText('bitbucket.webhook.teamcity.rule.master')}
@@ -88,7 +87,7 @@
 <form id="bugFixRuleId" class="aui">
    <div class="field-group">
       <label for="BugFixRuleUrl">bugfix</label>
-      <input id="bugFixRule" style="max-width: 400px" class="text" type="text" name="bugFixRule" value="{($config['bugFixRule'] != null) ? $config['bugFixRule'] : ''}"> &nbsp;
+      <input id="bugFixRule" style="max-width: 400px" class="text" type="text"> &nbsp;
       <input id="prInsteadBugFix" type="checkbox">
       <div class="description">
          {getText('bitbucket.webhook.teamcity.rule.development.branch')}
@@ -98,7 +97,7 @@
 <form id="featureRuleId" class="aui">
    <div class="field-group">
       <label for="featureRuleUrl">feature</label>
-      <input id="featureRule" style="max-width: 400px" class="text" type="text" name="featureRule" value="{($config['featureRule'] != null) ? $config['featureRule'] : ''}"> &nbsp;
+      <input id="featureRule" style="max-width: 400px" class="text" type="text"> &nbsp;
       <input id="prInsteadFeature" type="checkbox">
       <div class="description">
          {getText('bitbucket.webhook.teamcity.rule.development.branch')}
@@ -108,7 +107,7 @@
 <form id="hotfixRuleId" class="aui">
    <div class="field-group">
       <label for="hotfixRuleUrl">hotfix</label>
-      <input id="hotfixRule" style="max-width: 400px" class="text" type="text" name="hotfixRule" value="{($config['hotfixRule'] != null) ? $config['hotfixRule'] : ''}"> &nbsp;
+      <input id="hotfixRule" style="max-width: 400px" class="text" type="text" > &nbsp;
       <input id="prInsteadHotFix" type="checkbox">
       <div class="description">
          {getText('bitbucket.webhook.teamcity.rule.development.branch')}
@@ -118,20 +117,20 @@
 <form id="releaseRuleId" class="aui">
    <div class="field-group">
       <label for="releaseRuleUrl">release</label>
-      <input id="releaseRule" style="max-width: 400px" class="text" type="text" name="releaseRule" value="{($config['releaseRule'] != null) ? $config['releaseRule'] : ''}"> &nbsp;
+      <input id="releaseRule" style="max-width: 400px" class="text" type="text" > &nbsp;
       <div class="description">
          {getText('bitbucket.webhook.teamcity.rule.master')}
       </div>
    </div>
 </form>
-<form id="releaseRuleId" class="aui">
+<form id="customRuleId" class="aui">
    <div class="field-group">
       <label for="Custom Branch Definition">Custom Branch Regx</label>
-      <input id="BranchDefinition" style="max-width: 200px" class="text" type="text" name="BranchDefinition" value="{($config['BranchDefinition'] != null) ? $config['BranchDefinition'] : ''}">
+      <input id="BranchDefinition" style="max-width: 200px" class="text" type="text" >
       <div class="description">
          Regular expression to match custom branchs, does not apply to master/bugfix/feature/hotfix/release
       </div>
-      <input id="BranchCustomTypes" style="max-width: 400px" class="text" type="text" name="BranchCustomTypes" value="{($config['BranchCustomTypes'] != null) ? $config['BranchCustomTypes'] : ''}">
+      <input id="BranchCustomTypes" style="max-width: 400px" class="text" type="text" >
       <div class="description">
          Vcs to trigger. Space-delimited. Case-sensitive.
       </div>
@@ -147,8 +146,7 @@
 
 
 
-
-
+                                                   
 <div id="Teamcity" class="tabcontent">
   <form class="aui">
     <div class="description">
@@ -158,21 +156,21 @@
   <form id="ExternalBuildsOneNameFeature" class="aui">
       <div class="field-group">
          <label for="ExternalBuildsOneNameLabelFeature">Name</label>
-         <input id="ExternalBuildsOneNameIdFeature" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneNameIdFeature" value="{($config['ExternalBuildsOneNameIdFeature'] != null) ? $config['ExternalBuildsOneNameIdFeature'] : ''}">
+         <input id="ExternalBuildsOneNameIdFeature" style="max-width: 400px" class="text" type="text" >
          <div class="description">
             {getText('bitbucket.webhook.teamcity.external.one.build.name.feature')}
          </div>
       </div>
       <div class="field-group">
          <label for="ExternalBuildsOneDepLabelFeature">Dependencies</label>
-         <input id="ExternalBuildsOneDepIdFeature" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneDepIdFeature" value="{($config['ExternalBuildsOneDepIdFeature'] != null) ? $config['ExternalBuildsOneDepIdFeature'] : ''}">
+         <input id="ExternalBuildsOneDepIdFeature" style="max-width: 400px" class="text" type="text" >
          <div class="description">
             {getText('bitbucket.webhook.teamcity.external.one.build.dep.feature')}
          </div>
       </div>
       <div class="field-group">
          <label for="ExternalBuildsOneConfigurationsLabelFeature">Configurations</label>
-         <input id="ExternalBuildsOneConfigurationsIdFeature" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneConfigurationsIdFeature" value="{($config['ExternalBuildsOneConfigurationsIdFeature'] != null) ? $config['ExternalBuildsOneConfigurationsIdFeature'] : ''}">
+         <input id="ExternalBuildsOneConfigurationsIdFeature" style="max-width: 400px" class="text" type="text" >
          <div class="description">
             {getText('bitbucket.webhook.teamcity.external.one.build.configurations.feature')}
          </div>
@@ -182,21 +180,21 @@
   <form id="ExternalBuildsOneNameBugFix" class="aui">
       <div class="field-group">
          <label for="ExternalBuildsOneNameLabelBugFix">Name</label>
-         <input id="ExternalBuildsOneNameIdBugFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneNameIdBugFix" value="{($config['ExternalBuildsOneNameIdBugFix'] != null) ? $config['ExternalBuildsOneNameIdBugFix'] : ''}">
+         <input id="ExternalBuildsOneNameIdBugFix" style="max-width: 400px" class="text" type="text" >
          <div class="description">
             {getText('bitbucket.webhook.teamcity.external.one.build.name.bugfix')}
          </div>
       </div>
       <div class="field-group">
          <label for="ExternalBuildsOneDepLabelBugFix">Dependencies</label>
-         <input id="ExternalBuildsOneDepIdBugFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneDepIdBugFix" value="{($config['ExternalBuildsOneDepIdBugFix'] != null) ? $config['ExternalBuildsOneDepIdBugFix'] : ''}">
+         <input id="ExternalBuildsOneDepIdBugFix" style="max-width: 400px" class="text" type="text" >
          <div class="description">
             {getText('bitbucket.webhook.teamcity.external.one.build.dep.bugfix')}
          </div>
       </div>
       <div class="field-group">
          <label for="ExternalBuildsOneConfigurationsLabelBugFix">Configurations</label>
-         <input id="ExternalBuildsOneConfigurationsIdBugFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneConfigurationsIdBugFix" value="{($config['ExternalBuildsOneConfigurationsIdBugFix'] != null) ? $config['ExternalBuildsOneConfigurationsIdBugFix'] : ''}">
+         <input id="ExternalBuildsOneConfigurationsIdBugFix" style="max-width: 400px" class="text" type="text" >
          <div class="description">
             {getText('bitbucket.webhook.teamcity.external.one.build.configurations.bugfix')}
          </div>
@@ -206,21 +204,21 @@
   <form id="ExternalBuildsOneNameHotFix" class="aui">
       <div class="field-group">
          <label for="ExternalBuildsOneNameLabelHotFix">Name</label>
-         <input id="ExternalBuildsOneNameIdHotFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneNameIdHotFix" value="{($config['ExternalBuildsOneNameIdHotFix'] != null) ? $config['ExternalBuildsOneNameIdHotFix'] : ''}">
+         <input id="ExternalBuildsOneNameIdHotFix" style="max-width: 400px" class="text" type="text" >
          <div class="description">
             {getText('bitbucket.webhook.teamcity.external.one.build.name.hotfix')}
          </div>
       </div>
       <div class="field-group">
          <label for="ExternalBuildsOneDepLabelHotFix">Dependencies</label>
-         <input id="ExternalBuildsOneDepIdHotFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneDepIdHotFix" value="{($config['ExternalBuildsOneDepIdHotFix'] != null) ? $config['ExternalBuildsOneDepIdHotFix'] : ''}">
+         <input id="ExternalBuildsOneDepIdHotFix" style="max-width: 400px" class="text" type="text" >
          <div class="description">
             {getText('bitbucket.webhook.teamcity.external.one.build.dep.hotfix')}
          </div>
       </div>
       <div class="field-group">
          <label for="ExternalBuildsOneConfigurationsLabelHotFix">Configurations</label>
-         <input id="ExternalBuildsOneConfigurationsIdHotFix" style="max-width: 400px" class="text" type="text" name="ExternalBuildsOneConfigurationsIdHotFix" value="{($config['ExternalBuildsOneConfigurationsIdHotFix'] != null) ? $config['ExternalBuildsOneConfigurationsIdHotFix'] : ''}">
+         <input id="ExternalBuildsOneConfigurationsIdHotFix" style="max-width: 400px" class="text" type="text" >
          <div class="description">
             {getText('bitbucket.webhook.teamcity.external.one.build.configurations.hotfix')}
          </div>
@@ -305,34 +303,41 @@
 
 </div>
 
-  <form class="aui HiddenForms">
-        <input id="ExternalHooksConfigurationV2" style="max-width: 400px" class="text" type="text" name="ExternalHooksConfigurationV2" value="{($config['ExternalHooksConfigurationV2'] != null) ? $config['ExternalHooksConfigurationV2'] : ''}">
-  </form>
+<input type="hidden" id="bitbuckerUrlToData" name="bitbuckerUrl" value="{($config['bitbuckerUrl'] != null) ? $config['bitbuckerUrl'] : ''}">
+<input type="hidden" id="TeamCityUrlToData" name="TeamCityUrl" value="{($config['TeamCityUrl'] != null) ? $config['TeamCityUrl'] : ''}">
+<input type="hidden" id="triggerTypeToData" name="triggerType" value="{($config['triggerType'] != null) ? $config['triggerType'] : ''}">
+<input type="hidden" id="TeamCityUserNameToData" name="TeamCityUserName" value="{($config['TeamCityUserName'] != null) ? $config['TeamCityUserName'] : ''}">
+<input type="hidden" id="isDebugEnabledToData" name="isDebugEnabled" value="{($config['isDebugEnabled'] != null) ? $config['isDebugEnabled'] : ''}">
 
-  <form class="aui HiddenForms" style="display: none">      
-      <input id="isDefaultBranch" style="max-width: 400px" class="text" type="text" name="isDefaultBranch" value="{($config['isDefaultBranch'] != null) ? $config['isDefaultBranch'] : ''}">
-  </form>
+<input id="masterRuleToData" type="hidden" name="masterRule" value="{($config['masterRule'] != null) ? $config['masterRule'] : ''}">
+<input id="bugFixRuleToData" type="hidden" name="bugFixRule" value="{($config['bugFixRule'] != null) ? $config['bugFixRule'] : ''}"> &nbsp;
+<input id="featureRuleToData" type="hidden" name="featureRule" value="{($config['featureRule'] != null) ? $config['featureRule'] : ''}"> &nbsp;
+<input id="hotfixRuleToData" type="hidden" name="hotfixRule" value="{($config['hotfixRule'] != null) ? $config['hotfixRule'] : ''}"> &nbsp;
+<input id="releaseRuleToData" type="hidden"  name="releaseRule" value="{($config['releaseRule'] != null) ? $config['releaseRule'] : ''}"> &nbsp;
+<input id="BranchDefinitionToData" type="hidden" name="BranchDefinition" value="{($config['BranchDefinition'] != null) ? $config['BranchDefinition'] : ''}">
+<input id="BranchCustomTypesToData" type="hidden" name="BranchCustomTypes" value="{($config['BranchCustomTypes'] != null) ? $config['BranchCustomTypes'] : ''}">
+                                    
 
-  <form class="aui HiddenForms" style="display: none">      
-      <input id="usePrFromFeature" style="max-width: 400px" class="text" type="text" name="usePrFromFeature" value="{($config['usePrFromFeature'] != null) ? $config['usePrFromFeature'] : ''}">
-  </form>
+<input id="ExternalBuildsOneNameIdFeatureToData" type="hidden" name="ExternalBuildsOneNameIdFeature" value="{($config['ExternalBuildsOneNameIdFeature'] != null) ? $config['ExternalBuildsOneNameIdFeature'] : ''}">
+<input id="ExternalBuildsOneConfigurationsIdFeatureToData" type="hidden" name="ExternalBuildsOneConfigurationsIdFeature" value="{($config['ExternalBuildsOneConfigurationsIdFeature'] != null) ? $config['ExternalBuildsOneConfigurationsIdFeature'] : ''}">
+<input id="ExternalBuildsOneDepIdFeatureToData" type="hidden" name="ExternalBuildsOneDepIdFeature" value="{($config['ExternalBuildsOneDepIdFeature'] != null) ? $config['ExternalBuildsOneDepIdFeature'] : ''}">      
+<input id="ExternalBuildsOneNameIdBugFixToData" type="hidden" name="ExternalBuildsOneNameIdBugFix" value="{($config['ExternalBuildsOneNameIdBugFix'] != null) ? $config['ExternalBuildsOneNameIdBugFix'] : ''}">
+<input id="ExternalBuildsOneDepIdBugFixToData" type="hidden" name="ExternalBuildsOneDepIdBugFix" value="{($config['ExternalBuildsOneDepIdBugFix'] != null) ? $config['ExternalBuildsOneDepIdBugFix'] : ''}">
+<input id="ExternalBuildsOneConfigurationsIdBugFixToData" type="hidden" name="ExternalBuildsOneConfigurationsIdBugFix" value="{($config['ExternalBuildsOneConfigurationsIdBugFix'] != null) ? $config['ExternalBuildsOneConfigurationsIdBugFix'] : ''}">       
+<input id="ExternalBuildsOneNameIdHotFixToData" type="hidden" name="ExternalBuildsOneNameIdHotFix" value="{($config['ExternalBuildsOneNameIdHotFix'] != null) ? $config['ExternalBuildsOneNameIdHotFix'] : ''}">
+<input id="ExternalBuildsOneDepIdHotFixToData" type="hidden" name="ExternalBuildsOneDepIdHotFix" value="{($config['ExternalBuildsOneDepIdHotFix'] != null) ? $config['ExternalBuildsOneDepIdHotFix'] : ''}">
+<input id="ExternalBuildsOneConfigurationsIdHotFixToData" type="hidden" name="ExternalBuildsOneConfigurationsIdHotFix" value="{($config['ExternalBuildsOneConfigurationsIdHotFix'] != null) ? $config['ExternalBuildsOneConfigurationsIdHotFix'] : ''}">
+         
 
-  <form class="aui HiddenForms" style="display: none">      
-      <input id="usePrFrombugFix" style="max-width: 400px" class="text" type="text" name="usePrFrombugFix" value="{($config['usePrFrombugFix'] != null) ? $config['usePrFrombugFix'] : ''}">
-  </form>
+<input id="ExternalHooksConfigurationV2" type="hidden" name="ExternalHooksConfigurationV2" value="{($config['ExternalHooksConfigurationV2'] != null) ? $config['ExternalHooksConfigurationV2'] : ''}">
+<input id="isDefaultBranch" type="hidden" name="isDefaultBranch" value="{($config['isDefaultBranch'] != null) ? $config['isDefaultBranch'] : ''}">
+<input id="usePrFromFeature" type="hidden" name="usePrFromFeature" value="{($config['usePrFromFeature'] != null) ? $config['usePrFromFeature'] : ''}">
+<input id="usePrFrombugFix" type="hidden" name="usePrFrombugFix" value="{($config['usePrFrombugFix'] != null) ? $config['usePrFrombugFix'] : ''}">
 
-  <form class="aui HiddenForms" style="display: none">      
-      <input id="useDebugEnabled" style="max-width: 400px" class="text" type="text" name="useDebugEnabled" value="{($config['useDebugEnabled'] != null) ? $config['useDebugEnabled'] : ''}">
-  </form>
-
-  <form class="aui HiddenForms" style="display: none">      
-      <input id="usePrFromhotFix" style="max-width: 400px" class="text" type="text" name="usePrFromhotFix" value="{($config['usePrFromhotFix'] != null) ? $config['usePrFromhotFix'] : ''}">
-  </form>
-
-  <form class="aui HiddenForms" style="display: none">      
-      <input id="TeamCityPasswordOk" style="max-width: 400px" class="text" type="text" name="TeamCityPasswordOk" value="{($config['TeamCityPasswordOk'] != null) ? $config['TeamCityPasswordOk'] : ''}">
-  </form>
-
+<input id="useDebugEnabled" type="hidden" name="useDebugEnabled" value="{($config['useDebugEnabled'] != null) ? $config['useDebugEnabled'] : ''}">
+<input id="usePrFromhotFix" type="hidden" name="usePrFromhotFix" value="{($config['usePrFromhotFix'] != null) ? $config['usePrFromhotFix'] : ''}">
+<input id="TeamCityPasswordOk" type="hidden" name="TeamCityPasswordOk" value="{($config['TeamCityPasswordOk'] != null) ? $config['TeamCityPasswordOk'] : ''}">
+ 
 <script>
    require('trimble/teamcity/test').onReady();
 </script>

@@ -1,8 +1,6 @@
 package com.trimble.tekla.rest;
 
 import com.atlassian.bitbucket.i18n.I18nService;
-import com.atlassian.bitbucket.permission.PermissionValidationService;
-import com.atlassian.bitbucket.repository.RefService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.rest.RestResource;
 import com.atlassian.bitbucket.rest.util.ResourcePatterns;

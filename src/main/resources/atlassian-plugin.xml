@@ -33,6 +33,10 @@
             <view>com.trimble.tekla.configuration.hook.formContents</view>
             <directory location="/static/"/>
         </config-form>
+        <scopes>
+            <scope>repository</scope>
+        </scopes>
+        <validator>com.trimble.tekla.TeamcityTriggerHook</validator>
     </repository-hook>
     
    <client-resource key="teamcity-test-resources">
@@ -45,9 +49,6 @@
     
     <web-item key="stash.teamcity.trigger" name="Trigger Build" weight="50" section="bitbucket.pull-request.toolbar.actions">
         <conditions type="AND">
-            <condition class="com.atlassian.bitbucket.web.conditions.PullRequestInState">
-                <param name="state">OPEN</param>
-            </condition>
             <condition class="com.atlassian.bitbucket.web.conditions.CanMergePullRequestCondition"/>
             <condition class="com.trimble.tekla.WebhookIsEnabledCondition" />
         </conditions>

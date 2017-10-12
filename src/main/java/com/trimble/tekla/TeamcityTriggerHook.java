@@ -3,6 +3,7 @@ package com.trimble.tekla;
 import com.atlassian.bitbucket.hook.repository.*;
 import com.atlassian.bitbucket.repository.*;
 import com.atlassian.bitbucket.scm.git.GitScm;
+import com.atlassian.bitbucket.scope.Scope;
 import com.atlassian.bitbucket.setting.*;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
@@ -10,16 +11,16 @@ import com.trimble.tekla.teamcity.TeamcityConnector;
 import com.trimble.tekla.teamcity.TeamcityLogger;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nonnull;
 
 /**
  * Note that hooks can implement RepositorySettingsValidator directly.
  */
-public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, RepositorySettingsValidator {
+public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookRequest>, SettingsValidator {
 
   private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("TeamcityTriggerHook");
 
@@ -41,10 +42,11 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
   /**
    * Connects to a configured URL to notify of all changes.
    */
-  @Override
-  public void postReceive(RepositoryHookContext context, Collection<RefChange> refChanges) {
+    @Override
+    public void postUpdate(@Nonnull PostRepositoryHookContext context, 
+                           @Nonnull RepositoryHookRequest hookRequest) {
     boolean useQueue = context.getSettings().getString("triggerType").equals("vcs");
-    String password = this.connectionSettings.getPassword(context.getRepository());
+    String password = this.connectionSettings.getPassword(hookRequest.getRepository());
 
     if (password.isEmpty()) {
       TeamcityLogger.logMessage(context, "postReceive: Teamcity secret password not set. Please set password so accounts dont get locked.");
@@ -57,13 +59,13 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
                     context.getSettings().getString("TeamCityUserName"),
                     password);
 
-    final Repository repository = context.getRepository();
+    final Repository repository = hookRequest.getRepository();
     String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
     Set<String> uniqueBranches = new LinkedHashSet<String>();
     TeamcityLogger.logMessage(context, "postReceive: " + uniqueBranches.size());
 
     // combine branchs
-    for (RefChange change : refChanges) {
+    for (RefChange change : hookRequest.getRefChanges()) {
 
       if (uniqueBranches.contains(change.getRef().getId())) {
         continue;
@@ -102,10 +104,11 @@ public class TeamcityTriggerHook implements AsyncPostReceiveRepositoryHook, Repo
       this.TriggerChangesFetch(context, change.getRef().getId(), conf, useQueue, timeStamp);
     }
   }
-
+    
   @Override
-  public void validate(Settings settings, SettingsValidationErrors errors, Repository repository) {
+  public void validate(@Nonnull Settings settings, @Nonnull SettingsValidationErrors errors, @Nonnull Scope scope) {
     boolean areAutenticationSettingsSet = true;
+                
     if (settings.getString("TeamCityUrl", "").isEmpty()) {
       errors.addFieldError("TeamCityUrl", "Url field is blank, please provide teamcity server address and port");
       areAutenticationSettingsSet = false;
