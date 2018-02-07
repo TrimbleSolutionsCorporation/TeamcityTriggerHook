@@ -1,0 +1,15 @@
+#repository-listeners-table>colgroup>col:nth-child(3) {
+    width: 25%;
+}
+
+#repository-listeners-table>colgroup>col:nth-child(4) {
+    width: 85px;
+}
+
+#repository-listeners-table>tbody>tr>td:nth-child(3) {
+    padding: 7px 10px 7px 16px;
+}
+
+#repository-listeners-table>tbody>tr>td:nth-child(4) {
+    padding: 7px 10px 7px 20px;
+}

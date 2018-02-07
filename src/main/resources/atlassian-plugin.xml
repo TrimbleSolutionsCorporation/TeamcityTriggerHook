@@ -1,18 +1,19 @@
 <atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
     <plugin-info>
-        <vendor name="${project.organization.name}" url="${project.organization.url}"/>
+        <vendor name="${project.organization.name}" url="${project.organization.url}" />
         <description>${project.description}</description>
         <version>${project.version}</version>
         <param name="atlassian-data-center-compatible">true</param>
     </plugin-info>
 
     <!-- deps components -->
-    <component-import key="gitScm" interface="com.atlassian.bitbucket.scm.git.GitScm"/>
+    <component-import key="gitScm" interface="com.atlassian.bitbucket.scm.git.GitScm" />
+    <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver" />
 
     <!-- my comps -->
-    <component key="connectionSettings" class="com.trimble.tekla.TeamcityConnectionSettings"/>
+    <component key="connectionSettings" class="com.trimble.tekla.TeamcityConnectionSettings" />
     <component key="settingsRetriever" class="com.trimble.tekla.ConcreteSettingsService" />
-    <component key="TeamcityPullRequestEventListener" class="com.trimble.tekla.TeamcityPullrequestEventListener"/>
+    <component key="TeamcityPullRequestEventListener" class="com.trimble.tekla.TeamcityPullrequestEventListener" />
 
     <resource type="i18n" name="i18n" location="i18n/teamcity-trigger-hook"/>
 
@@ -26,20 +27,25 @@
         <package>com.trimble.tekla.rest</package>
     </rest>
 
-    <repository-hook key="TeamcityTriggerHook" i18n-name-key="bitbucket-webhook-teamcity.name" name="TeamCity Trigger" class="com.trimble.tekla.TeamcityTriggerHook">
+    <repository-hook key="teamcity-trigger-hook" i18n-name-key="bitbucket-webhook-teamcity.name" name="TeamCity Trigger" class="com.trimble.tekla.TeamcityTriggerHook">
         <description>Remote trigger checking for changed in Teamcity</description>
         <icon>icons/tc-hook.png</icon>
         <config-form name="TeamCity Remote Trigger" key="tc-config">
-            <view>com.trimble.tekla.configuration.hook.formContents</view>
-            <directory location="/static/"/>
+            <view>com.trimble.tekla.teamcity.formDialogContents</view>
+            <directory location="/static/" />
         </config-form>
         <scopes>
             <scope>repository</scope>
         </scopes>
-        <validator>com.trimble.tekla.TeamcityTriggerHook</validator>
+        <validator>com.trimble.tekla.RepositoryHookSettingsValidator</validator>
     </repository-hook>
 
-   <client-resource key="teamcity-test-resources">
+    <web-resource key="plugin-resources" name="plugin Web Resources">
+        <context>atl.general</context>
+        <dependency>com.atlassian.auiplugin:aui-experimental-expander</dependency>
+    </web-resource>
+
+    <client-resource key="teamcity-test-resources">
         <directory location="/static/">
             <exclude>/**/*.soy</exclude>
         </directory>
@@ -49,7 +55,7 @@
 
     <web-item key="stash.teamcity.trigger" name="Trigger Build" weight="50" section="bitbucket.pull-request.toolbar.actions">
         <conditions type="AND">
-            <condition class="com.atlassian.bitbucket.web.conditions.CanMergePullRequestCondition"/>
+            <condition class="com.atlassian.bitbucket.web.conditions.CanMergePullRequestCondition" />
             <condition class="com.trimble.tekla.WebhookIsEnabledCondition" />
         </conditions>
         <label key="stash.web.pull-request.toolbar.triggerTeamcity">build &amp; test</label>
@@ -62,5 +68,4 @@
         <resource type="download" name="teamcity-pr-triggerbutton.js" location="/helpers/teamcity-pr-triggerbutton.js" />
         <context>bitbucket.page.pullRequest.view</context>
     </web-resource>
-
 </atlassian-plugin>
