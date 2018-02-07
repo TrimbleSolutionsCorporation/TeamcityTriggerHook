@@ -23,7 +23,8 @@
         {param isDisabled: false /}
         {param menuItems: [
             ['text': getText('tab.name.connection'), 'url': '#connection', 'isActive': true],
-            ['text' : getText('tab.name.repository'), 'url' : '#repository']
+            ['text' : getText('tab.name.repository'), 'url' : '#repository'],
+            ['text' : getText('tab.name.trigger'), 'url' : '#trigger']
         ]/}
         {param paneContent}
             {call aui.tabPane}
@@ -37,6 +38,12 @@
                 {param id: 'repository' /}
                 {param content}
                     {call .repositoryListenersTab data="all" /}
+                {/param}
+            {/call}
+            {call aui.tabPane}
+                {param id: 'trigger' /}
+                {param content}
+                    {call .triggerTab data="all" /}
                 {/param}
             {/call}
         {/param}

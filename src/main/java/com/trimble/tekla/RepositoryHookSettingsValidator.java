@@ -41,6 +41,7 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
         try {
             validateConnectionTab(settings, errors);
             validateRepositoryListenersTab(settings, errors);
+            validateTriggersTab(settings, errors);
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
@@ -106,5 +107,16 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
                 errors.addFieldError(listenerEntry.getKey(), e.getLocalizedMessage());
             }
         }
+    }
+
+    /**
+     * Validates form data in triggers tab
+     *
+     * @param settings - to be validated.
+     * @param errors - callback for reporting validation errors.
+     * @throws IOException if JSON parsing error occurs
+     */
+    private void validateTriggersTab(final Settings settings, final SettingsValidationErrors errors) throws IOException {
+        // TODO: Implement validation
     }
 }
