@@ -1,48 +1,71 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.trimble.tekla;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.bitbucket.event.repository.RepositoryDeletedEvent;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.event.api.EventListener;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
-import com.atlassian.event.api.EventListener;
 
 /**
- *
- * @author jocs
+ * Manages storing and retrieving of TeamCity user password
  */
 public class TeamcityConnectionSettings {
-  private final PluginSettings pluginSettings;
-  public TeamcityConnectionSettings(PluginSettingsFactory factory) {
-      this.pluginSettings = factory.createSettingsForKey(ConcreteSettingsService.KEY);    
-  }
-  
-  public String getPassword(Repository repository) {
-    Object passwordObj = pluginSettings.get(createKey(repository, "password"));    
-    if (passwordObj == null) {
-      return "";
-    } else {
-      String password = passwordObj.toString();
-      return password;
+
+    private final PluginSettings pluginSettings;
+
+    /**
+     * Constructor
+     *
+     * @param factory - auto injected {@link PluginSettingsFactory}
+     */
+    public TeamcityConnectionSettings(final PluginSettingsFactory factory) {
+        this.pluginSettings = factory.createSettingsForKey(ConcreteSettingsService.KEY);
     }
-  }
 
-  @EventListener
-  public void onRepositoryDeleted(RepositoryDeletedEvent event) {
-      pluginSettings.remove(createKey(event.getRepository(), "password"));
-  }
+    /**
+     * Retrieves TeamCity password for specified repository
+     *
+     * @param repository - {@link Repository}
+     * @return password
+     */
+    public String getPassword(final Repository repository) {
+        final Object passwordObj = this.pluginSettings.get(createKey(repository));
+        if (null == passwordObj) {
+            return StringUtils.EMPTY;
+        } else {
+            return passwordObj.toString();
+        }
+    }
 
-  private String createKey(Repository repository, String key) {
-      return "repo." + repository.getId() + ".teamcity." + key;
-  }    
+    /**
+     * Event listener to remove stored TeamCity password on repository deletion
+     *
+     * @param event - {@link RepositoryDeletedEvent}
+     */
+    @EventListener
+    public void onRepositoryDeleted(final RepositoryDeletedEvent event) {
+        this.pluginSettings.remove(createKey(event.getRepository()));
+    }
 
-  public void SavePassword(String password, Repository repository) {
-    String passwordKey = createKey(repository, "password");
-    
-    this.pluginSettings.put(passwordKey, password);
-  }
+    /**
+     * Generates a unique key for storing TeamCity password for a specific repository
+     *
+     * @param repository - {@link Repository}
+     * @return unique key
+     */
+    private String createKey(final Repository repository) {
+        return String.format("repo.%s.teamcity.password", repository.getId());
+    }
+
+    /**
+     * Stores TeamCity password for specified repository
+     *
+     * @param password - TeamCity password
+     * @param repository - {@link Repository}
+     */
+    public void savePassword(final String password, final Repository repository) {
+        this.pluginSettings.put(createKey(repository), password);
+    }
 }

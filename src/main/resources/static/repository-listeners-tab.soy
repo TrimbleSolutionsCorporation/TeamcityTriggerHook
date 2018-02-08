@@ -1,0 +1,82 @@
+{namespace com.trimble.tekla.teamcity}
+
+/**
+ * Renders Builds tab contents in hook configuration user interface
+ */
+{template .repositoryListenersTab}
+    {literal}
+        <input id="repositoryListenersJson" name="repositoryListenersJson" type="hidden" />
+    {/literal}
+    {call aui.table}
+        {param id: 'repository-listeners-table' /}
+        {param extraClasses: 'aui-table-interactive tc-table' /}
+        {param columnsContent}
+            <colgroup>
+                <col></col>
+                <col></col>
+                <col></col>
+                <col></col>
+                <col></col>
+            </colgroup>
+        {/param}
+        {param theadContent}
+            <tr>
+                <th colspan="2">{getText('listener.column.regexp')}</th>
+                <th>Target ID</th>
+                <th>Target</th>
+                <th></th>
+            </tr>
+            <tr>
+                <th colspan="2">
+                    {call aui.form.input}
+                        {param id: 'referenceRegexp' /}
+                        {param type: 'text' /}
+                        {param infoMessage: getText('reference.regexp.info') /}
+                        {param extraAttributes: ['data-aui-form-notification-position' : 'top'] /}
+                        {param extraClasses: 'long-field' /}
+                    {/call}
+                </th>
+                <th>
+                    {call aui.form.input}
+                        {param id: 'listenerTargetId' /}
+                        {param type: 'text' /}
+                        {param infoMessage: getText('listener.targetid.info') /}
+                        {param extraAttributes: ['data-aui-form-notification-position' : 'top'] /}
+                        {param extraClasses: 'medium-long-field' /}
+                    {/call}
+                </th>
+                <th>
+                    {call aui.form.select}
+                        {param id: 'listenerTarget' /}
+                        {param options: [
+                            ['text' : 'build', 'value' : 'build'],
+                            ['text' : 'vcs', 'value' : 'vcs']
+                        ]/}
+                    {/call}
+                </th>
+                <th>
+                    {call aui.form.button}
+                        {param text: '' /}
+                        {param iconType: 'aui' /}
+                        {param iconClass: 'aui-icon-small aui-iconfont-list-add' /}
+                        {param iconText: 'add' /}
+                    {/call}
+                </th>
+        {/param}
+        {param content: '' /}
+        {param tfootContent}
+            <tr>
+                <td colspan="5"></td>
+            </tr>
+        {/param}
+    {/call}
+    {call aui.message.info}
+        {param content}
+            {call aui.expander.revealText}
+                {param triggerId: 'tc-listener-info-text-trigger'/}
+                {param contentId: 'tc-listener-info-text-content'/}
+                {param contentContent: getText('listeners.info') /}
+            {/call}
+        {/param}
+    {/call}
+{/template}

@@ -1,0 +1,60 @@
+{namespace com.trimble.tekla.teamcity}
+
+/**
+ * Initializes rendering of configuration dialog contents and makes sure $errors are never sent as null.
+ *
+ * @param config
+ * @param? errors
+ */
+{template .formDialogContents}
+    {call .storeSoyParameters data="all" /}
+    {call .formContents data="all" }
+        {param errors: $errors ? $errors : [] /}
+    {/call}
+{/template}
+
+/**
+ * @param config
+ * @param errors
+ */
+{template .formContents}
+    {call aui.tabs}
+        {param id: 'tc-hook-config' /}
+        {param isDisabled: false /}
+        {param menuItems: [
+            ['text': getText('tab.name.connection'), 'url': '#connection', 'isActive': true],
+            ['text' : getText('tab.name.repository'), 'url' : '#repository'],
+            ['text' : getText('tab.name.trigger'), 'url' : '#trigger']
+        ]/}
+        {param paneContent}
+            {call aui.tabPane}
+                {param id: 'connection' /}
+                {param isActive: true /}
+                {param content}
+                    {call .connectionTab data="all" /}
+                {/param}
+            {/call}
+            {call aui.tabPane}
+                {param id: 'repository' /}
+                {param content}
+                    {call .repositoryListenersTab data="all" /}
+                {/param}
+            {/call}
+            {call aui.tabPane}
+                {param id: 'trigger' /}
+                {param content}
+                    {call .triggerTab data="all" /}
+                {/param}
+            {/call}
+        {/param}
+    {/call}
+    {literal}
+        <script type="text/javascript">
+            require([
+              'bitbucket/util/events'
+            ], function (events) {
+              events.trigger('com.trimble.tekla.teamcity.hook.init');
+            });
+        </script>
+    {/literal}
+{/template}

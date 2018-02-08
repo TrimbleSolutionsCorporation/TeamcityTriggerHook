@@ -1,0 +1,62 @@
+/* Overriding dafault style to work properly in a table*/
+form.aui .tc-table .text[data-aui-notification-field]+.aui-icon-notification {
+    margin-left: -22px;
+    right: 0;
+}
+
+#tc-hook-config .aui-expander-content {
+    min-height: 1.5em;
+}
+
+.tc-table {
+    table-layout: fixed;
+}
+
+.tc-table>colgroup>col:first-child {
+    width: 16px;
+}
+
+.tc-table>colgroup>col:last-child {
+    width: 58px;
+}
+
+.tc-table>tbody>tr>td:first-child {
+    padding: 7px 0px;
+}
+
+.tc-table>tbody>tr>td:last-child,
+.tc-table>thead>tr>th:last-child {
+    text-align: center;
+}
+
+.tc-table>tbody>tr>td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.tc-table>tbody>tr>td:hover {
+    white-space: normal;
+    text-overflow: clip;
+    word-break: break-all;
+}
+
+.tc-table .aui-iconfont-list-add {
+    color: #14892c;
+}
+
+.tc-table>tbody>tr .aui-iconfont-remove {
+    opacity: 0;
+}
+
+.tc-table>tbody>tr:hover .aui-iconfont-remove {
+    color: #ffbfba;
+    text-decoration: none;
+    opacity: 1;
+}
+
+.tc-table>tbody>tr .aui-iconfont-remove:hover,
+.tc-table>tbody>tr .aui-iconfont-error {
+    opacity: 1;
+    color: #d04437;
+}

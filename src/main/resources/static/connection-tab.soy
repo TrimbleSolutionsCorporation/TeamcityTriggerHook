@@ -1,0 +1,77 @@
+{namespace com.trimble.tekla.teamcity}
+
+/**
+ * Renders Connection tab contents in hook configuration user interface
+ *
+ * @param config
+ * @param errors
+ */
+{template .connectionTab}
+    {call aui.group.group}
+        {param content}
+            {call aui.form.textField}
+                {param id: 'bitbucketUrl' /}
+                {param fieldWidth: 'long' /}
+                {param value: $config['bitbucketUrl'] /}
+                {param labelContent: getText('bitbucket.url') /}
+                {param errorTexts: $errors['bitbucketUrl'] /}
+                {param isRequired: true /}
+            {/call}
+        {/param}
+    {/call}
+    {call aui.group.group}
+        {param content}
+            {call aui.form.textField}
+                {param id: 'teamCityUrl' /}
+                {param fieldWidth: 'long' /}
+                {param value: $config['teamCityUrl'] /}
+                {param labelContent: getText('url') /}
+                {param errorTexts: $errors['teamCityUrl'] /}
+                {param isRequired: true /}
+            {/call}
+            {call aui.form.textField}
+                {param id: 'teamCityUserName' /}
+                {param fieldWidth: 'medium' /}
+                {param value: $config['teamCityUserName'] /}
+                {param labelContent: getText('username') /}
+                {param errorTexts: $errors['teamCityUserName'] /}
+                {param isRequired: true /}
+            {/call}
+            {call aui.form.passwordField}
+                {param id: 'teamCityPassword' /}
+                {param fieldWidth: 'medium' /}
+                {param value: $config['teamCityPassword'] /}
+                {param labelContent: getText('password') /}
+                {param errorTexts: $errors['teamCityPassword'] /}
+                {param isRequired: true /}
+            {/call}
+            {call aui.form.field}
+                {param id: 'testTeamCityConnection' /}
+                {param type: 'button' /}
+                {param value: getText('test.connetion.button') /}
+                {param descriptionText: getText('test.connetion.button.info') /}
+            {/call}
+            {call .toggle}
+                {param id: 'isDebugEnabled' /}
+                {param value: $config['isDebugEnabled'] /}
+                {param labelText: getText('debug') /}
+            {/call}
+        {/param}
+    {/call}
+{/template}
+
+/**
+ * Renders aui-toggle component
+ *
+ * @param id
+ * @param labelText
+ * @param? value
+ */
+{template .toggle}
+    {call aui.form.fieldGroup}
+        {param content}
+            <aui-label for="{$id}">{$labelText}</aui-label>
+            <aui-toggle id="{$id}" name="{$id}" {if $value}checked{/if} label="{$labelText}"></aui-toggle>
+        {/param}
+    {/call}
+{/template}
