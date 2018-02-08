@@ -7,7 +7,36 @@ public class Listener {
     private String regexp;
     private String target;
     private String targetId;
+    private Boolean triggerOnPullRequest; 
+    private String downStreamUrl;
+    private String downStreamTriggerType;
+          
+    public Boolean getTriggerOnPullRequest() {
+        return this.triggerOnPullRequest;
+    }    
+        
+    public void setTriggerOnPullRequest(Boolean triggerOnPullRequest) {
+        this.triggerOnPullRequest = triggerOnPullRequest;
+    }
+    
+    public String getDownStreamTriggerType() {
+        return this.downStreamTriggerType;
+    }    
 
+    
+    public void setDownStreamTriggerType(String downStreamTriggerType) {
+        this.downStreamTriggerType = downStreamTriggerType;
+    }
+    
+    public String getDownStreamUrl() {
+        return this.downStreamUrl;
+    }    
+
+    
+    public void setDownStreamUrl(String downStreamUrl) {
+        this.downStreamUrl = downStreamUrl;
+    }
+        
     public String getRegexp() {
         return this.regexp;
     }

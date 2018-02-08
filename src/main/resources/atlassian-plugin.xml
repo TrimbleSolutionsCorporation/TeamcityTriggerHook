@@ -1,4 +1,4 @@
-<atlassian-plugin key="${atlassian.plugin.key}" name="${project.name}" plugins-version="2">
+<atlassian-plugin name="TeamCity Remote Trigger Hook" key="com.trimble.tekla" plugins-version="2">
     <plugin-info>
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
         <description>${project.description}</description>
