@@ -47,6 +47,7 @@ import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Level;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
 import org.apache.commons.lang3.StringUtils;
@@ -164,7 +165,10 @@ public class TeamctiyRest extends RestResource {
   @GET
   @Path(value = "triggerbuild")
   @Produces(MediaType.APPLICATION_JSON)
-  public String triggerBuild(@Context final Repository repository, @QueryParam("buildconfig") final String buildconfig, @QueryParam("branch") final String branch) {
+  public String triggerBuild(
+          @Context final Repository repository,
+          @QueryParam("buildconfig") final String buildconfig,
+          @QueryParam("branch") final String branch) {
 
     final Settings settings = this.settingsService.getSettings(repository);
 
@@ -172,8 +176,8 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
-    final String url = settings.getString("TeamCityUrl", "");
-    final String username = settings.getString("TeamCityUserName", "");
+    final String url = settings.getString("teamCityUrl", "");
+    final String username = settings.getString("teamCityUserName", "");
     final String password = this.connectionSettings.getPassword(repository);
 
     if (url.isEmpty()) {
@@ -181,14 +185,19 @@ public class TeamctiyRest extends RestResource {
     }
 
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
-    final String branchtoLower = branch.toLowerCase();
-    if (branchtoLower.startsWith("feature/") || branchtoLower.startsWith("bugfix/") || branchtoLower.startsWith("hotfix/")) {
-      this.connector.QueueBuild(conf, branch.split("/")[1], buildconfig, "Manual Trigger from Bitbucket", false, settings);
-    } else {
-      this.connector.QueueBuild(conf, branch, buildconfig, "Manual Trigger from Bitbucket", false, settings);
-    }
-
-    return "{\"status\": \"ok\" }";
+    final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
+    try {
+      final Listener[] configurations = GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
+      for (Listener configuration : configurations) {
+        if(configuration.getDownStreamUrl().equals(buildconfig) && configuration.getDownStreamTriggerType().equals("build")) {
+          this.connector.QueueBuild(conf, configuration.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket", false, settings);
+        }
+      }      
+      return "{\"status\": \"ok\" }";
+    } catch (IOException ex) {
+      // handle error todo
+      return "{\"status\": \"nOk\" }";
+    }    
   }
 
   @GET
@@ -292,13 +301,13 @@ public class TeamctiyRest extends RestResource {
       if (repositoryListenersJson.isEmpty()) {
         return "{\"status\": \"error\", \"message\": \"hook not configured properly\"}";
       }
-      
-      final JSONObject jObj = new JSONObject();
+
+
       if ("External1Id".equals(id)) {
-        String json = "{\"status\": \"ok\", \"name\": \"Tests\"}";
-        jObj.put("ExternalBuildsOneNameId", json);
+        final JSONObject jObj = new JSONObject();
+        jObj.put("ExternalBuildsOneNameId", "{\"status\": \"ok\", \"name\": \"Tests\"}");
         final Listener[] configurations = GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
-        for (final Listener buildConfig : configurations) {        
+        for (final Listener buildConfig : configurations) {
           if ("build".equals(buildConfig.getDownStreamTriggerType())) {
             String depBuildId = buildConfig.getTargetId();
             String downBuildId = buildConfig.getDownStreamUrl();
@@ -312,59 +321,39 @@ public class TeamctiyRest extends RestResource {
             final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings);
             jObj.put(downBuildId + "_build", returnDataBuildDep);
             jObj.put(downBuildId + "_build_wref", url + "/viewType.html?buildTypeId=" + downBuildId);
-            jObj.put(downBuildId + "_build_queue", queueDataBuildDep);            
+            jObj.put(downBuildId + "_build_queue", queueDataBuildDep);
           }
-        }                
+        }
         return jObj.toString();
       } else if ("External2Id".equals(id)) {
-        if (branch.toLowerCase().contains("feature/") || branch.toLowerCase().contains("bugfix/")) {
-
-        } else {
-          return "{\"status\": \"error\", \"message\": \"applies only to feature and bugfix branch\"}";
-        }
-        final String name = settings.getString("ExternalBuildsTwoNameId", "");
-        String json = "";
-        if (name.isEmpty()) {
-          json = "{\"status\": \"ok\", \"name\": \"\"}";
-          jObj.put("ExternalBuildsTwoNameId", json);
-          return jObj.toString();
-        } else {
-          json = "{\"status\": \"ok\", \"name\": \" " + name + "\"}";
-          jObj.put("ExternalBuildsTwoNameId", json);
-        }
-
-        final String hookconfig = settings.getString("ExternalHooksConfigurationV2");
-
-        final JSONArray jsonObj = new JSONArray(hookconfig);
-        final JSONArray extRef = new JSONArray();
-
-        for (int i = 0; i < jsonObj.length(); i++) {
-          final JSONObject build = jsonObj.getJSONObject(i);
-          final String dependencies = build.getString("dependencies");
-          final String source = build.getString("source");
-
-          if (!branch.toLowerCase().startsWith(source)) {
-            continue;
+        final JSONObject jObj = new JSONObject();
+        jObj.put("ExternalBuildsTwoNameId", "{\"status\": \"ok\", \"name\": \"External Triggers\"}");
+        final JSONArray extRef = new JSONArray();        
+        final Listener[] configurations = GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
+        for (final Listener buildConfig : configurations) {
+          if ("rest".equals(buildConfig.getDownStreamTriggerType()) || 
+              "tab".equals(buildConfig.getDownStreamTriggerType())) {
+            String depBuildId = buildConfig.getTargetId();
+            String downBuildId = buildConfig.getDownStreamUrl();
+            String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
+            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);
+            jObj.put(depBuildId + "_dep", returnData);
+            jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
+            jObj.put(depBuildId + "_dep_queue", queueData);
+            
+            // external trigger configuration
+            final JSONObject build = new JSONObject();
+            build.put("type", buildConfig.getDownStreamTriggerType());
+            build.put("desc", "external trigger");
+            build.put("url", downBuildId);
+            build.put("dependencies", depBuildId);
+            build.put("source", branch);
+            extRef.put(build.toString());
+            
+            // add external trigger
+            jObj.put("ext_references", extRef.toString());
           }
-
-          for (final String buildId : dependencies.split("\\s+")) {
-            String returnData = this.connector.GetBuildsForBranch(conf, branch, buildId, settings);
-            if (returnData.contains("\"count\":0")) {
-              final String[] elems = branch.split("/");
-              returnData = this.connector.GetBuildsForBranch(conf, elems[elems.length - 1], buildId, settings);
-            }
-
-            final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildId, settings);
-            jObj.put(buildId + "_dep", returnData);
-            jObj.put(buildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + buildId);
-            jObj.put(buildId + "_dep_queue", queueData);
-          }
-
-          extRef.put(build.toString());
-
         }
-        jObj.put("ext_references", extRef.toString());
-
         return jObj.toString();
       } else {
         return "{\"status\": \"error\", \"message\": \"invalid id\"}";
@@ -451,8 +440,8 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
-    final String url = settings.getString("TeamCityUrl", "");
-    final String username = settings.getString("TeamCityUserName", "");
+    final String url = settings.getString("teamCityUrl", "");
+    final String username = settings.getString("teamCityUserName", "");
     final String password = this.connectionSettings.getPassword(repository);
 
     if (url.isEmpty()) {

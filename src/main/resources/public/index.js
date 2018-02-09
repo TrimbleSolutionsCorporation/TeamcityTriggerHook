@@ -61,7 +61,7 @@ function CreateButtonWithRef(type, desc, wref, isEnabled) {
   
   rowdata += "  <div class=\"col-xs-2\">"
   if (isEnabled) {
-    if (type == "newtab") {
+    if (type == "tab") {
       rowdata += "<button class=\"btn btn-success\" onclick=\" window.open('" + wref + "','_blank')\"> Trigger</button>";  
     }
     
