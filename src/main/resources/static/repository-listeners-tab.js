@@ -13,13 +13,17 @@ require([
         _$referenceRegexp : undefined,
         _$listenerTargetId : undefined,
         _$listenerTarget : undefined,
+        _$listenerDownStreamTriggerType : undefined,
+        _$listenerDownStreamUrl : undefined,
         _listeners : undefined,
         _errors : undefined,
-
+        
         /**
          * Initializes repository listeners table controller
          */
         init : function(listeners, errors) {
+            console.log("init listener");
+        
             if (listeners) {
                 this._listeners = JSON.parse(listeners);
             } else {
@@ -36,6 +40,9 @@ require([
             this._$referenceRegexp = $('#referenceRegexp');
             this._$listenerTargetId = $('#listenerTargetId');
             this._$listenerTarget = $('#listenerTarget');
+            this._$listenerDownStreamTriggerType = $('#downStreamTriggerType');
+            this._$listenerDownStreamUrl = $('#downStreamUrl');
+
 
             $('#repository-listeners-table > thead button').off().on('click',$.proxy(this._addListenerHandler, this));
 
@@ -84,6 +91,12 @@ require([
                 }), $('<td/>', {
                     html : listener.target
                 }), $('<td/>', {
+                    html : ''
+                }), $('<td/>', {
+                    html : listener.downStreamTriggerType
+                }), $('<td/>', {
+                    html : listener.downStreamUrl
+                }), $('<td/>', {
                     html : aui.icons.icon({
                         tagName : 'a',
                         icon : 'remove',
@@ -121,16 +134,18 @@ require([
             var listener = {
                 regexp : this._$referenceRegexp.val(),
                 targetId : this._$listenerTargetId.val(),
-                target : this._$listenerTarget.val()
+                target : this._$listenerTarget.val(),
+                downStreamTriggerType : this._$listenerDownStreamTriggerType.val(),
+                downStreamUrl : this._$listenerDownStreamUrl.val(),
             };
 
             this._$referenceRegexp.val('');
             this._$listenerTargetId.val('');
+            this._$listenerDownStreamUrl.val('');
 
             var listenerUUID = uuid();
             this._listeners[listenerUUID] = listener;
             this._drawTableRow(listenerUUID, listener);
-
         },
 
         /**

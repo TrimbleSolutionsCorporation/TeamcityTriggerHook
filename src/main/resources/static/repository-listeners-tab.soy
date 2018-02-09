@@ -17,6 +17,9 @@
                 <col></col>
                 <col></col>
                 <col></col>
+                <col></col>
+                <col></col>
+                <col></col>
             </colgroup>
         {/param}
         {param theadContent}
@@ -24,6 +27,9 @@
                 <th colspan="2">{getText('listener.column.regexp')}</th>
                 <th>Target ID</th>
                 <th>Target</th>
+                <th>-></th>
+                <th>DownStream Type</th>
+                <th>Id</th>
                 <th></th>
             </tr>
             <tr>
@@ -52,6 +58,26 @@
                             ['text' : 'build', 'value' : 'build'],
                             ['text' : 'vcs', 'value' : 'vcs']
                         ]/}
+                    {/call}
+                </th>
+                <th></th>
+                <th>
+                    {call aui.form.select}
+                        {param id: 'downStreamTriggerType' /}
+                        {param options: [
+                            ['text' : 'build', 'value' : 'build'],
+                            ['text' : 'rest', 'value' : 'rest'],
+                            ['text' : 'new tab', 'value' : 'tab']
+                        ]/}
+                    {/call}
+                </th>
+                <th>
+                    {call aui.form.input}
+                        {param id: 'downStreamUrl' /}
+                        {param type: 'text' /}
+                        {param infoMessage: getText('trigger.configuration.info') /}
+                        {param extraAttributes: ['data-aui-form-notification-position' : 'top'] /}
+                        {param extraClasses: 'medium-field' /}
                     {/call}
                 </th>
                 <th>

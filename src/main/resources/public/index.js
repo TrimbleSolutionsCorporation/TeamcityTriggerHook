@@ -271,8 +271,8 @@ function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName, wr
   }
 }
 
-function GetExternalBuildConfigurationsGroup(id, typeBranch) {
-  parent.GetExternalBuildsConfigurations(id, typeBranch, function(data, branchName, prid, typeOfBranch) {
+function GetExternalBuildConfigurationsGroup(id) {
+  parent.GetExternalBuildsConfigurations(id, function(data, branchName, prid) {
     
     if (typeof data.status !== 'undefined') {
       // the variable is defined
@@ -283,14 +283,9 @@ function GetExternalBuildConfigurationsGroup(id, typeBranch) {
     
     if (data) {
       if (id === 'External1Id') {
-        var name = JSON.parse(data["ExternalBuildsOneNameId" + typeOfBranch]).name;
-        if (name === "") {
-          document.getElementById(id + typeOfBranch).style.display = 'none';          
-          return;
-        }
-        
-        document.getElementById(id + typeOfBranch).innerHTML = name;        
-        document.getElementById(id + typeOfBranch).style.display = 'inherit';
+        var name = "Tests";        
+        document.getElementById(id).innerHTML = name;        
+        document.getElementById(id).style.display = 'inherit';
         
 
         // get dependent builds
@@ -326,7 +321,7 @@ function GetExternalBuildConfigurationsGroup(id, typeBranch) {
           rowdata += CreateBuildRow(build, false, false);
         });
                                    
-        var tableBody = document.getElementById('tableDependenciesId' + typeOfBranch);
+        var tableBody = document.getElementById('tableDependenciesId');
         tableBody.innerHTML = rowdata;
         
         var rowdata  = "";
@@ -334,7 +329,7 @@ function GetExternalBuildConfigurationsGroup(id, typeBranch) {
           rowdata += CreateBuildRow(build, canTriggerBuilds, "TriggerExternalTeamcityBuild", true);
         });
                                    
-        var tableBody = document.getElementById('tableBuildsId' + typeOfBranch);
+        var tableBody = document.getElementById('tableBuildsId');
         tableBody.innerHTML = rowdata;                
       }
       
@@ -401,6 +396,11 @@ function GetMainBuilds() {
     for (var key in data) {
       if (data.hasOwnProperty(key) && !key.endsWith("_queue") && !key.endsWith("_wref")) {
         var json = JSON.parse(data[key]);            
+        if (typeof json.exception !== 'undefined') {
+            // handle error
+            continue;
+        }
+
         var jsonqueue = JSON.parse(data[key + "_queue"]);
         var wref = data[key + "_wref"];
         var build = GetBuildFromJson(json, jsonqueue, key, branchName, wref);
@@ -422,10 +422,8 @@ function ReloadData() {
   setTimeout(function () {
     if (parent.BuildWindowLaunched === true) {
       GetMainBuilds();
-      GetExternalBuildConfigurationsGroup('External1Id', 'Feature');
-      GetExternalBuildConfigurationsGroup('External1Id', 'BugFix');
-      GetExternalBuildConfigurationsGroup('External1Id', 'HotFix');
-      GetExternalBuildConfigurationsGroup('External2Id', '');           
+      GetExternalBuildConfigurationsGroup('External1Id');
+      GetExternalBuildConfigurationsGroup('External2Id');           
     }
     ReloadData();      
   }, 5000);
@@ -436,13 +434,9 @@ $(document).ready(function() {
    console.log( "ready!" );
    buildDependencies = [];
    document.getElementById('External2Id').style.display = 'none';
-   document.getElementById('External1IdFeature').style.display = 'none';
-   document.getElementById('External1IdBugFix').style.display = 'none';
-   document.getElementById('External1IdHotFix').style.display = 'none';
+   document.getElementById('External1Id').style.display = 'none';
    GetMainBuilds();
-   GetExternalBuildConfigurationsGroup('External1Id', 'Feature');
-   GetExternalBuildConfigurationsGroup('External1Id', 'BugFix');
-   GetExternalBuildConfigurationsGroup('External1Id', 'HotFix');
+   GetExternalBuildConfigurationsGroup('External1Id');
    GetExternalBuildConfigurationsGroup('External2Id');   
    ReloadData();
 });

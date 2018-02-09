@@ -9,6 +9,15 @@ import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
+import com.trimble.tekla.pojo.Listener;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import org.apache.commons.lang3.StringUtils;
+import org.codehaus.jackson.map.ObjectMapper;
 
 
 /**
@@ -59,36 +68,34 @@ public class WebhookIsEnabledCondition implements Condition {
     RepositoryHook hook = settingsService.getRepositoryHook(repo);
     Settings settings = settingsService.getSettings(repo);
 
-    if (settings == null) {
+    if (settings == null || hook == null || !hook.isEnabled()) {
       return false;
     }
 
     // check if builds are configured
     PullRequestRef ref = pullrequest.getFromRef();
     String branch = ref.getId();
-        
-    String root = settings.getString("featureRule", "");
-    Boolean isConfigured = false;
-    if(!root.isEmpty() && 
-        (branch.toLowerCase().startsWith("refs/heads/feature/") || 
-         branch.toLowerCase().startsWith("feature/"))) {
-      isConfigured = true;
+    
+    final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
+    if(repositoryListenersJson.isEmpty()) {
+      return false;
     }
     
-    root = settings.getString("bugFixRule", "");
-    if(!root.isEmpty() && 
-        (branch.toLowerCase().startsWith("refs/heads/bugfix/") || 
-         branch.toLowerCase().startsWith("bugfix/"))) {
-      isConfigured = true;
+    final ObjectMapper mapper = new ObjectMapper();
+    final Map<String, Listener> listenerMap;
+    try {
+      listenerMap = mapper.readValue(repositoryListenersJson, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Listener.class));
+      for (final Map.Entry<String, Listener> listenerEntry : listenerMap.entrySet()) {
+       Pattern pattern = Pattern.compile(listenerEntry.getValue().getRegexp());
+       Matcher matcher = pattern.matcher(branch);
+       if (matcher.find()) {
+         return true;
+       }
+      }
+    } catch (IOException ex) {
+      return false;
     }
-
-    root = settings.getString("hotfixRule", "");
-    if(!root.isEmpty() && 
-        (branch.toLowerCase().startsWith("refs/heads/hotfix/") || 
-         branch.toLowerCase().startsWith("hotfix/"))) {
-      isConfigured = true;
-    }    
-            
-    return !(hook == null || !hook.isEnabled() || settings == null || !isConfigured);
+    
+    return false;            
   }
 }
