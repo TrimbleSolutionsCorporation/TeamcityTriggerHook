@@ -55,8 +55,8 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
 
     TeamcityConfiguration conf
             = new TeamcityConfiguration(
-                    context.getSettings().getString("TeamCityUrl"),
-                    context.getSettings().getString("TeamCityUserName"),
+                    context.getSettings().getString("teamCityUrl"),
+                    context.getSettings().getString("teamCityUserName"),
                     password);
 
     final Repository repository = hookRequest.getRepository();

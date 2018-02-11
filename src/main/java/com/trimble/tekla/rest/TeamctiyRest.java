@@ -187,7 +187,7 @@ public class TeamctiyRest extends RestResource {
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
     try {
-      final Listener[] configurations = GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
+      final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
       for (Listener configuration : configurations) {
         if(configuration.getDownStreamUrl().equals(buildconfig) && configuration.getDownStreamTriggerType().equals("build")) {
           this.connector.QueueBuild(conf, configuration.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket", false, settings);
@@ -233,7 +233,7 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"hook not configured properly\"}";
     }
 
-    final Listener[] configurations = GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
+    final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
 
     if (configurations.length == 0) {
       return "{\"status\": \"error\", \"message\": \"no build configurations defined for this branch\"}";
@@ -306,7 +306,7 @@ public class TeamctiyRest extends RestResource {
       if ("External1Id".equals(id)) {
         final JSONObject jObj = new JSONObject();
         jObj.put("ExternalBuildsOneNameId", "{\"status\": \"ok\", \"name\": \"Tests\"}");
-        final Listener[] configurations = GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
+        final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
         for (final Listener buildConfig : configurations) {
           if ("build".equals(buildConfig.getDownStreamTriggerType())) {
             String depBuildId = buildConfig.getTargetId();
@@ -329,7 +329,7 @@ public class TeamctiyRest extends RestResource {
         final JSONObject jObj = new JSONObject();
         jObj.put("ExternalBuildsTwoNameId", "{\"status\": \"ok\", \"name\": \"External Triggers\"}");
         final JSONArray extRef = new JSONArray();        
-        final Listener[] configurations = GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
+        final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
         for (final Listener buildConfig : configurations) {
           if ("rest".equals(buildConfig.getDownStreamTriggerType()) || 
               "tab".equals(buildConfig.getDownStreamTriggerType())) {
@@ -476,24 +476,5 @@ public class TeamctiyRest extends RestResource {
     } catch (final Exception e) {
       return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
     }
-  }
-
-  private Listener[] GetBuildConfigurationsFromBranch(final String jsonConfiguration, final String branch) throws IOException {
-    final ObjectMapper mapper = new ObjectMapper();
-    final Map<String, Listener> listenerMap;
-    final List<Listener> configs = new ArrayList<>();
-    listenerMap = mapper.readValue(jsonConfiguration, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Listener.class));
-    for (final Map.Entry<String, Listener> listenerEntry : listenerMap.entrySet()) {
-      final Pattern pattern = Pattern.compile(listenerEntry.getValue().getRegexp());
-      final Matcher matcher = pattern.matcher(branch);
-      while (matcher.find()) {
-        for (int i = 1; i <= matcher.groupCount(); i++) {
-          listenerEntry.getValue().setBranchConfig(matcher.group(i));
-          configs.add(listenerEntry.getValue());
-        }
-      }
-    }
-
-    return configs.toArray(new Listener[configs.size()]);
   }
 }

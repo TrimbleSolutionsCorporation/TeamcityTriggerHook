@@ -13,6 +13,7 @@ require([
         _$referenceRegexp : undefined,
         _$listenerTargetId : undefined,
         _$listenerTarget : undefined,
+        _$listenerOnPullRequest : undefined,
         _$listenerDownStreamTriggerType : undefined,
         _$listenerDownStreamUrl : undefined,
         _listeners : undefined,
@@ -40,11 +41,12 @@ require([
             this._$referenceRegexp = $('#referenceRegexp');
             this._$listenerTargetId = $('#listenerTargetId');
             this._$listenerTarget = $('#listenerTarget');
+            this._$listenerOnPullRequest = $('#listenerOnPullRequest');
             this._$listenerDownStreamTriggerType = $('#downStreamTriggerType');
             this._$listenerDownStreamUrl = $('#downStreamUrl');
 
 
-            $('#repository-listeners-table > thead button').off().on('click',$.proxy(this._addListenerHandler, this));
+            $('#addListenerButton').off().on('click',$.proxy(this._addListenerHandler, this));
 
             this._drawTableContents();
         },
@@ -87,15 +89,15 @@ require([
                 }), $('<td/>', {
                     html : listener.regexp
                 }), $('<td/>', {
-                    html : listener.targetId
-                }), $('<td/>', {
                     html : listener.target
                 }), $('<td/>', {
-                    html : ''
+                    html : listener.targetId
                 }), $('<td/>', {
-                    html : listener.downStreamTriggerType
+                    html : listener.triggerOnPullRequest
                 }), $('<td/>', {
                     html : listener.downStreamUrl
+                }), $('<td/>', {
+                    html : listener.downStreamTriggerType
                 }), $('<td/>', {
                     html : aui.icons.icon({
                         tagName : 'a',
@@ -131,12 +133,24 @@ require([
          */
         _addListenerHandler : function(event) {
             event.preventDefault();
+            var checkedElement = "false";
+            if (this._$listenerOnPullRequest[0].checked) {
+                checkedElement = "true";
+            }
+
+            var url = this._$listenerDownStreamUrl.val();
+            var type = this._$listenerDownStreamTriggerType.val();
+            if (url === 'undefined' || url === '') {
+                type = "";
+            }
+            
             var listener = {
                 regexp : this._$referenceRegexp.val(),
                 targetId : this._$listenerTargetId.val(),
                 target : this._$listenerTarget.val(),
+                triggerOnPullRequest : checkedElement,
                 downStreamTriggerType : this._$listenerDownStreamTriggerType.val(),
-                downStreamUrl : this._$listenerDownStreamUrl.val(),
+                downStreamUrl : url,
             };
 
             this._$referenceRegexp.val('');
