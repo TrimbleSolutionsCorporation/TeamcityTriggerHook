@@ -11,13 +11,7 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
 import com.trimble.tekla.pojo.Listener;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 
 
 /**
@@ -30,7 +24,7 @@ public class WebhookIsEnabledCondition implements Condition {
 
   private static final String REPOSITORY = "repository";
   
-  private SettingsService settingsService;
+  private final SettingsService settingsService;
   
   /**
    * Create a new instance of the condition
@@ -55,7 +49,6 @@ public class WebhookIsEnabledCondition implements Condition {
   public boolean shouldDisplay(Map<String, Object> context) {
     final Object obj = context.get(REPOSITORY);
     final Object pr = context.get("pullRequest");
-
     
     if (obj == null || !(obj instanceof Repository))
       return false;
@@ -72,28 +65,21 @@ public class WebhookIsEnabledCondition implements Condition {
       return false;
     }
 
-    // check if builds are configured
-    PullRequestRef ref = pullrequest.getFromRef();
-    String branch = ref.getId();
-    
     final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
     if(repositoryListenersJson.isEmpty()) {
       return false;
     }
+
+    // check if builds are configured
+    PullRequestRef ref = pullrequest.getFromRef();
+    String branch = ref.getId();
     
-    final ObjectMapper mapper = new ObjectMapper();
-    final Map<String, Listener> listenerMap;
     try {
-      listenerMap = mapper.readValue(repositoryListenersJson, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Listener.class));
-      for (final Map.Entry<String, Listener> listenerEntry : listenerMap.entrySet()) {
-       Pattern pattern = Pattern.compile(listenerEntry.getValue().getRegexp());
-       Matcher matcher = pattern.matcher(branch);
-       if (matcher.find()) {
-         return true;
-       }
-      }
+      final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);    
+      if (configurations.length > 0) {
+        return true;
+      }      
     } catch (IOException ex) {
-      return false;
     }
     
     return false;            

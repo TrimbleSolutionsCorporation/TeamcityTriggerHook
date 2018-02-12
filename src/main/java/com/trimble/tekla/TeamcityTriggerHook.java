@@ -3,26 +3,26 @@ package com.trimble.tekla;
 import com.atlassian.bitbucket.hook.repository.*;
 import com.atlassian.bitbucket.repository.*;
 import com.atlassian.bitbucket.scm.git.GitScm;
-import com.atlassian.bitbucket.scope.Scope;
 import com.atlassian.bitbucket.setting.*;
+import com.trimble.tekla.pojo.Listener;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import com.trimble.tekla.teamcity.TeamcityLogger;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import javax.annotation.Nonnull;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Note that hooks can implement RepositorySettingsValidator directly.
  */
-public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookRequest>, SettingsValidator {
+public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookRequest> {
 
-  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("TeamcityTriggerHook");
+  private static final org.slf4j.Logger Logger = org.slf4j.LoggerFactory.getLogger("TeamcityTriggerHook");
 
   private final TeamcityConnector connector;
   private GitScm gitScm;
@@ -45,7 +45,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
     @Override
     public void postUpdate(@Nonnull PostRepositoryHookContext context, 
                            @Nonnull RepositoryHookRequest hookRequest) {
-    boolean useQueue = context.getSettings().getString("triggerType").equals("vcs");
+
     String password = this.connectionSettings.getPassword(hookRequest.getRepository());
 
     if (password.isEmpty()) {
@@ -55,8 +55,8 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
 
     TeamcityConfiguration conf
             = new TeamcityConfiguration(
-                    context.getSettings().getString("teamCityUrl"),
-                    context.getSettings().getString("teamCityUserName"),
+                    context.getSettings().getString(Field.TEAMCITY_URL),
+                    context.getSettings().getString(Field.TEAMCITY_USERNAME),
                     password);
 
     final Repository repository = hookRequest.getRepository();
@@ -101,213 +101,44 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
 
       uniqueBranches.add(change.getRef().getId());
       TeamcityLogger.logMessage(context, "Trigger From Ref: " + change.getRef().getId());
-      this.TriggerChangesFetch(context, change.getRef().getId(), conf, useQueue, timeStamp);
+      try {
+        this.TriggerBuild(context, change.getRef().getId(), conf, timeStamp);
+      } catch (IOException ex) {
+        TeamcityLogger.logMessage(context, "Trigger From Ref Failed Excetion: " + ex.getMessage());
+      }
     }
   }
     
-  @Override
-  public void validate(@Nonnull Settings settings, @Nonnull SettingsValidationErrors errors, @Nonnull Scope scope) {
-    boolean areAutenticationSettingsSet = true;
-                
-    if (settings.getString("TeamCityUrl", "").isEmpty()) {
-      errors.addFieldError("TeamCityUrl", "Url field is blank, please provide teamcity server address and port");
-      areAutenticationSettingsSet = false;
-    }
-
-    if (settings.getString("TeamCityUserName", "").isEmpty()) {
-      errors.addFieldError("TeamCityUserName", "Username needs to be defined");
-      areAutenticationSettingsSet = false;
-    }
-
-    String teamCityPasswordOk = settings.getString("TeamCityPasswordOk", "");
-    if (teamCityPasswordOk.isEmpty()) {
-      errors.addFieldError("TeamCityPasswordOk", "Test and Save Connection needs to be clicked to validate user credentials");
-      areAutenticationSettingsSet = false;
-    } else {
-      if (!teamCityPasswordOk.equals("OkPassword")) {
-        errors.addFieldError("TeamCityPasswordOk", "Credentials are incorrect.");
-        areAutenticationSettingsSet = false;
-      }
-    }
-
-    if (!areAutenticationSettingsSet) {
+  private void TriggerBuild(RepositoryHookContext context, String refId, TeamcityConfiguration conf, String timestamp) throws IOException {
+    final String repositoryListenersJson = context.getSettings().getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
+    if (repositoryListenersJson.isEmpty()) {
       return;
     }
-
-    if (settings.getString("masterRule", "").isEmpty()
-            && settings.getString("bugFixRule", "").isEmpty()
-            && settings.getString("featureRule", "").isEmpty()
-            && settings.getString("hotfixRule", "").isEmpty()) {
-      errors.addFieldError("masterRule", "At least one configuration should be set");
-      errors.addFieldError("bugFixRule", "At least one configuration should be set");
-      errors.addFieldError("hotfixRule", "At least one configuration should be set");
-      errors.addFieldError("featureRule", "At least one configuration should be set");
-    }
-
-    if (!settings.getString("ExternalBuildsOneNameIdFeature", "").isEmpty()) {
-      if (settings.getString("ExternalBuildsOneDepIdFeature", "").isEmpty()) {
-        errors.addFieldError("ExternalBuildsOneDepIdFeature", "At least one dependency should be set");
+    
+    final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, refId);
+    for (final Listener buildConfig : configurations) {
+      if(buildConfig.getTriggerOnPullRequest()) {
+        continue;
       }
-      String configuration = settings.getString("ExternalBuildsOneConfigurationsIdFeature", "");
-      if (configuration.isEmpty()) {
-        errors.addFieldError("ExternalBuildsOneConfigurationsIdFeature", "At least one configuration should be set");
+      
+      if(buildConfig.getTarget().equals("vcs")) {
+        this.TriggerCheckForChanges(context, buildConfig.getTargetId(), conf, context.getSettings());
       }
-
-      if (settings.getString("featureRule", "").isEmpty()) {
-        errors.addFieldError("ExternalBuildsOneInvalidDepFeature", "External builds have been set, a rule for feature branch needs to be set in the build configuration rules.");
-      }
-    }
-
-    if (!settings.getString("ExternalBuildsOneNameIdBugFix", "").isEmpty()) {
-      if (settings.getString("ExternalBuildsOneDepIdBugFix", "").isEmpty()) {
-        errors.addFieldError("ExternalBuildsOneDepIdBugFix", "At least one dependency should be set");
-      }
-      String configuration = settings.getString("ExternalBuildsOneConfigurationsIdBugFix", "");
-      if (configuration.isEmpty()) {
-        errors.addFieldError("ExternalBuildsOneConfigurationsIdBugFix", "At least one configuration should be set");
-      }
-
-      if (settings.getString("bugFixRule", "").isEmpty()) {
-        errors.addFieldError("ExternalBuildsOneInvalidDepBugFix", "External builds have been set, a rule for bugfix branch needs to be set in the build configuration rules.");
-      }
-    }
-
-    if (!settings.getString("ExternalBuildsOneNameIdHotFix", "").isEmpty()) {
-      if (settings.getString("ExternalBuildsOneDepIdHotFix", "").isEmpty()) {
-        errors.addFieldError("ExternalBuildsOneDepIdHotFix", "At least one dependency should be set");
-      }
-      String configuration = settings.getString("ExternalBuildsOneConfigurationsIdHotFix", "");
-      if (configuration.isEmpty()) {
-        errors.addFieldError("ExternalBuildsOneConfigurationsIdHotFix", "At least one configuration should be set");
-      }
-
-      if (settings.getString("hotfixRule", "").isEmpty()) {
-        errors.addFieldError("ExternalBuildsOneInvalidDepHotFix", "External builds have been set, a rule for hotfix branch needs to be set in the build configuration rules.");
-      }
-    }
-
-    if (!settings.getString("ExternalBuildsTwoNameId", "").isEmpty()) {
-      if (settings.getString("ExternalBuildsTwoDepId", "").isEmpty()) {
-        errors.addFieldError("ExternalBuildsTwoDepId", "At least one dependency should be set");
-      }
-      String configuration = settings.getString("ExternalHooksConfigurationV2", "");
-      if (configuration.isEmpty() || configuration.equals("[]") || configuration.equals("{}")) {
-        errors.addFieldError("ExternalHooksConfigurationV2", "At least one hook should be set for  external hooks");
-      }
+      
+      if(buildConfig.getTarget().equals("build")) {
+        // for now we deprecate the isDefault, so that in teamcity we force to use
+        // refs/heads/(master) to avoid display default
+        this.QueueBuild(context, buildConfig.getTargetId(), buildConfig.getBranchConfig(), conf, timestamp, false, context.getSettings());
+      }      
     }
   }
 
-  private void TriggerChangesFetch(RepositoryHookContext context, String refId, TeamcityConfiguration conf, boolean useQueue, String timestamp) {
-
-    String masterVcsRoot = context.getSettings().getString("masterRule");
-    if (!masterVcsRoot.isEmpty() && refId.toLowerCase().equals("refs/heads/master")) {
-      if (useQueue == false) {
-        boolean isDefault = context.getSettings().getBoolean("isDefaultBranch");
-        this.QueueBuild(context, masterVcsRoot, "master", conf, timestamp, isDefault, context.getSettings());
-      } else {
-        this.TriggerWithDefinition(context, masterVcsRoot, conf, context.getSettings());
-      }
-    }
-
-    String featureVcsRoot = context.getSettings().getString("featureRule");
-    if (!featureVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/feature")) {
-      Boolean isTriggerOnPr = context.getSettings().getBoolean("usePrFromFeature", false);
-      if (isTriggerOnPr) {
-        return;
-      }
-      if (useQueue == false) {
-        this.QueueBuild(context, featureVcsRoot, refId.split("/")[3], conf, timestamp, false, context.getSettings());
-      } else {
-        this.TriggerWithDefinition(context, featureVcsRoot, conf, context.getSettings());
-      }
-    }
-
-    String bugfixVcsRoot = context.getSettings().getString("bugFixRule");
-    if (!bugfixVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/bugfix")) {
-      Boolean isTriggerOnPr = context.getSettings().getBoolean("usePrFrombugFix", false);
-      if (isTriggerOnPr) {
-        return;
-      }
-      if (useQueue == false) {
-        this.QueueBuild(context, bugfixVcsRoot, refId.split("/")[3], conf, timestamp, false, context.getSettings());
-      } else {
-        this.TriggerWithDefinition(context, bugfixVcsRoot, conf, context.getSettings());
-      }
-    }
-
-    String hotfixVcsRoot = context.getSettings().getString("hotfixRule");
-    if (!hotfixVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/hotfix")) {
-      Boolean isTriggerOnPr = context.getSettings().getBoolean("usePrFromhotFix", false);
-      if (isTriggerOnPr) {
-        return;
-      }
-      if (useQueue == false) {
-        this.QueueBuild(context, hotfixVcsRoot, refId.split("/")[3], conf, timestamp, false, context.getSettings());
-      } else {
-        this.TriggerWithDefinition(context, hotfixVcsRoot, conf, context.getSettings());
-      }
-    }
-
-    String releaseVcsRoot = context.getSettings().getString("releaseRule");
-    if (!releaseVcsRoot.isEmpty() && refId.toLowerCase().startsWith("refs/heads/release")) {
-      if (useQueue == false) {
-        this.QueueBuild(context, releaseVcsRoot, refId.split("/")[3], conf, timestamp, false, context.getSettings());
-      } else {
-        this.TriggerWithDefinition(context, releaseVcsRoot, conf, context.getSettings());
-      }
-    }
-
-    String branchDefinition = context.getSettings().getString("BranchDefinition");
-    TeamcityLogger.logMessage(context, "Regx Branch Definition: " + branchDefinition);
-    if (!branchDefinition.isEmpty() && this.ValidateRegx(refId, branchDefinition)) {
-      TeamcityLogger.logMessage(context, "Regx Validated");
-      if (useQueue == false) {
-        String[] elemets = refId.split("/");
-        this.QueueBuild(context, context.getSettings().getString("BranchCustomTypes"), elemets[elemets.length - 1], conf, timestamp, false, context.getSettings());
-      } else {
-        this.TriggerWithDefinition(context, context.getSettings().getString("BranchCustomTypes"), conf, context.getSettings());
-      }
-    }
-  }
-
-  public boolean ValidateRegx(String data, String regx) {
-    if (data.toLowerCase().equals("refs/heads/master")) {
-      return false;
-    }
-
-    if (data.toLowerCase().startsWith("refs/heads/feature")) {
-      return false;
-    }
-
-    if (data.toLowerCase().startsWith("refs/heads/bugfix")) {
-      return false;
-    }
-
-    if (data.toLowerCase().startsWith("refs/heads/hotfix")) {
-      return false;
-    }
-
-    if (data.toLowerCase().startsWith("refs/heads/release")) {
-      return false;
-    }
-
-    Pattern pattern = Pattern.compile(regx);
-    Matcher matcher = pattern.matcher(data);
-    return matcher.matches();
-  }
-
-  private void TriggerWithDefinition(RepositoryHookContext context, String definition, TeamcityConfiguration conf, Settings settings) {
+  private void TriggerCheckForChanges(RepositoryHookContext context, String vcsRoot, TeamcityConfiguration conf, Settings settings) {
     try {
-      for (String vcsRoot : definition.split("\\s+")) {
-        try {
-          TeamcityLogger.logMessage(context, "Trigger Check for Changes in: " + vcsRoot);
-          this.connector.TriggerCheckForChanges(conf, vcsRoot, settings);
-        } catch (Exception e) {
-          TeamcityLogger.logMessage(context, "Trigger Check for Changes in: " + vcsRoot + " Failed : " + e.getMessage());
-        }
-      }
+      TeamcityLogger.logMessage(context, "Trigger Check for Changes in: " + vcsRoot);
+      this.connector.TriggerCheckForChanges(conf, vcsRoot, settings);
     } catch (Exception e) {
-      TeamcityLogger.logMessage(context, "Invalid vcs configuration data: " + definition + " - " + e.getMessage());
+      TeamcityLogger.logMessage(context, "Trigger Check for Changes in: " + vcsRoot + " Failed : " + e.getMessage());
     }
   }
 
@@ -319,31 +150,26 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
           String timeStamp,
           Boolean isDefault,
           Settings settings) {
+
+    String baseUrl = context.getSettings().getString(Field.BITBUCKET_URL);
+    String comment = "remote trigger from bitbucket server : server address not specified in Bitbucket";
+
+    if (!baseUrl.isEmpty()) {
+      comment = "remote trigger from bitbucket server : " + baseUrl + "/branches";
+    }
+
+    TeamcityLogger.logMessage(context, "" + timeStamp + " Trigger builds for branch: " + branch);
     try {
-      String baseUrl = context.getSettings().getString("bitbuckerUrl");
-      String comment = "remote trigger from bitbucket server : server address not specified in Bitbucket";
+      TeamcityLogger.logMessage(context, "Trigger BuildId: " + buildIdIn);
 
-      if (!baseUrl.isEmpty()) {
-        comment = "remote trigger from bitbucket server : " + baseUrl + "/branches";
-      }
-
-      TeamcityLogger.logMessage(context, "" + timeStamp + " Trigger builds for branch: " + branch);
-      for (String buildId : buildIdIn.split("\\s+")) {
-        try {
-          TeamcityLogger.logMessage(context, "Trigger BuildId: " + buildId);
-
-          if (!this.connector.IsInQueue(conf, buildId, branch, settings)) {
-            this.connector.QueueBuild(conf, branch, buildId, comment, isDefault, settings);
-          } else {
-            TeamcityLogger.logMessage(context, "Skip already in queue: " + buildId);
-          }
-        } catch (Exception e) {
-          TeamcityLogger.logMessage(context, "BuildId: " + buildId + " Failed");
-          TeamcityLogger.logMessage(context, "Error: " + e.getMessage());
-        }
+      if (!this.connector.IsInQueue(conf, buildIdIn, branch, settings)) {
+        this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings);
+      } else {
+        TeamcityLogger.logMessage(context, "Skip already in queue: " + buildIdIn);
       }
     } catch (Exception e) {
-      TeamcityLogger.logMessage(context, "Invalid build configuration data: " + buildIdIn + " : " + e.getMessage());
-    }
+      TeamcityLogger.logMessage(context, "BuildId: " + buildIdIn + " Failed");
+      TeamcityLogger.logMessage(context, "Error: " + e.getMessage());
+    }    
   }
 }
