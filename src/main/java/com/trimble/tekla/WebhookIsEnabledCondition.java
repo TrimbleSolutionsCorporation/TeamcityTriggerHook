@@ -9,6 +9,9 @@ import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
+import com.trimble.tekla.pojo.Listener;
+import java.io.IOException;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -21,7 +24,7 @@ public class WebhookIsEnabledCondition implements Condition {
 
   private static final String REPOSITORY = "repository";
   
-  private SettingsService settingsService;
+  private final SettingsService settingsService;
   
   /**
    * Create a new instance of the condition
@@ -46,7 +49,6 @@ public class WebhookIsEnabledCondition implements Condition {
   public boolean shouldDisplay(Map<String, Object> context) {
     final Object obj = context.get(REPOSITORY);
     final Object pr = context.get("pullRequest");
-
     
     if (obj == null || !(obj instanceof Repository))
       return false;
@@ -59,36 +61,27 @@ public class WebhookIsEnabledCondition implements Condition {
     RepositoryHook hook = settingsService.getRepositoryHook(repo);
     Settings settings = settingsService.getSettings(repo);
 
-    if (settings == null) {
+    if (settings == null || hook == null || !hook.isEnabled()) {
+      return false;
+    }
+
+    final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
+    if(repositoryListenersJson.isEmpty()) {
       return false;
     }
 
     // check if builds are configured
     PullRequestRef ref = pullrequest.getFromRef();
     String branch = ref.getId();
-        
-    String root = settings.getString("featureRule", "");
-    Boolean isConfigured = false;
-    if(!root.isEmpty() && 
-        (branch.toLowerCase().startsWith("refs/heads/feature/") || 
-         branch.toLowerCase().startsWith("feature/"))) {
-      isConfigured = true;
+    
+    try {
+      final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);    
+      if (configurations.length > 0) {
+        return true;
+      }      
+    } catch (IOException ex) {
     }
     
-    root = settings.getString("bugFixRule", "");
-    if(!root.isEmpty() && 
-        (branch.toLowerCase().startsWith("refs/heads/bugfix/") || 
-         branch.toLowerCase().startsWith("bugfix/"))) {
-      isConfigured = true;
-    }
-
-    root = settings.getString("hotfixRule", "");
-    if(!root.isEmpty() && 
-        (branch.toLowerCase().startsWith("refs/heads/hotfix/") || 
-         branch.toLowerCase().startsWith("hotfix/"))) {
-      isConfigured = true;
-    }    
-            
-    return !(hook == null || !hook.isEnabled() || settings == null || !isConfigured);
+    return false;            
   }
 }
