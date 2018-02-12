@@ -16,6 +16,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.json.*;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * Note that hooks can implement RepositorySettingsValidator directly.
@@ -162,8 +163,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
     try {
       TeamcityLogger.logMessage(context, "Trigger BuildId: " + buildIdIn);
 
-      if (!this.connector.IsInQueue(conf, buildIdIn, branch, settings)) {
-            
+      if (!this.connector.IsInQueue(conf, buildIdIn, branch, settings)) {            
             // check if build is running
             String buildData = this.connector.GetBuildsForBranch(conf, branch, buildIdIn, settings);
             
@@ -172,7 +172,6 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
             
             if(count.equals("0")) {
               this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings);
-
             } else {
               JSONArray builds = obj.getJSONArray("build");
               for (int i = 0; i < builds.length(); i++)
