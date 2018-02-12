@@ -1,8 +1,29 @@
+---
+
 language: java
-
+sudo: false
+install: true
+addons:
+  sonarcloud:
+    organization: $SONARCLOUD_ORGANIZATION_KEY
+    token: $SONARCLOUD_AUTH_TOKEN
+    branches:
+      - .*
 jdk:
-  - oraclejdk7
-  - openjdk6
-
+  - oraclejdk8
+before_script:
+  - test -n "$TRAVIS_TAG" && mvn -B -DnewVersion=$TRAVIS_TAG -DgenerateBackupPoms=false versions:set || true
 script:
-        - mvn package
+  - mvn -B clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar
+deploy:
+  provider: releases
+  api_key: $GITHUB_OAUTH_TOKEN
+  file_glob: true
+  file: target/TeamCityTriggerHook-*.jar
+  skip_cleanup: true
+  on:
+    tags: true
+cache:
+  directories:
+    - $HOME/.m2/repository
+    - $HOME/.sonar/cache
