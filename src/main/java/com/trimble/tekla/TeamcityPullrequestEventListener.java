@@ -97,7 +97,7 @@ public class TeamcityPullrequestEventListener {
         JSONObject obj = new JSONObject(buildData);
         String count = obj.getString("count");
 
-        if (count.equals("0")) {
+        if (count.equals("0") || !buildConfig.getCancelRunningBuilds()) {
           this.connector.QueueBuild(
                   conf,
                   buildConfig.getBranchConfig(),
@@ -107,12 +107,25 @@ public class TeamcityPullrequestEventListener {
                   settings);
         } else {
           JSONArray builds = obj.getJSONArray("build");
+          Boolean flipRequeue = true;
           for (int i = 0; i < builds.length(); i++) {
             Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
             if (isRunning) {
               String id = builds.getJSONObject(i).getString("id");
-              this.connector.ReQueueBuild(conf, id, settings);
+              this.connector.ReQueueBuild(conf, id, settings, flipRequeue);
+              flipRequeue = false;
             }
+          }
+          
+          if(flipRequeue) {
+            // at this point all builds were finished, so we need to trigger
+            this.connector.QueueBuild(
+                    conf,
+                    buildConfig.getBranchConfig(),
+                    buildConfig.getTargetId(),
+                    "Pull request Trigger from Bitbucket",
+                    false,
+                    settings);            
           }
         }
       }

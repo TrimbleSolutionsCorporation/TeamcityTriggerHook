@@ -90,9 +90,9 @@ public class TeamcityConnector  {
         this.connector.PostPayload(conf, url, GetPayload(branch, buildid, comment, isDefault), settings);        
     }    
 
-    private String GetCancelAndRequeuePayload() {
+    private String GetCancelAndRequeuePayload(String readIntoQueue) {
         StringBuilder builder = new StringBuilder();
-        builder.append("<buildCancelRequest comment=\"requeue build\" readdIntoQueue=\"true\"' />");        
+        builder.append(String.format("<buildCancelRequest comment=\"requeue build\" readdIntoQueue=\"%s\" />", readIntoQueue));        
         return builder.toString();
     }
     
@@ -123,8 +123,13 @@ public class TeamcityConnector  {
     return this.connector.Get(conf, url, settings);            
   }
 
-  public void ReQueueBuild(TeamcityConfiguration conf, String id, Settings settings) {
+  public void ReQueueBuild(TeamcityConfiguration conf, String id, Settings settings, Boolean readIntoQueue) {
     String url = "/app/rest/builds/id:" + id;
-    this.connector.PostPayload(conf, url, this.GetCancelAndRequeuePayload(), settings);
+    if (readIntoQueue) {
+      this.connector.PostPayload(conf, url, this.GetCancelAndRequeuePayload("true"), settings);
+    } else {
+      this.connector.PostPayload(conf, url, this.GetCancelAndRequeuePayload("false"), settings);
+    }
+    
   }
 }
