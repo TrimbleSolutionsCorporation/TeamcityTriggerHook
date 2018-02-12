@@ -14,6 +14,7 @@ require([
         _$listenerTargetId : undefined,
         _$listenerTarget : undefined,
         _$listenerOnPullRequest : undefined,
+        _$listenerCancelRunningBuilds : undefined,
         _$listenerDownStreamTriggerType : undefined,
         _$listenerDownStreamUrl : undefined,
         _listeners : undefined,
@@ -42,9 +43,9 @@ require([
             this._$listenerTargetId = $('#listenerTargetId');
             this._$listenerTarget = $('#listenerTarget');
             this._$listenerOnPullRequest = $('#listenerOnPullRequest');
+            this._$listenerCancelRunningBuilds = $('#listenerCancelRunningBuilds');
             this._$listenerDownStreamTriggerType = $('#downStreamTriggerType');
             this._$listenerDownStreamUrl = $('#downStreamUrl');
-
 
             $('#addListenerButton').off().on('click',$.proxy(this._addListenerHandler, this));
 
@@ -95,6 +96,8 @@ require([
                 }), $('<td/>', {
                     html : listener.triggerOnPullRequest
                 }), $('<td/>', {
+                    html : listener.cancelRunningBuilds
+                }), $('<td/>', {
                     html : listener.downStreamUrl
                 }), $('<td/>', {
                     html : listener.downStreamTriggerType
@@ -134,8 +137,13 @@ require([
         _addListenerHandler : function(event) {
             event.preventDefault();
             var checkedElement = "false";
+            var cancelRunningBuildsElement = "false";
             if (this._$listenerOnPullRequest[0].checked) {
                 checkedElement = "true";
+            }
+
+            if (this._$listenerCancelRunningBuilds[0].checked) {
+                cancelRunningBuildsElement = "true";
             }
 
             var url = this._$listenerDownStreamUrl.val();
@@ -149,6 +157,7 @@ require([
                 targetId : this._$listenerTargetId.val(),
                 target : this._$listenerTarget.val(),
                 triggerOnPullRequest : checkedElement,
+                cancelRunningBuilds : cancelRunningBuildsElement,
                 downStreamTriggerType : this._$listenerDownStreamTriggerType.val(),
                 downStreamUrl : url,
             };
@@ -156,6 +165,9 @@ require([
             this._$referenceRegexp.val('');
             this._$listenerTargetId.val('');
             this._$listenerDownStreamUrl.val('');
+
+            this._$listenerOnPullRequest.prop('checked', false);
+            this._$listenerCancelRunningBuilds.prop('checked', false);
 
             var listenerUUID = uuid();
             this._listeners[listenerUUID] = listener;

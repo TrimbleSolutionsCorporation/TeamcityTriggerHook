@@ -18,6 +18,9 @@ import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  *
@@ -37,13 +40,13 @@ public class TeamcityPullrequestEventListener {
   }
 
   @EventListener
-  public void onPullRequestOpenedEvent(PullRequestOpenedEvent event) throws IOException {
+  public void onPullRequestOpenedEvent(PullRequestOpenedEvent event) throws IOException, JSONException {
     PullRequestRef ref = event.getPullRequest().getFromRef();
     TriggerBuildFromPullRequest(ref);
   }
 
   @EventListener
-  public void onPullRequestRescoped(PullRequestRescopedEvent event) throws IOException {
+  public void onPullRequestRescoped(PullRequestRescopedEvent event) throws IOException, JSONException {
     PullRequestRef ref = event.getPullRequest().getFromRef();
     String previousFromHash = event.getPreviousFromHash();
     String currentFromHash = ref.getLatestCommit();
@@ -51,13 +54,13 @@ public class TeamcityPullrequestEventListener {
     if (currentFromHash.equals(previousFromHash)) {
       return;
     }
-   
+
     TriggerBuildFromPullRequest(ref);
   }
 
-  private void TriggerBuildFromPullRequest(PullRequestRef ref) throws IOException {
+  private void TriggerBuildFromPullRequest(PullRequestRef ref) throws IOException, JSONException {
     Repository repo = ref.getRepository();
-    Settings settings = settingsService.getSettings(repo);    
+    Settings settings = settingsService.getSettings(repo);
     String password = this.connectionSettings.getPassword(ref.getRepository());
     TeamcityConfiguration conf
             = new TeamcityConfiguration(
@@ -65,12 +68,12 @@ public class TeamcityPullrequestEventListener {
                     settings.getString("teamCityUserName"),
                     password);
 
-    String branch = ref.getDisplayId();    
+    String branch = ref.getDisplayId();
     final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
     if (repositoryListenersJson.isEmpty()) {
       return;
     }
-    
+
     final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
     for (final Listener buildConfig : configurations) {
       if (buildConfig.getTriggerOnPullRequest()) {
@@ -80,18 +83,52 @@ public class TeamcityPullrequestEventListener {
             TeamcityLogger.logMessage(settings, "Skip already in queue: " + buildConfig.getTargetId());
             continue;
           }
-        } catch (Exception ex) {
+        } catch (IOException | JSONException ex) {
           TeamcityLogger.logMessage(settings, "Exception: " + ex.getMessage());
         }
-        
-        this.connector.QueueBuild(
+
+        // check if build is running
+        String buildData = this.connector.GetBuildsForBranch(
                 conf,
                 buildConfig.getBranchConfig(),
                 buildConfig.getTargetId(),
-                "Pull request Trigger from Bitbucket",
-                false,
                 settings);
-      }      
+
+        JSONObject obj = new JSONObject(buildData);
+        String count = obj.getString("count");
+
+        if (count.equals("0") || !buildConfig.getCancelRunningBuilds()) {
+          this.connector.QueueBuild(
+                  conf,
+                  buildConfig.getBranchConfig(),
+                  buildConfig.getTargetId(),
+                  "Pull request Trigger from Bitbucket",
+                  false,
+                  settings);
+        } else {
+          JSONArray builds = obj.getJSONArray("build");
+          Boolean flipRequeue = true;
+          for (int i = 0; i < builds.length(); i++) {
+            Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
+            if (isRunning) {
+              String id = builds.getJSONObject(i).getString("id");
+              this.connector.ReQueueBuild(conf, id, settings, flipRequeue);
+              flipRequeue = false;
+            }
+          }
+          
+          if(flipRequeue) {
+            // at this point all builds were finished, so we need to trigger
+            this.connector.QueueBuild(
+                    conf,
+                    buildConfig.getBranchConfig(),
+                    buildConfig.getTargetId(),
+                    "Pull request Trigger from Bitbucket",
+                    false,
+                    settings);            
+          }
+        }
+      }
     }
   }
 }

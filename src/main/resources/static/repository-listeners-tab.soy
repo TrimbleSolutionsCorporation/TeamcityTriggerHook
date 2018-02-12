@@ -40,6 +40,11 @@
             <label class="label">Type</label>
         </div>
         {call .toggle}
+            {param id: 'listenerCancelRunningBuilds' /}
+            {param labelText: getText('cancelRunningBuilds') /}
+        {/call}
+
+        {call .toggle}
             {param id: 'listenerOnPullRequest' /}
             {param labelText: getText('triggerInPullRequest') /}
         {/call}
@@ -78,48 +83,50 @@
         {/call}
     </div>
     
-    <div class="field-group">
-        {call aui.table}
-            {param id: 'repository-listeners-table' /}
-            {param extraClasses: 'aui-table-interactive tc-table' /}
-            {param columnsContent}
-                <colgroup>
-                    <col></col>
-                    <col></col>
-                    <col></col>
-                    <col></col>
-                    <col></col>
-                    <col></col>
-                    <col></col>
-                    <col></col>
-                    <col></col>
-                </colgroup>
-            {/param}
-            {param theadContent}
-                <tr>
-                    <th colspan="2">{getText('listener.column.regexp')}</th>
-                    <th>Target</th>
-                    <th>Target ID</th>
-                    <th>On Pull Request</th>
-                    <th>Dep. Target</th>
-                    <th>Dep. Type</th>
-                    <th></th>
-                </tr>
-                <tr>
-            {/param}
-            {param content: '' /}
-            {param tfootContent}
-            {/param}
-        {/call}
-        {call aui.message.info}
-            {param content}
-                {call aui.expander.revealText}
-                    {param triggerId: 'tc-listener-info-text-trigger'/}
-                    {param contentId: 'tc-listener-info-text-content'/}
-                    {param contentContent: getText('listeners.info') /}
-                {/call}
-            {/param}
-        {/call}
-    </div>
+
+    {call aui.table}
+        {param id: 'repository-listeners-table' /}
+        {param extraClasses: 'aui-table-interactive tc-table' /}
+        {param columnsContent}
+            <colgroup>
+                <col></col>
+                <col></col>
+                <col></col>
+                <col></col>
+                <col></col>
+                <col></col>
+                <col></col>
+                <col></col>
+                <col></col>
+                <col></col>
+            </colgroup>
+        {/param}
+        {param theadContent}
+            <tr>
+                <th colspan="2">{getText('listener.column.regexp')}</th>
+                <th>Target</th>
+                <th>Target ID</th>
+                <th>On Pull Request</th>
+                <th>Cancel Running</th>
+                <th>Dep. Target</th>
+                <th>Dep. Type</th>
+                <th></th>
+            </tr>
+            <tr>
+        {/param}
+        {param content: '' /}
+        {param tfootContent}
+        {/param}
+    {/call}
+    {call aui.message.info}
+        {param content}
+            {call aui.expander.revealText}
+                {param triggerId: 'tc-listener-info-text-trigger'/}
+                {param contentId: 'tc-listener-info-text-content'/}
+                {param contentContent: getText('listeners.info') /}
+            {/call}
+        {/param}
+    {/call}
+
 
 {/template}

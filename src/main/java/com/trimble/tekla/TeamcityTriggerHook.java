@@ -15,6 +15,7 @@ import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
+import org.json.*;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -42,9 +43,9 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
   /**
    * Connects to a configured URL to notify of all changes.
    */
-    @Override
-    public void postUpdate(@Nonnull PostRepositoryHookContext context, 
-                           @Nonnull RepositoryHookRequest hookRequest) {
+  @Override
+  public void postUpdate(@Nonnull PostRepositoryHookContext context,
+          @Nonnull RepositoryHookRequest hookRequest) {
 
     String password = this.connectionSettings.getPassword(hookRequest.getRepository());
 
@@ -108,28 +109,36 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
       }
     }
   }
-    
+
   private void TriggerBuild(RepositoryHookContext context, String refId, TeamcityConfiguration conf, String timestamp) throws IOException {
     final String repositoryListenersJson = context.getSettings().getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
     if (repositoryListenersJson.isEmpty()) {
       return;
     }
-    
+
     final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, refId);
     for (final Listener buildConfig : configurations) {
-      if(buildConfig.getTriggerOnPullRequest()) {
+      if (buildConfig.getTriggerOnPullRequest()) {
         continue;
       }
-      
-      if(buildConfig.getTarget().equals("vcs")) {
+
+      if (buildConfig.getTarget().equals("vcs")) {
         this.TriggerCheckForChanges(context, buildConfig.getTargetId(), conf, context.getSettings());
       }
-      
-      if(buildConfig.getTarget().equals("build")) {
+
+      if (buildConfig.getTarget().equals("build")) {
         // for now we deprecate the isDefault, so that in teamcity we force to use
         // refs/heads/(master) to avoid display default
-        this.QueueBuild(context, buildConfig.getTargetId(), buildConfig.getBranchConfig(), conf, timestamp, false, context.getSettings());
-      }      
+        this.QueueBuild(
+                context,
+                buildConfig.getTargetId(),
+                buildConfig.getBranchConfig(),
+                buildConfig.getCancelRunningBuilds(),
+                conf,
+                timestamp,
+                false,
+                context.getSettings());
+      }
     }
   }
 
@@ -146,6 +155,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
           RepositoryHookContext context,
           String buildIdIn,
           String branch,
+          Boolean cancelRunningBuilds,
           TeamcityConfiguration conf,
           String timeStamp,
           Boolean isDefault,
@@ -163,13 +173,37 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
       TeamcityLogger.logMessage(context, "Trigger BuildId: " + buildIdIn);
 
       if (!this.connector.IsInQueue(conf, buildIdIn, branch, settings)) {
-        this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings);
+        // check if build is running
+        String buildData = this.connector.GetBuildsForBranch(conf, branch, buildIdIn, settings);
+
+        JSONObject obj = new JSONObject(buildData);
+        String count = obj.getString("count");
+
+        if (count.equals("0") || !cancelRunningBuilds) {
+          this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings);
+        } else {
+          JSONArray builds = obj.getJSONArray("build");
+          Boolean flipRequeue = true;
+          for (int i = 0; i < builds.length(); i++) {
+            Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
+            if (isRunning) {
+              String id = builds.getJSONObject(i).getString("id");
+              this.connector.ReQueueBuild(conf, id, settings, flipRequeue);
+              flipRequeue = false;
+            }
+          }
+
+          if (flipRequeue) {
+            // at this point all builds were finished, so we need to trigger
+            this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings);
+          }
+        }
       } else {
         TeamcityLogger.logMessage(context, "Skip already in queue: " + buildIdIn);
       }
     } catch (Exception e) {
       TeamcityLogger.logMessage(context, "BuildId: " + buildIdIn + " Failed");
       TeamcityLogger.logMessage(context, "Error: " + e.getMessage());
-    }    
+    }
   }
 }

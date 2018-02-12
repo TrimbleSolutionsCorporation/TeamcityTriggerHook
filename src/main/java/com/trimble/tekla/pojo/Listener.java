@@ -20,6 +20,7 @@ public class Listener {
   private Boolean triggerOnPullRequest;
   private String downStreamUrl;
   private String downStreamTriggerType;
+  private Boolean cancelRunningBuilds;
 
   public String getBranchConfig() {
     return this.branchConfig;
@@ -29,6 +30,14 @@ public class Listener {
     this.branchConfig = branchConfig;
   }
 
+  public Boolean getCancelRunningBuilds() {
+    return this.cancelRunningBuilds;
+  }
+
+  public void setCancelRunningBuilds(Boolean cancelRunningBuilds) {
+    this.cancelRunningBuilds = cancelRunningBuilds;
+  }
+  
   public Boolean getTriggerOnPullRequest() {
     return this.triggerOnPullRequest;
   }
