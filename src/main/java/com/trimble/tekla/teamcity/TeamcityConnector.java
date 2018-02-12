@@ -89,6 +89,12 @@ public class TeamcityConnector  {
         String url = "/app/rest/buildQueue";
         this.connector.PostPayload(conf, url, GetPayload(branch, buildid, comment, isDefault), settings);        
     }    
+
+    private String GetCancelAndRequeuePayload() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<buildCancelRequest comment=\"requeue build\" readdIntoQueue=\"true\"' />");        
+        return builder.toString();
+    }
     
     private String GetPayload(String branch, String buildid, String comment, Boolean isDefault) {
         StringBuilder builder = new StringBuilder();
@@ -115,5 +121,10 @@ public class TeamcityConnector  {
   public String GetBuild(TeamcityConfiguration conf, String id, Settings settings) throws IOException {
     String url = "/app/rest/builds/id:" + id;
     return this.connector.Get(conf, url, settings);            
+  }
+
+  public void ReQueueBuild(TeamcityConfiguration conf, String id, Settings settings) {
+    String url = "/app/rest/builds/id:" + id;
+    this.connector.PostPayload(conf, url, this.GetCancelAndRequeuePayload(), settings);
   }
 }

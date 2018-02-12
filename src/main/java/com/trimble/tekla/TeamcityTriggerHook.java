@@ -15,7 +15,7 @@ import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import org.apache.commons.lang3.StringUtils;
+import org.json.*;
 
 /**
  * Note that hooks can implement RepositorySettingsValidator directly.
@@ -163,7 +163,27 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
       TeamcityLogger.logMessage(context, "Trigger BuildId: " + buildIdIn);
 
       if (!this.connector.IsInQueue(conf, buildIdIn, branch, settings)) {
-        this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings);
+            
+            // check if build is running
+            String buildData = this.connector.GetBuildsForBranch(conf, branch, buildIdIn, settings);
+            
+            JSONObject obj = new JSONObject(buildData);
+            String count = obj.getString("count");
+            
+            if(count.equals("0")) {
+              this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings);
+
+            } else {
+              JSONArray builds = obj.getJSONArray("build");
+              for (int i = 0; i < builds.length(); i++)
+              {
+                Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
+                if(isRunning) {
+                  String id = builds.getJSONObject(i).getString("id");
+                  this.connector.ReQueueBuild(conf, id, settings);
+                }
+              }
+            }
       } else {
         TeamcityLogger.logMessage(context, "Skip already in queue: " + buildIdIn);
       }
