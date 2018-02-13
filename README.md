@@ -8,6 +8,7 @@ Download last release from: MarketPlace
    The second method provides more control and it will trigger only the selected build configurations and selected branch. This is the default.
    
    ![](images/buildandtestmenu.png)
+   
    It adds a "build and test" menu to pull request so user can extend their own workflows with remote triggers of tests and remote triggers of build systems. Additionally provides information about:
    . time to start build, if found in queue
    . manual trigger build
@@ -31,6 +32,7 @@ Download last release from: MarketPlace
 
 ## Connection Settings
    ![](images/teamcity-connection.png)
+   
    set servers address, username and password. press test and save connection
    set one of the VCS roots to the value retrieved in previous section
    enable debug mode
@@ -46,6 +48,7 @@ Download last release from: MarketPlace
 
 ### Basic Configuration
   ![](images/BitBucketBasicConfig.png)
+  
   Create basic listeners that trigger TeamCity builds
 
   . RegEx -> Regular expression to match and to capture branch to trigger. Make sure default branch is part of branch definition in TeamCity
@@ -54,6 +57,7 @@ Download last release from: MarketPlace
 
 ### Advanced Configuration
   ![](images/advancedConfig.png)
+  
   Provides additional options to control the builds (applies only to Type: Build)
   . Cancel Running Builds - User typically pushes multiple commits, for example if running builds in feature branch, you might not need TeamCity to build all commits. Enable this option to cancel all running builds and add a new one to queue.
   . Trigger on Pull Request - This ensures that only after a pull request is created then the build is triggered. You could achieve a similar behavior by triggering defining branch specification for pr/* however this brings the display of these branches in TeamCity side 
