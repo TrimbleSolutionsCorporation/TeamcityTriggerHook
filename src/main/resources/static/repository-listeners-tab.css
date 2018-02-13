@@ -59,4 +59,23 @@
 	margin-bottom: 0px;
 }
 
+#repository-listeners-table {
+    display: none;    
+}
+
+#DepedentBuildsId {
+    width: 500px;
+}
+
+.advanced-field-label {
+    text-align: left;
+    margin-right: 25px;
+    margin-left: 50px;
+}
+
+
+.advanced-field-group {
+    width: 500px;
+    margin-left: 150px;
+}
 

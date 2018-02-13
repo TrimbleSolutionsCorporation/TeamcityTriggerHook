@@ -39,21 +39,22 @@
             {/call}
             <label class="label">Type</label>
         </div>
-        {call .toggle}
-            {param id: 'listenerCancelRunningBuilds' /}
-            {param labelText: getText('cancelRunningBuilds') /}
-        {/call}
 
-        {call .toggle}
-            {param id: 'listenerOnPullRequest' /}
-            {param labelText: getText('triggerInPullRequest') /}
-        {/call}
-
-        <div class="field-group" >
+        <div class="advanced-field-group" >
             <a href="#hide1" class="hide" id="hide1">+</a>
             <a href="#show1" class="show" id="show1">-</a>
-            <div id="DepBuildId">Advanced Triggers</div>
-            <div  id="DepedentBuildsId">
+            <div id="DepBuildId">Advanced Options</div>
+            <div id="DepedentBuildsId">
+                {call .toggle}
+                    {param id: 'listenerCancelRunningBuilds' /}
+                    {param labelText: getText('cancelRunningBuilds') /}
+                {/call}
+                {call .toggle}
+                    {param id: 'listenerOnPullRequest' /}
+                    {param labelText: getText('triggerInPullRequest') /}
+                {/call}
+                
+                <label class="advanced-field-label">Target</label>
                 {call aui.form.input}
                     {param id: 'downStreamUrl' /}
                     {param type: 'text' /}
@@ -61,6 +62,9 @@
                     {param extraAttributes:  ['data-aui-form-notification-position' : 'top'] /}
                     {param extraClasses: 'medium-field' /}
                 {/call}
+                
+                <p></p>
+                <label class="advanced-field-label">Type</label>
                 {call aui.form.select}
                     {param id: 'downStreamTriggerType' /}
                     {param options: [
@@ -69,6 +73,7 @@
                         ['text' : 'new tab', 'value' : 'tab']
                     ]/}
                 {/call}
+                
             </div>
         </div>
     </form>
@@ -82,7 +87,11 @@
             {param iconText: 'add' /}
         {/call}
     </div>
-    
+    <div class="field-group" >
+      <span class="text-muted">
+        <a href="https://github.com/TrimbleSolutionsCorporation/TeamcityTriggerHook" target="_blank">Help...</a>
+      </span>            
+    </div>    
 
     {call aui.table}
         {param id: 'repository-listeners-table' /}

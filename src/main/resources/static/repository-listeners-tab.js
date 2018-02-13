@@ -28,6 +28,10 @@ require([
         
             if (listeners) {
                 this._listeners = JSON.parse(listeners);
+                if (listeners !== '{}') {
+                    $('#repository-listeners-table').show();
+                }
+                
             } else {
                 this._listeners = {};
             }
@@ -129,13 +133,17 @@ require([
                 $delegateTarget.remove();
             });
             delete this._listeners[event.data];
+            if(Object.getOwnPropertyNames(this._listeners).length == 0) {
+                $('#repository-listeners-table').hide();
+            }
         },
 
         /**
          * Event handler for button click to add listener data to the table
          */
-        _addListenerHandler : function(event) {
+        _addListenerHandler : function(event) {            
             event.preventDefault();
+            $('#repository-listeners-table').show();
             var checkedElement = "false";
             var cancelRunningBuildsElement = "false";
             if (this._$listenerOnPullRequest[0].checked) {
