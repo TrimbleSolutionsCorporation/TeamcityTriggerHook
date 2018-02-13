@@ -308,7 +308,7 @@ public class TeamctiyRest extends RestResource {
         jObj.put("ExternalBuildsOneNameId", "{\"status\": \"ok\", \"name\": \"Tests\"}");
         final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
         for (final Listener buildConfig : configurations) {
-          if ("build".equals(buildConfig.getDownStreamTriggerType())) {
+          if ("build".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamUrl())) {
             String depBuildId = buildConfig.getTargetId();
             String downBuildId = buildConfig.getDownStreamUrl();
             String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
@@ -332,7 +332,7 @@ public class TeamctiyRest extends RestResource {
         final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
         for (final Listener buildConfig : configurations) {
           if ("rest".equals(buildConfig.getDownStreamTriggerType()) || 
-              "tab".equals(buildConfig.getDownStreamTriggerType())) {
+              "tab".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamUrl())) {
             String depBuildId = buildConfig.getTargetId();
             String downBuildId = buildConfig.getDownStreamUrl();
             String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
