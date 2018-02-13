@@ -7,6 +7,7 @@ package com.trimble.tekla.teamcity;
 
 import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
 import com.atlassian.bitbucket.setting.Settings;
+import com.trimble.tekla.Field;
 
 /**
  *
@@ -17,24 +18,24 @@ public class TeamcityLogger {
     if (context == null) {
       return;
     }
-    
-    Boolean isDebugEnabled = context.getSettings().getBoolean("useDebugEnabled", false);
-    
+
+    Boolean isDebugEnabled = context.getSettings().getBoolean(Field.DEBUG, false);
+
     if(isDebugEnabled) {
       System.out.println("[TeamcityTriggerHook] : " + message);
     }
   }
-  
+
   public static void logMessage(Settings settings, String message) {
     if (settings == null) {
       return;
     }
-    
-    Boolean isDebugEnabled = settings.getBoolean("useDebugEnabled", false);
-    
+
+    Boolean isDebugEnabled = settings.getBoolean(Field.DEBUG, false);
+
     if(isDebugEnabled) {
       System.out.println("[TeamcityTriggerHook] : " + message);
     }
-  }  
+  }
 
 }

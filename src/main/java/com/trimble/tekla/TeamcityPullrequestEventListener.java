@@ -68,7 +68,7 @@ public class TeamcityPullrequestEventListener {
                     settings.getString("teamCityUserName"),
                     password);
 
-    String branch = ref.getDisplayId();
+    String branch = ref.getId();
     final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
     if (repositoryListenersJson.isEmpty()) {
       return;
@@ -116,7 +116,7 @@ public class TeamcityPullrequestEventListener {
               flipRequeue = false;
             }
           }
-          
+
           if(flipRequeue) {
             // at this point all builds were finished, so we need to trigger
             this.connector.QueueBuild(
@@ -125,7 +125,7 @@ public class TeamcityPullrequestEventListener {
                     buildConfig.getTargetId(),
                     "Pull request Trigger from Bitbucket",
                     false,
-                    settings);            
+                    settings);
           }
         }
       }
