@@ -30,10 +30,16 @@ Download last release from: MarketPlace
 # Bitbucket configuration
 
 ## Connection Settings
-   ![](images/TeamCity-connection.png)
+   ![](images/teamcity-connection.png)
    set servers address, username and password. press test and save connection
    set one of the VCS roots to the value retrieved in previous section
    enable debug mode
+
+### Debug
+  Check the catalina log for logs error messages like:
+    [TeamCityTriggerHook] Trigger builds for branch: feature-a
+    [TeamCityTriggerHook] Trigger BuildId: BuildConfigId
+    [TeamCityTriggerHook] Trigger BuildId: BuildConfigId2
 
 ## Listeners Configuration
   ![](images/listenerConfigAll.png)
@@ -60,9 +66,5 @@ Download last release from: MarketPlace
           - rest and newtab will create a external build tabs in the build and test menu. A button per hook will be created so user can trigger. NewTab will open a new tab with the defined target.
           - build is a teamcity build id and will enable tests tab in build and test menu.
 
-# Debug
-  Check the catalina log for logs error messages like:
-    [TeamCityTriggerHook] Trigger builds for branch: feature-a
-    [TeamCityTriggerHook] Trigger BuildId: BuildConfigId
-    [TeamCityTriggerHook] Trigger BuildId: BuildConfigId2
+
 
