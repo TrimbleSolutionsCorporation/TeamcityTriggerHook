@@ -12,7 +12,7 @@
             {call aui.form.input}
                 {param id: 'referenceRegexp' /}
                 {param type: 'text' /}
-                {param infoMessage: getText('reference.regexp.info') /}
+                {param infoMessage: getText('triggers.regexp.info') /}
                 {param extraAttributes: ['data-aui-form-notification-position' : 'top'] /}
                 {param extraClasses: 'long-field' /}
             {/call}
@@ -22,7 +22,7 @@
             {call aui.form.input}
                 {param id: 'listenerTargetId' /}
                 {param type: 'text' /}
-                {param infoMessage: getText('listener.targetid.info') /}
+                {param infoMessage: getText('triggers.targetid.info') /}
                 {param extraAttributes: ['data-aui-form-notification-position' : 'top'] /}
                 {param extraClasses: 'long-field' /}
             {/call}
@@ -46,23 +46,28 @@
             <div id="DepBuildId">Advanced Options</div>
             <div id="DepedentBuildsId">
                 {call .toggle}
+                    {param id: 'triggerOnEmptyBranches' /}
+                    {param labelText: getText('triggers.empty.branches') /}
+                    {param value: true /}
+                {/call}
+                {call .toggle}
                     {param id: 'listenerCancelRunningBuilds' /}
-                    {param labelText: getText('cancelRunningBuilds') /}
+                    {param labelText: getText('triggers.cancel.builds') /}
                 {/call}
                 {call .toggle}
                     {param id: 'listenerOnPullRequest' /}
-                    {param labelText: getText('triggerInPullRequest') /}
+                    {param labelText: getText('triggers.pull.request') /}
                 {/call}
-                
+
                 <label class="advanced-field-label">Target</label>
                 {call aui.form.input}
                     {param id: 'downStreamUrl' /}
                     {param type: 'text' /}
-                    {param infoMessage: getText('trigger.configuration.info') /}
+                    {param infoMessage: getText('triggers.configuration.info') /}
                     {param extraAttributes:  ['data-aui-form-notification-position' : 'top'] /}
                     {param extraClasses: 'medium-field' /}
                 {/call}
-                
+
                 <p></p>
                 <label class="advanced-field-label">Type</label>
                 {call aui.form.select}
@@ -73,7 +78,7 @@
                         ['text' : 'new tab', 'value' : 'tab']
                     ]/}
                 {/call}
-                
+
             </div>
         </div>
     </form>
@@ -90,8 +95,8 @@
     <div class="field-group" >
       <span class="text-muted">
         <a href="https://github.com/TrimbleSolutionsCorporation/TeamcityTriggerHook" target="_blank">Help...</a>
-      </span>            
-    </div>    
+      </span>
+    </div>
 
     {call aui.table}
         {param id: 'repository-listeners-table' /}
@@ -112,7 +117,7 @@
         {/param}
         {param theadContent}
             <tr>
-                <th colspan="2">{getText('listener.column.regexp')}</th>
+                <th colspan="2">{getText('triggers.column.regexp')}</th>
                 <th>Target</th>
                 <th>Target ID</th>
                 <th>On Pull Request</th>
@@ -132,7 +137,7 @@
             {call aui.expander.revealText}
                 {param triggerId: 'tc-listener-info-text-trigger'/}
                 {param contentId: 'tc-listener-info-text-content'/}
-                {param contentContent: getText('listeners.info') /}
+                {param contentContent: getText('triggers.info') /}
             {/call}
         {/param}
     {/call}

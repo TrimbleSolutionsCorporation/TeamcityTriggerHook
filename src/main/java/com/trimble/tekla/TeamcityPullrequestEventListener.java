@@ -76,7 +76,7 @@ public class TeamcityPullrequestEventListener {
 
     final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
     for (final Listener buildConfig : configurations) {
-      if (buildConfig.getTriggerOnPullRequest()) {
+      if (buildConfig.isTriggerOnPullRequest()) {
         TeamcityLogger.logMessage(settings, "Trigger BuildId: " + buildConfig.getTargetId());
         try {
           if (this.connector.IsInQueue(conf, buildConfig.getTargetId(), buildConfig.getBranchConfig(), settings)) {
@@ -97,7 +97,7 @@ public class TeamcityPullrequestEventListener {
         JSONObject obj = new JSONObject(buildData);
         String count = obj.getString("count");
 
-        if (count.equals("0") || !buildConfig.getCancelRunningBuilds()) {
+        if (count.equals("0") || !buildConfig.isCancelRunningBuilds()) {
           this.connector.QueueBuild(
                   conf,
                   buildConfig.getBranchConfig(),

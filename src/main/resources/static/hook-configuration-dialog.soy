@@ -51,3 +51,19 @@
         </script>
     {/literal}
 {/template}
+
+/**
+ * Renders aui-toggle component
+ *
+ * @param id
+ * @param labelText
+ * @param? value
+ */
+{template .toggle}
+    {call aui.form.fieldGroup}
+        {param content}
+            <aui-label for="{$id}">{$labelText}</aui-label>
+            <aui-toggle id="{$id}" name="{$id}" {if $value}checked{/if} label="{$labelText}"></aui-toggle>
+        {/param}
+    {/call}
+{/template}
