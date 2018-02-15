@@ -18,10 +18,11 @@ public class Listener {
   private String regexp;
   private String target;
   private String targetId;
-  private Boolean triggerOnPullRequest;
+  private boolean triggerOnPullRequest;
   private String downStreamUrl;
   private String downStreamTriggerType;
-  private Boolean cancelRunningBuilds;
+  private boolean cancelRunningBuilds;
+  private boolean triggerOnEmptyBranches;
 
   public String getBranchConfig() {
     return this.branchConfig;
@@ -31,19 +32,19 @@ public class Listener {
     this.branchConfig = branchConfig;
   }
 
-  public Boolean getCancelRunningBuilds() {
+  public boolean isCancelRunningBuilds() {
     return this.cancelRunningBuilds;
   }
 
-  public void setCancelRunningBuilds(final Boolean cancelRunningBuilds) {
+  public void setCancelRunningBuilds(final boolean cancelRunningBuilds) {
     this.cancelRunningBuilds = cancelRunningBuilds;
   }
 
-  public Boolean getTriggerOnPullRequest() {
+  public boolean isTriggerOnPullRequest() {
     return this.triggerOnPullRequest;
   }
 
-  public void setTriggerOnPullRequest(final Boolean triggerOnPullRequest) {
+  public void setTriggerOnPullRequest(final boolean triggerOnPullRequest) {
     this.triggerOnPullRequest = triggerOnPullRequest;
   }
 
@@ -85,6 +86,14 @@ public class Listener {
 
   public void setTargetId(final String targetId) {
     this.targetId = targetId;
+  }
+
+  public boolean isTriggerOnEmptyBranches() {
+    return triggerOnEmptyBranches;
+  }
+
+  public void setTriggerOnEmptyBranches(boolean triggerOnEmptyBranches) {
+    this.triggerOnEmptyBranches = triggerOnEmptyBranches;
   }
 
   public static Listener[] GetBuildConfigurationsFromBranch(final String jsonConfiguration, final String branch) throws IOException {

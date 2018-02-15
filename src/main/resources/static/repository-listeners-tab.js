@@ -13,27 +13,28 @@ require([
         _$referenceRegexp : undefined,
         _$listenerTargetId : undefined,
         _$listenerTarget : undefined,
+        _$triggerOnEmptyBranches : undefined,
         _$listenerOnPullRequest : undefined,
         _$listenerCancelRunningBuilds : undefined,
         _$listenerDownStreamTriggerType : undefined,
         _$listenerDownStreamUrl : undefined,
         _listeners : undefined,
         _errors : undefined,
-        
+
         /**
          * Initializes repository listeners table controller
          */
         init : function(listeners, errors) {
             console.log("init listener");
-        
+
             if (listeners) {
                 this._listeners = JSON.parse(listeners);
-                if (listeners !== '{}') {
-                    $('#repository-listeners-table').show();
-                }
-                
             } else {
                 this._listeners = {};
+            }
+
+            if (!$.isEmptyObject(this._listeners)) {
+                $('#repository-listeners-table').show();
             }
 
             if (errors) {
@@ -46,6 +47,7 @@ require([
             this._$referenceRegexp = $('#referenceRegexp');
             this._$listenerTargetId = $('#listenerTargetId');
             this._$listenerTarget = $('#listenerTarget');
+            this._$triggerOnEmptyBranches = $('#triggerOnEmptyBranches');
             this._$listenerOnPullRequest = $('#listenerOnPullRequest');
             this._$listenerCancelRunningBuilds = $('#listenerCancelRunningBuilds');
             this._$listenerDownStreamTriggerType = $('#downStreamTriggerType');
@@ -133,7 +135,7 @@ require([
                 $delegateTarget.remove();
             });
             delete this._listeners[event.data];
-            if(Object.getOwnPropertyNames(this._listeners).length == 0) {
+            if ($.isEmptyObject(this._listeners)) {
                 $('#repository-listeners-table').hide();
             }
         },
@@ -141,41 +143,27 @@ require([
         /**
          * Event handler for button click to add listener data to the table
          */
-        _addListenerHandler : function(event) {            
+        _addListenerHandler : function(event) {
             event.preventDefault();
             $('#repository-listeners-table').show();
-            var checkedElement = "false";
-            var cancelRunningBuildsElement = "false";
-            if (this._$listenerOnPullRequest[0].checked) {
-                checkedElement = "true";
-            }
-
-            if (this._$listenerCancelRunningBuilds[0].checked) {
-                cancelRunningBuildsElement = "true";
-            }
-
-            var url = this._$listenerDownStreamUrl.val();
-            var type = this._$listenerDownStreamTriggerType.val();
-            if (url === 'undefined' || url === '') {
-                type = "";
-            }
-            
             var listener = {
                 regexp : this._$referenceRegexp.val(),
                 targetId : this._$listenerTargetId.val(),
                 target : this._$listenerTarget.val(),
-                triggerOnPullRequest : checkedElement,
-                cancelRunningBuilds : cancelRunningBuildsElement,
+                triggerOnEmptyBranches : this._$triggerOnEmptyBranches[0].checked,
+                triggerOnPullRequest : this._$listenerOnPullRequest[0].checked,
+                cancelRunningBuilds : this._$listenerCancelRunningBuilds[0].checked,
                 downStreamTriggerType : this._$listenerDownStreamTriggerType.val(),
-                downStreamUrl : url,
+                downStreamUrl : this._$listenerDownStreamUrl.val(),
             };
 
             this._$referenceRegexp.val('');
             this._$listenerTargetId.val('');
             this._$listenerDownStreamUrl.val('');
 
-            this._$listenerOnPullRequest.prop('checked', false);
-            this._$listenerCancelRunningBuilds.prop('checked', false);
+            this._$triggerOnEmptyBranches[0].checked = true;
+            this._$listenerOnPullRequest[0].checked = false;
+            this._$listenerCancelRunningBuilds[0].checked = false;
 
             var listenerUUID = uuid();
             this._listeners[listenerUUID] = listener;
