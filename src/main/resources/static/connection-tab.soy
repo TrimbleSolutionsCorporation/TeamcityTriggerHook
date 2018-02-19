@@ -13,7 +13,7 @@
                 {param id: 'bitbucketUrl' /}
                 {param fieldWidth: 'long' /}
                 {param value: $config['bitbucketUrl'] /}
-                {param labelContent: getText('bitbucket.url') /}
+                {param labelContent: getText('connetion.bitbucket.url') /}
                 {param errorTexts: $errors['bitbucketUrl'] /}
                 {param isRequired: true /}
             {/call}
@@ -25,7 +25,7 @@
                 {param id: 'teamCityUrl' /}
                 {param fieldWidth: 'long' /}
                 {param value: $config['teamCityUrl'] /}
-                {param labelContent: getText('url') /}
+                {param labelContent: getText('connetion.teamcity.url') /}
                 {param errorTexts: $errors['teamCityUrl'] /}
                 {param isRequired: true /}
             {/call}
@@ -33,7 +33,7 @@
                 {param id: 'teamCityUserName' /}
                 {param fieldWidth: 'medium' /}
                 {param value: $config['teamCityUserName'] /}
-                {param labelContent: getText('username') /}
+                {param labelContent: getText('connetion.teamcity.username') /}
                 {param errorTexts: $errors['teamCityUserName'] /}
                 {param isRequired: true /}
             {/call}
@@ -41,7 +41,7 @@
                 {param id: 'teamCityPassword' /}
                 {param fieldWidth: 'medium' /}
                 {param value: $config['teamCityPassword'] /}
-                {param labelContent: getText('password') /}
+                {param labelContent: getText('connetion.teamcity.password') /}
                 {param errorTexts: $errors['teamCityPassword'] /}
                 {param isRequired: true /}
             {/call}
@@ -54,7 +54,7 @@
             {call .toggle}
                 {param id: 'isDebugEnabled' /}
                 {param value: $config['isDebugEnabled'] /}
-                {param labelText: getText('debug') /}
+                {param labelText: getText('connetion.debug') /}
             {/call}
         {/param}
     {/call}

@@ -74,7 +74,7 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
         }
 
         if (!Constant.TEAMCITY_PASSWORD_SAVED_VALUE.equals(teamCityPassword)) {
-            errors.addFieldError(Field.TEAMCITY_PASSWORD, this.i18n.getText("error.require.validation", this.i18n.getText("connetion.button")));
+            errors.addFieldError(Field.TEAMCITY_PASSWORD, this.i18n.getText("error.require.validation", this.i18n.getText("connetion.test.button")));
         }
     }
 
@@ -100,7 +100,7 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
                 final Pattern pattern = Pattern.compile(listenerEntry.getValue().getRegexp(), Pattern.CASE_INSENSITIVE);
                 final Matcher matcher = pattern.matcher(BRANCH_TEST_STRING);
                 if (matcher.groupCount() != 1) {
-                    errors.addFieldError(listenerEntry.getKey(), this.i18n.getText("error.regexp.needs.capturing"));
+                    errors.addFieldError(listenerEntry.getKey(), this.i18n.getText("error.regex.needs.capturing"));
                 }
             } catch (final PatternSyntaxException e) {
                 errors.addFieldError(listenerEntry.getKey(), e.getLocalizedMessage());

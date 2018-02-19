@@ -7,106 +7,93 @@
     {literal}
         <input id="repositoryListenersJson" name="repositoryListenersJson" type="hidden" />
     {/literal}
-    <form class="aui" action="">
-        <div class="field-group">
-            {call aui.form.input}
-                {param id: 'referenceRegexp' /}
-                {param type: 'text' /}
-                {param infoMessage: getText('triggers.regexp.info') /}
-                {param extraAttributes: ['data-aui-form-notification-position' : 'top'] /}
-                {param extraClasses: 'long-field' /}
-            {/call}
-            <label class="label">RegEx</label>
-        </div>
-        <div class="field-group">
-            {call aui.form.input}
-                {param id: 'listenerTargetId' /}
-                {param type: 'text' /}
-                {param infoMessage: getText('triggers.targetid.info') /}
-                {param extraAttributes: ['data-aui-form-notification-position' : 'top'] /}
-                {param extraClasses: 'long-field' /}
-            {/call}
-            <label class="label">Target</label>
-        </div>
-        <div class="field-group">
-            {call aui.form.select}
-                {param id: 'listenerTarget' /}
-                {param extraClasses: 'small-field' /}
-                {param options: [
-                    ['text' : 'build', 'value' : 'build'],
-                    ['text' : 'vcs', 'value' : 'vcs']
-                ]/}
-            {/call}
-            <label class="label">Type</label>
-        </div>
-
-        <div class="advanced-field-group" >
-            <a href="#hide1" class="hide" id="hide1">+</a>
-            <a href="#show1" class="show" id="show1">-</a>
-            <div id="DepBuildId">Advanced Options</div>
-            <div id="DepedentBuildsId">
-                {call .toggle}
-                    {param id: 'triggerOnEmptyBranches' /}
-                    {param labelText: getText('triggers.empty.branches') /}
-                    {param value: true /}
-                {/call}
-                {call .toggle}
-                    {param id: 'listenerCancelRunningBuilds' /}
-                    {param labelText: getText('triggers.cancel.builds') /}
-                {/call}
-                {call .toggle}
-                    {param id: 'listenerOnPullRequest' /}
-                    {param labelText: getText('triggers.pull.request') /}
-                {/call}
-
-                <label class="advanced-field-label">Target</label>
-                {call aui.form.input}
-                    {param id: 'downStreamUrl' /}
-                    {param type: 'text' /}
-                    {param infoMessage: getText('triggers.configuration.info') /}
-                    {param extraAttributes:  ['data-aui-form-notification-position' : 'top'] /}
-                    {param extraClasses: 'medium-field' /}
-                {/call}
-
-                <p></p>
-                <label class="advanced-field-label">Type</label>
-                {call aui.form.select}
-                    {param id: 'downStreamTriggerType' /}
-                    {param options: [
-                        ['text' : 'build', 'value' : 'build'],
-                        ['text' : 'rest', 'value' : 'rest'],
-                        ['text' : 'new tab', 'value' : 'tab']
-                    ]/}
-                {/call}
-
-            </div>
-        </div>
-    </form>
-
-    <div class="buttons-container">
-        {call aui.form.button}
-            {param id: 'addListenerButton' /}
-            {param text: '' /}
-            {param iconType: 'aui' /}
-            {param iconClass: 'aui-icon-small aui-iconfont-list-add' /}
-            {param iconText: 'add' /}
+    {call aui.form.textField}
+        {param id: 'referenceRegexp' /}
+        {param fieldWidth: 'long' /}
+        {param labelContent: getText('triggers.regex') /}
+        {param infoMessage: getText('triggers.regex.info') /}
+    {/call}
+    {call aui.form.textField}
+        {param id: 'listenerTargetId' /}
+        {param fieldWidth: 'long' /}
+        {param labelContent: getText('triggers.target') /}
+        {param infoMessage: getText('triggers.target.info') /}
+    {/call}
+    {call aui.form.selectField}
+        {param id: 'listenerTarget' /}
+        {param fieldWidth: 'short' /}
+        {param labelContent: getText('triggers.type') /}
+        {param options: [
+            ['text' : 'build', 'value' : 'build'],
+            ['text' : 'vcs', 'value' : 'vcs']
+        ]/}
+    {/call}
+    <div class="field-group">
+        {call aui.form.label}
+            {param forField : 'expand-advanced-trigger' /}
+            {param content : getText('triggers.advanced') /}
+        {/call}
+        {call aui.expander.trigger}
+            {param id: 'expand-advanced-trigger' /}
+            {param contentId: 'advanced-settings-content' /}
+            {param tag: 'button' /}
+            {param content: getText('triggers.advanced.expand') /}
+            {param replaceText: getText('triggers.advanced.collapse') /}
+            {param extraClasses: 'tc-max-width aui-badge aui-button aui-button-light' /}
         {/call}
     </div>
-    <div class="field-group" >
-      <span class="text-muted">
-        <a href="https://github.com/TrimbleSolutionsCorporation/TeamcityTriggerHook" target="_blank">Help...</a>
-      </span>
-    </div>
+    {call aui.expander.content}
+        {param id: 'advanced-settings-content' /}
+        {param content}
+            {call .toggle}
+                {param id: 'listenerCancelRunningBuilds' /}
+                {param labelText: getText('triggers.cancel.builds') /}
+            {/call}
+            {call .toggle}
+                {param id: 'listenerOnPullRequest' /}
+                {param labelText: getText('triggers.pull.request') /}
+            {/call}
+            {call .toggle}
+                {param id: 'triggerOnEmptyBranches' /}
+                {param labelText: getText('triggers.empty.branches') /}
+                {param value: true /}
+            {/call}
+            {call aui.form.textField}
+                {param id: 'downStreamUrl' /}
+                {param fieldWidth: 'medium-long' /}
+                {param labelContent: getText('triggers.target') /}
+                {param infoMessage: getText('triggers.configuration.info') /}
+            {/call}
+            {call aui.form.selectField}
+                {param id: 'downStreamTriggerType' /}
+                {param fieldWidth: 'medium' /}
+                {param labelContent: getText('triggers.type') /}
+                {param options: [
+                    ['text' : 'build', 'value' : 'build'],
+                    ['text' : 'rest', 'value' : 'rest'],
+                    ['text' : 'new tab', 'value' : 'tab']
+                ]/}
+            {/call}
+        {/param}
+    {/call}
+
+    {call aui.form.buttons}
+        {param content}
+            {call aui.form.button}
+                {param id: 'addListenerButton' /}
+                {param text: ' ' + getText('triggers.button.add') /}
+                {param iconType: 'aui' /}
+                {param iconClass: 'aui-icon-small aui-iconfont-list-add' /}
+                {param iconText: 'add' /}
+            {/call}
+        {/param}
+    {/call}
 
     {call aui.table}
-        {param id: 'repository-listeners-table' /}
-        {param extraClasses: 'aui-table-interactive tc-table' /}
+        {param id: 'repository-triggers-table' /}
+        {param extraClasses: 'aui-table-interactive' /}
         {param columnsContent}
             <colgroup>
-                <col></col>
-                <col></col>
-                <col></col>
-                <col></col>
                 <col></col>
                 <col></col>
                 <col></col>
@@ -117,13 +104,10 @@
         {/param}
         {param theadContent}
             <tr>
-                <th colspan="2">{getText('triggers.column.regexp')}</th>
-                <th>Target</th>
-                <th>Target ID</th>
-                <th>On Pull Request</th>
-                <th>Cancel Running</th>
-                <th>Dep. Target</th>
-                <th>Dep. Type</th>
+                <th colspan="2">{getText('triggers.column.regex')}</th>
+                <th>{getText('triggers.target')}</th>
+                <th>{getText('triggers.type')}</th>
+                <th>Advanced</th>
                 <th></th>
             </tr>
             <tr>
@@ -134,13 +118,9 @@
     {/call}
     {call aui.message.info}
         {param content}
-            {call aui.expander.revealText}
-                {param triggerId: 'tc-listener-info-text-trigger'/}
-                {param contentId: 'tc-listener-info-text-content'/}
-                {param contentContent: getText('triggers.info') /}
-            {/call}
+            <p>{getText('triggers.info')}</p>
+            <p><a href="https://github.com/TrimbleSolutionsCorporation/TeamcityTriggerHook" target="_blank">{getText('triggers.info.more')}</a></p>
         {/param}
     {/call}
-
 
 {/template}

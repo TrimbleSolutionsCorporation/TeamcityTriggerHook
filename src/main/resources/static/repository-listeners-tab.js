@@ -2,13 +2,15 @@
  * Script to manage configurations within listeners tab.
  */
 require([
+    'aui',
     'jquery',
     'bitbucket/util/events',
     'com/trimble/tekla/teamcity/shared-storage',
     'jed/uuid'
-], function ($, events, storage, uuid) {
+], function(AJS, $, events, storage, uuid) {
 
     var listenersTableConrtoller = {
+        _$triggersTable : undefined,
         _$listenersTableBody : undefined,
         _$referenceRegexp : undefined,
         _$listenerTargetId : undefined,
@@ -25,16 +27,10 @@ require([
          * Initializes repository listeners table controller
          */
         init : function(listeners, errors) {
-            console.log("init listener");
-
             if (listeners) {
                 this._listeners = JSON.parse(listeners);
             } else {
                 this._listeners = {};
-            }
-
-            if (!$.isEmptyObject(this._listeners)) {
-                $('#repository-listeners-table').show();
             }
 
             if (errors) {
@@ -43,7 +39,8 @@ require([
                 this._errors = {};
             }
 
-            this._$listenersTableBody = $('#repository-listeners-table > tbody');
+            this._$triggersTable = $('#repository-triggers-table');
+            this._$listenersTableBody = $('#repository-triggers-table > tbody');
             this._$referenceRegexp = $('#referenceRegexp');
             this._$listenerTargetId = $('#listenerTargetId');
             this._$listenerTarget = $('#listenerTarget');
@@ -53,9 +50,13 @@ require([
             this._$listenerDownStreamTriggerType = $('#downStreamTriggerType');
             this._$listenerDownStreamUrl = $('#downStreamUrl');
 
-            $('#addListenerButton').off().on('click',$.proxy(this._addListenerHandler, this));
+            $('#addListenerButton').off().on('click', $.proxy(this._addListenerHandler, this));
 
             this._drawTableContents();
+
+            if (!$.isEmptyObject(this._listeners)) {
+                this._$triggersTable.show();
+            }
         },
 
         /**
@@ -85,8 +86,8 @@ require([
                                 }
                             }));
                             $errorIcon.tooltip({
-                                gravity: 's',
-                                className: 'aui-form-notification-tooltip aui-form-notification-tooltip-error'
+                                gravity : 's',
+                                className : 'aui-form-notification-tooltip aui-form-notification-tooltip-error'
                             });
                             return $errorIcon;
                         } else {
@@ -94,19 +95,31 @@ require([
                         }
                     }, this)
                 }), $('<td/>', {
-                    html : listener.regexp
+                    text : listener.regexp
                 }), $('<td/>', {
-                    html : listener.target
+                    text : listener.targetId
                 }), $('<td/>', {
-                    html : listener.targetId
+                    text : listener.target
                 }), $('<td/>', {
-                    html : listener.triggerOnPullRequest
-                }), $('<td/>', {
-                    html : listener.cancelRunningBuilds
-                }), $('<td/>', {
-                    html : listener.downStreamUrl
-                }), $('<td/>', {
-                    html : listener.downStreamTriggerType
+                    html : [$('<span/>', {
+                        html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.column.cancel.builds')
+                        }), $('<span/>', {
+                            text : listener.cancelRunningBuilds
+                        })]
+                    }), $('<span/>', {
+                        html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.column.pull.request')
+                        }), $('<span/>', {
+                            text : listener.triggerOnPullRequest
+                        })]
+                    }), $('<span/>', {
+                        html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.column.empty.branches')
+                        }), $('<span/>', {
+                            text : listener.triggerOnEmptyBranches
+                        })]
+                    })]
                 }), $('<td/>', {
                     html : aui.icons.icon({
                         tagName : 'a',
@@ -116,7 +129,7 @@ require([
                         useIconFont : true,
                         extraAttributes : {
                             'data-aui-trigger' : '',
-                            'aria-controls' :'builds-info-dialog'
+                            'aria-controls' : 'builds-info-dialog'
                         }
                     })
                 })]
@@ -136,7 +149,7 @@ require([
             });
             delete this._listeners[event.data];
             if ($.isEmptyObject(this._listeners)) {
-                $('#repository-listeners-table').hide();
+                this._$triggersTable.hide();
             }
         },
 
@@ -145,7 +158,7 @@ require([
          */
         _addListenerHandler : function(event) {
             event.preventDefault();
-            $('#repository-listeners-table').show();
+
             var listener = {
                 regexp : this._$referenceRegexp.val(),
                 targetId : this._$listenerTargetId.val(),
@@ -168,6 +181,8 @@ require([
             var listenerUUID = uuid();
             this._listeners[listenerUUID] = listener;
             this._drawTableRow(listenerUUID, listener);
+
+            this._$triggersTable.show();
         },
 
         /**
