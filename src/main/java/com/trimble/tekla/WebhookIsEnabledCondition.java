@@ -9,7 +9,7 @@ import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
-import com.trimble.tekla.pojo.Listener;
+import com.trimble.tekla.pojo.Trigger;
 import java.io.IOException;
 import org.apache.commons.lang3.StringUtils;
 
@@ -75,7 +75,7 @@ public class WebhookIsEnabledCondition implements Condition {
     String branch = ref.getId();
     
     try {
-      final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);    
+      final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);    
       if (configurations.length > 0) {
         return true;
       }      

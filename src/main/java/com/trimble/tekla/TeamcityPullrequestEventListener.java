@@ -12,7 +12,7 @@ import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.event.api.EventListener;
-import com.trimble.tekla.pojo.Listener;
+import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
@@ -74,8 +74,8 @@ public class TeamcityPullrequestEventListener {
       return;
     }
 
-    final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
-    for (final Listener buildConfig : configurations) {
+    final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
+    for (final Trigger buildConfig : configurations) {
       if (buildConfig.isTriggerOnPullRequest()) {
         TeamcityLogger.logMessage(settings, "Trigger BuildId: " + buildConfig.getTarget());
         try {

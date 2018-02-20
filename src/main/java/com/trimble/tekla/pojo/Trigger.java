@@ -13,7 +13,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 /**
  *
  */
-public class Listener {
+public class Trigger {
   private String branchConfig;
   private String regexp;
   private String type;
@@ -96,12 +96,12 @@ public class Listener {
     this.triggerOnEmptyBranches = triggerOnEmptyBranches;
   }
 
-  public static Listener[] GetBuildConfigurationsFromBranch(final String jsonConfiguration, final String branch) throws IOException {
+  public static Trigger[] GetBuildConfigurationsFromBranch(final String jsonConfiguration, final String branch) throws IOException {
     final ObjectMapper mapper = new ObjectMapper();
-    final Map<String, Listener> triggerMap;
-    final List<Listener> configs = new ArrayList<>();
-    triggerMap = mapper.readValue(jsonConfiguration, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Listener.class));
-    for (final Map.Entry<String, Listener> triggerEntry : triggerMap.entrySet()) {
+    final Map<String, Trigger> triggerMap;
+    final List<Trigger> configs = new ArrayList<>();
+    triggerMap = mapper.readValue(jsonConfiguration, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Trigger.class));
+    for (final Map.Entry<String, Trigger> triggerEntry : triggerMap.entrySet()) {
       final Pattern pattern = Pattern.compile(triggerEntry.getValue().getRegexp(), Pattern.CASE_INSENSITIVE);
       final Matcher matcher = pattern.matcher(branch);
       if (matcher.find()) {
@@ -110,6 +110,6 @@ public class Listener {
       }
     }
 
-    return configs.toArray(new Listener[configs.size()]);
+    return configs.toArray(new Trigger[configs.size()]);
   }
 }

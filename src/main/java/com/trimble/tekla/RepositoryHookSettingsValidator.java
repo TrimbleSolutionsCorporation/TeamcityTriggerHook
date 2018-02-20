@@ -15,7 +15,7 @@ import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 import com.atlassian.bitbucket.setting.SettingsValidator;
 import com.atlassian.sal.api.message.I18nResolver;
-import com.trimble.tekla.pojo.Listener;
+import com.trimble.tekla.pojo.Trigger;
 
 /**
  * Class for validating hook configuration form
@@ -88,9 +88,9 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
     private void validaterepositoryTriggersTab(final Settings settings, final SettingsValidationErrors errors) throws IOException {
         final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
         final ObjectMapper mapper = new ObjectMapper();
-        final Map<String, Listener> triggerMap = mapper.readValue(repositoryTriggersJson, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Listener.class));
-        for (final Map.Entry<String, Listener> triggerEntry : triggerMap.entrySet()) {
-            final Listener trigger = triggerEntry.getValue();
+        final Map<String, Trigger> triggerMap = mapper.readValue(repositoryTriggersJson, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Trigger.class));
+        for (final Map.Entry<String, Trigger> triggerEntry : triggerMap.entrySet()) {
+            final Trigger trigger = triggerEntry.getValue();
             if (StringUtils.isBlank(trigger.getTarget())) {
                 errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.string.empty"));
             } else if (StringUtils.containsWhitespace(trigger.getTarget())) {

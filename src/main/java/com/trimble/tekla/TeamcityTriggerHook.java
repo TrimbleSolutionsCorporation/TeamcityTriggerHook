@@ -22,7 +22,7 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.StandardRefType;
 import com.atlassian.bitbucket.scm.git.GitScm;
 import com.atlassian.bitbucket.setting.Settings;
-import com.trimble.tekla.pojo.Listener;
+import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
@@ -138,8 +138,8 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
       return;
     }
 
-    final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryTriggersJson, refId);
-    for (final Listener buildConfig : configurations) {
+    final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, refId);
+    for (final Trigger buildConfig : configurations) {
       if (buildConfig.isTriggerOnPullRequest() || (isEmptyBranch && !buildConfig.isTriggerOnEmptyBranches())) {
         continue;
       }
