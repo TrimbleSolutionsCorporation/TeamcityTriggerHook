@@ -10,7 +10,7 @@ public final class Field {
     public static final String TEAMCITY_USERNAME = "teamCityUserName";
     public static final String TEAMCITY_PASSWORD = "teamCityPassword";
     public static final String DEBUG = "isDebugEnabled";
-    public static final String REPOSITORY_LISTENERS_JSON = "repositoryListenersJson";
+    public static final String REPOSITORY_TRIGGERS_JSON = "repositoryTriggersJson";
 
     private Field() {
         throw new IllegalStateException("Constant class");

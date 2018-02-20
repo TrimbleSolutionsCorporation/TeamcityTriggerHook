@@ -16,8 +16,8 @@ import org.codehaus.jackson.map.ObjectMapper;
 public class Listener {
   private String branchConfig;
   private String regexp;
+  private String type;
   private String target;
-  private String targetId;
   private boolean triggerOnPullRequest;
   private String downStreamUrl;
   private String downStreamTriggerType;
@@ -72,20 +72,20 @@ public class Listener {
     this.regexp = regexp;
   }
 
+  public String getType() {
+    return this.type;
+  }
+
+  public void setType(final String type) {
+    this.type = type;
+  }
+
   public String getTarget() {
     return this.target;
   }
 
   public void setTarget(final String target) {
     this.target = target;
-  }
-
-  public String getTargetId() {
-    return this.targetId;
-  }
-
-  public void setTargetId(final String targetId) {
-    this.targetId = targetId;
   }
 
   public boolean isTriggerOnEmptyBranches() {
@@ -98,15 +98,15 @@ public class Listener {
 
   public static Listener[] GetBuildConfigurationsFromBranch(final String jsonConfiguration, final String branch) throws IOException {
     final ObjectMapper mapper = new ObjectMapper();
-    final Map<String, Listener> listenerMap;
+    final Map<String, Listener> triggerMap;
     final List<Listener> configs = new ArrayList<>();
-    listenerMap = mapper.readValue(jsonConfiguration, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Listener.class));
-    for (final Map.Entry<String, Listener> listenerEntry : listenerMap.entrySet()) {
-      final Pattern pattern = Pattern.compile(listenerEntry.getValue().getRegexp(), Pattern.CASE_INSENSITIVE);
+    triggerMap = mapper.readValue(jsonConfiguration, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Listener.class));
+    for (final Map.Entry<String, Listener> triggerEntry : triggerMap.entrySet()) {
+      final Pattern pattern = Pattern.compile(triggerEntry.getValue().getRegexp(), Pattern.CASE_INSENSITIVE);
       final Matcher matcher = pattern.matcher(branch);
       if (matcher.find()) {
-        listenerEntry.getValue().setBranchConfig(matcher.group(matcher.groupCount()));
-        configs.add(listenerEntry.getValue());
+        triggerEntry.getValue().setBranchConfig(matcher.group(matcher.groupCount()));
+        configs.add(triggerEntry.getValue());
       }
     }
 

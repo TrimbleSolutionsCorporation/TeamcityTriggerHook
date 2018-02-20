@@ -1,13 +1,9 @@
-#tc-listener-info-text-content.aui-expander-content {
-    min-height: 1.5em;
-}
-
 /* Styles for advanced section */
 #expand-advanced-trigger {
     width: 100%;
 }
 
-#addListenerButton>.aui-iconfont-list-add {
+#addTriggerButton>.aui-iconfont-list-add {
     color: #14892c;
 }
 

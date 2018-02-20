@@ -65,8 +65,8 @@ public class WebhookIsEnabledCondition implements Condition {
       return false;
     }
 
-    final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
-    if(repositoryListenersJson.isEmpty()) {
+    final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+    if(repositoryTriggersJson.isEmpty()) {
       return false;
     }
 
@@ -75,7 +75,7 @@ public class WebhookIsEnabledCondition implements Condition {
     String branch = ref.getId();
     
     try {
-      final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);    
+      final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);    
       if (configurations.length > 0) {
         return true;
       }      

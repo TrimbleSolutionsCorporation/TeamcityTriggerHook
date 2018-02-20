@@ -3,9 +3,9 @@
 /**
  * Renders Builds tab contents in hook configuration user interface
  */
-{template .repositoryListenersTab}
+{template .repositoryTriggersTab}
     {literal}
-        <input id="repositoryListenersJson" name="repositoryListenersJson" type="hidden" />
+        <input id="repositoryTriggersJson" name="repositoryTriggersJson" type="hidden" />
     {/literal}
     {call aui.form.textField}
         {param id: 'referenceRegexp' /}
@@ -14,13 +14,13 @@
         {param infoMessage: getText('triggers.regex.info') /}
     {/call}
     {call aui.form.textField}
-        {param id: 'listenerTargetId' /}
+        {param id: 'triggerTarget' /}
         {param fieldWidth: 'long' /}
         {param labelContent: getText('triggers.target') /}
         {param infoMessage: getText('triggers.target.info') /}
     {/call}
     {call aui.form.selectField}
-        {param id: 'listenerTarget' /}
+        {param id: 'triggerType' /}
         {param fieldWidth: 'short' /}
         {param labelContent: getText('triggers.type') /}
         {param options: [
@@ -46,11 +46,11 @@
         {param id: 'advanced-settings-content' /}
         {param content}
             {call .toggle}
-                {param id: 'listenerCancelRunningBuilds' /}
+                {param id: 'cancelRunningBuilds' /}
                 {param labelText: getText('triggers.cancel.builds') /}
             {/call}
             {call .toggle}
-                {param id: 'listenerOnPullRequest' /}
+                {param id: 'triggerOnPullRequest' /}
                 {param labelText: getText('triggers.pull.request') /}
             {/call}
             {call .toggle}
@@ -80,7 +80,7 @@
     {call aui.form.buttons}
         {param content}
             {call aui.form.button}
-                {param id: 'addListenerButton' /}
+                {param id: 'addTriggerButton' /}
                 {param text: ' ' + getText('triggers.button.add') /}
                 {param iconType: 'aui' /}
                 {param iconClass: 'aui-icon-small aui-iconfont-list-add' /}

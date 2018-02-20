@@ -133,25 +133,25 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
   }
 
   private void TriggerBuild(final RepositoryHookContext context, final String refId, final TeamcityConfiguration conf, final String timestamp, final boolean isEmptyBranch) throws IOException {
-    final String repositoryListenersJson = context.getSettings().getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
-    if (repositoryListenersJson.isEmpty()) {
+    final String repositoryTriggersJson = context.getSettings().getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+    if (repositoryTriggersJson.isEmpty()) {
       return;
     }
 
-    final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, refId);
+    final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryTriggersJson, refId);
     for (final Listener buildConfig : configurations) {
       if (buildConfig.isTriggerOnPullRequest() || (isEmptyBranch && !buildConfig.isTriggerOnEmptyBranches())) {
         continue;
       }
 
-      if (buildConfig.getTarget().equals("vcs")) {
-        TriggerCheckForChanges(context, buildConfig.getTargetId(), conf, context.getSettings());
+      if (buildConfig.getType().equals("vcs")) {
+        TriggerCheckForChanges(context, buildConfig.getTarget(), conf, context.getSettings());
       }
 
-      if (buildConfig.getTarget().equals("build")) {
+      if (buildConfig.getType().equals("build")) {
         QueueBuild(
             context,
-            buildConfig.getTargetId(),
+            buildConfig.getTarget(),
             buildConfig.getBranchConfig(),
             buildConfig.isCancelRunningBuilds(),
             conf,

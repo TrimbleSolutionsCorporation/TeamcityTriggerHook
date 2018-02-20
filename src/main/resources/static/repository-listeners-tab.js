@@ -1,5 +1,5 @@
 /**
- * Script to manage configurations within listeners tab.
+ * Script to manage configurations within triggers tab.
  */
 require([
     'aui',
@@ -9,28 +9,28 @@ require([
     'jed/uuid'
 ], function(AJS, $, events, storage, uuid) {
 
-    var listenersTableConrtoller = {
+    var triggersTableConrtoller = {
         _$triggersTable : undefined,
-        _$listenersTableBody : undefined,
+        _$triggersTableBody : undefined,
         _$referenceRegexp : undefined,
-        _$listenerTargetId : undefined,
-        _$listenerTarget : undefined,
+        _$triggerTarget : undefined,
+        _$triggerType : undefined,
         _$triggerOnEmptyBranches : undefined,
-        _$listenerOnPullRequest : undefined,
-        _$listenerCancelRunningBuilds : undefined,
-        _$listenerDownStreamTriggerType : undefined,
-        _$listenerDownStreamUrl : undefined,
-        _listeners : undefined,
+        _$triggerOnPullRequest : undefined,
+        _$cancelRunningBuilds : undefined,
+        _$downStreamTriggerType : undefined,
+        _$downStreamUrl : undefined,
+        _triggers : undefined,
         _errors : undefined,
 
         /**
-         * Initializes repository listeners table controller
+         * Initializes repository triggers table controller
          */
-        init : function(listeners, errors) {
-            if (listeners) {
-                this._listeners = JSON.parse(listeners);
+        init : function(triggers, errors) {
+            if (triggers) {
+                this._triggers = JSON.parse(triggers);
             } else {
-                this._listeners = {};
+                this._triggers = {};
             }
 
             if (errors) {
@@ -40,41 +40,41 @@ require([
             }
 
             this._$triggersTable = $('#repository-triggers-table');
-            this._$listenersTableBody = $('#repository-triggers-table > tbody');
+            this._$triggersTableBody = $('#repository-triggers-table > tbody');
             this._$referenceRegexp = $('#referenceRegexp');
-            this._$listenerTargetId = $('#listenerTargetId');
-            this._$listenerTarget = $('#listenerTarget');
+            this._$triggerTarget = $('#triggerTarget');
+            this._$triggerType = $('#triggerType');
             this._$triggerOnEmptyBranches = $('#triggerOnEmptyBranches');
-            this._$listenerOnPullRequest = $('#listenerOnPullRequest');
-            this._$listenerCancelRunningBuilds = $('#listenerCancelRunningBuilds');
-            this._$listenerDownStreamTriggerType = $('#downStreamTriggerType');
-            this._$listenerDownStreamUrl = $('#downStreamUrl');
+            this._$triggerOnPullRequest = $('#triggerOnPullRequest');
+            this._$cancelRunningBuilds = $('#cancelRunningBuilds');
+            this._$downStreamTriggerType = $('#downStreamTriggerType');
+            this._$downStreamUrl = $('#downStreamUrl');
 
-            $('#addListenerButton').off().on('click', $.proxy(this._addListenerHandler, this));
+            $('#addTriggerButton').off().on('click', $.proxy(this._addTriggerHandler, this));
 
             this._drawTableContents();
 
-            if (!$.isEmptyObject(this._listeners)) {
+            if (!$.isEmptyObject(this._triggers)) {
                 this._$triggersTable.show();
             }
         },
 
         /**
-         * Redraws entire repository listeners table
+         * Redraws entire repository triggers table
          */
         _drawTableContents : function() {
-            this._$listenersTableBody.empty();
-            $.each(this._listeners, $.proxy(this._drawTableRow, this));
+            this._$triggersTableBody.empty();
+            $.each(this._triggers, $.proxy(this._drawTableRow, this));
         },
 
         /**
-         * Draws a single row in a table with listener configuration
+         * Draws a single row in a table with trigger configuration
          */
-        _drawTableRow : function(listenerUUID, listener) {
+        _drawTableRow : function(triggerUUID, trigger) {
             var $tableRow = $('<tr/>', {
                 html : [$('<td/>', {
                     html : $.proxy(function() {
-                        if (this._errors[listenerUUID]) {
+                        if (this._errors[triggerUUID]) {
                             var $errorIcon = $(aui.icons.icon({
                                 tagName : 'span',
                                 icon : 'error',
@@ -82,7 +82,7 @@ require([
                                 accessibilityText : 'error',
                                 useIconFont : true,
                                 extraAttributes : {
-                                    'title' : this._errors[listenerUUID]
+                                    'title' : this._errors[triggerUUID]
                                 }
                             }));
                             $errorIcon.tooltip({
@@ -95,29 +95,29 @@ require([
                         }
                     }, this)
                 }), $('<td/>', {
-                    text : listener.regexp
+                    text : trigger.regexp
                 }), $('<td/>', {
-                    text : listener.targetId
+                    text : trigger.target
                 }), $('<td/>', {
-                    text : listener.target
+                    text : trigger.type
                 }), $('<td/>', {
                     html : [$('<span/>', {
                         html : [$('<span/>', {
                             text : AJS.I18n.getText('triggers.column.cancel.builds')
                         }), $('<span/>', {
-                            text : listener.cancelRunningBuilds
+                            text : trigger.cancelRunningBuilds
                         })]
                     }), $('<span/>', {
                         html : [$('<span/>', {
                             text : AJS.I18n.getText('triggers.column.pull.request')
                         }), $('<span/>', {
-                            text : listener.triggerOnPullRequest
+                            text : trigger.triggerOnPullRequest
                         })]
                     }), $('<span/>', {
                         html : [$('<span/>', {
                             text : AJS.I18n.getText('triggers.column.empty.branches')
                         }), $('<span/>', {
-                            text : listener.triggerOnEmptyBranches
+                            text : trigger.triggerOnEmptyBranches
                         })]
                     })]
                 }), $('<td/>', {
@@ -134,64 +134,64 @@ require([
                     })
                 })]
             });
-            $tableRow.on('click', '.aui-iconfont-remove', listenerUUID, $.proxy(this._deleteListenerHandler, this));
-            $tableRow.appendTo(this._$listenersTableBody);
+            $tableRow.on('click', '.aui-iconfont-remove', triggerUUID, $.proxy(this._deleteTriggerHandler, this));
+            $tableRow.appendTo(this._$triggersTableBody);
         },
 
         /**
-         * Event handler for button click to delete listener data from the table
+         * Event handler for button click to delete trigger data from the table
          */
-        _deleteListenerHandler : function(event) {
+        _deleteTriggerHandler : function(event) {
             event.preventDefault();
             var $delegateTarget = $(event.delegateTarget);
             $delegateTarget.hide('fast', function() {
                 $delegateTarget.remove();
             });
-            delete this._listeners[event.data];
-            if ($.isEmptyObject(this._listeners)) {
+            delete this._triggers[event.data];
+            if ($.isEmptyObject(this._triggers)) {
                 this._$triggersTable.hide();
             }
         },
 
         /**
-         * Event handler for button click to add listener data to the table
+         * Event handler for button click to add trigger data to the table
          */
-        _addListenerHandler : function(event) {
+        _addTriggerHandler : function(event) {
             event.preventDefault();
 
-            var listener = {
+            var trigger = {
                 regexp : this._$referenceRegexp.val(),
-                targetId : this._$listenerTargetId.val(),
-                target : this._$listenerTarget.val(),
+                target : this._$triggerTarget.val(),
+                type : this._$triggerType.val(),
                 triggerOnEmptyBranches : this._$triggerOnEmptyBranches[0].checked,
-                triggerOnPullRequest : this._$listenerOnPullRequest[0].checked,
-                cancelRunningBuilds : this._$listenerCancelRunningBuilds[0].checked,
-                downStreamTriggerType : this._$listenerDownStreamTriggerType.val(),
-                downStreamUrl : this._$listenerDownStreamUrl.val(),
+                triggerOnPullRequest : this._$triggerOnPullRequest[0].checked,
+                cancelRunningBuilds : this._$cancelRunningBuilds[0].checked,
+                downStreamTriggerType : this._$downStreamTriggerType.val(),
+                downStreamUrl : this._$downStreamUrl.val(),
             };
 
             this._$referenceRegexp.val('');
-            this._$listenerTargetId.val('');
-            this._$listenerDownStreamUrl.val('');
+            this._$triggerTarget.val('');
+            this._$downStreamUrl.val('');
 
             this._$triggerOnEmptyBranches[0].checked = true;
-            this._$listenerOnPullRequest[0].checked = false;
-            this._$listenerCancelRunningBuilds[0].checked = false;
+            this._$triggerOnPullRequest[0].checked = false;
+            this._$cancelRunningBuilds[0].checked = false;
 
-            var listenerUUID = uuid();
-            this._listeners[listenerUUID] = listener;
-            this._drawTableRow(listenerUUID, listener);
+            var triggerUUID = uuid();
+            this._triggers[triggerUUID] = trigger;
+            this._drawTableRow(triggerUUID, trigger);
 
             this._$triggersTable.show();
         },
 
         /**
-         * Returns listeners as a string of JSON data
+         * Returns triggers as a string of JSON data
          *
          * @returns {string} JSON data
          */
-        getListeners : function() {
-            return JSON.stringify(this._listeners);
+        getTriggers : function() {
+            return JSON.stringify(this._triggers);
         }
     };
 
@@ -199,15 +199,15 @@ require([
      * Trigger on dialog reload event "com.trimble.tekla.teamcity.hook.init"
      */
     events.on('com.trimble.tekla.teamcity.hook.init', function() {
-        var $repositoryListenersJson = $('#repositoryListenersJson');
-        Object.defineProperty($repositoryListenersJson[0], 'value', {
+        var $repositoryTriggersJson = $('#repositoryTriggersJson');
+        Object.defineProperty($repositoryTriggersJson[0], 'value', {
             get : function() {
-                return listenersTableConrtoller.getListeners();
+                return triggersTableConrtoller.getTriggers();
             },
             enumerable : true,
             configurable : true
         });
 
-        listenersTableConrtoller.init(storage.config.repositoryListenersJson, storage.errors);
+        triggersTableConrtoller.init(storage.config.repositoryTriggersJson, storage.errors);
     });
 });

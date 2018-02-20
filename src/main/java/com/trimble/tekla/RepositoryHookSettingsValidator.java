@@ -40,7 +40,7 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
     public void validate(final Settings settings, final SettingsValidationErrors errors, final Scope scope) {
         try {
             validateConnectionTab(settings, errors);
-            validateRepositoryListenersTab(settings, errors);
+            validaterepositoryTriggersTab(settings, errors);
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
@@ -79,31 +79,31 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
     }
 
     /**
-     * Validates form data in repository listeners tab
+     * Validates form data in repository triggers tab
      *
      * @param settings - to be validated.
      * @param errors - callback for reporting validation errors.
      * @throws IOException if JSON parsing error occurs
      */
-    private void validateRepositoryListenersTab(final Settings settings, final SettingsValidationErrors errors) throws IOException {
-        final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
+    private void validaterepositoryTriggersTab(final Settings settings, final SettingsValidationErrors errors) throws IOException {
+        final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
         final ObjectMapper mapper = new ObjectMapper();
-        final Map<String, Listener> listenerMap = mapper.readValue(repositoryListenersJson, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Listener.class));
-        for (final Map.Entry<String, Listener> listenerEntry : listenerMap.entrySet()) {
-            final Listener listener = listenerEntry.getValue();
-            if (StringUtils.isBlank(listener.getTargetId())) {
-                errors.addFieldError(listenerEntry.getKey(), this.i18n.getText("error.string.empty"));
-            } else if (StringUtils.containsWhitespace(listener.getTargetId())) {
-                errors.addFieldError(listenerEntry.getKey(), this.i18n.getText("error.string.contains.whitespace"));
+        final Map<String, Listener> triggerMap = mapper.readValue(repositoryTriggersJson, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Listener.class));
+        for (final Map.Entry<String, Listener> triggerEntry : triggerMap.entrySet()) {
+            final Listener trigger = triggerEntry.getValue();
+            if (StringUtils.isBlank(trigger.getTarget())) {
+                errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.string.empty"));
+            } else if (StringUtils.containsWhitespace(trigger.getTarget())) {
+                errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.string.contains.whitespace"));
             }
             try {
-                final Pattern pattern = Pattern.compile(listenerEntry.getValue().getRegexp(), Pattern.CASE_INSENSITIVE);
+                final Pattern pattern = Pattern.compile(triggerEntry.getValue().getRegexp(), Pattern.CASE_INSENSITIVE);
                 final Matcher matcher = pattern.matcher(BRANCH_TEST_STRING);
                 if (matcher.groupCount() != 1) {
-                    errors.addFieldError(listenerEntry.getKey(), this.i18n.getText("error.regex.needs.capturing"));
+                    errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.regex.needs.capturing"));
                 }
             } catch (final PatternSyntaxException e) {
-                errors.addFieldError(listenerEntry.getKey(), e.getLocalizedMessage());
+                errors.addFieldError(triggerEntry.getKey(), e.getLocalizedMessage());
             }
         }
     }

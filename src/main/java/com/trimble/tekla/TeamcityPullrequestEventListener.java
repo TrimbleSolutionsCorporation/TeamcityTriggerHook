@@ -69,18 +69,18 @@ public class TeamcityPullrequestEventListener {
                     password);
 
     String branch = ref.getId();
-    final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
-    if (repositoryListenersJson.isEmpty()) {
+    final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+    if (repositoryTriggersJson.isEmpty()) {
       return;
     }
 
-    final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
+    final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
     for (final Listener buildConfig : configurations) {
       if (buildConfig.isTriggerOnPullRequest()) {
-        TeamcityLogger.logMessage(settings, "Trigger BuildId: " + buildConfig.getTargetId());
+        TeamcityLogger.logMessage(settings, "Trigger BuildId: " + buildConfig.getTarget());
         try {
-          if (this.connector.IsInQueue(conf, buildConfig.getTargetId(), buildConfig.getBranchConfig(), settings)) {
-            TeamcityLogger.logMessage(settings, "Skip already in queue: " + buildConfig.getTargetId());
+          if (this.connector.IsInQueue(conf, buildConfig.getTarget(), buildConfig.getBranchConfig(), settings)) {
+            TeamcityLogger.logMessage(settings, "Skip already in queue: " + buildConfig.getTarget());
             continue;
           }
         } catch (IOException | JSONException ex) {
@@ -91,7 +91,7 @@ public class TeamcityPullrequestEventListener {
         String buildData = this.connector.GetBuildsForBranch(
                 conf,
                 buildConfig.getBranchConfig(),
-                buildConfig.getTargetId(),
+                buildConfig.getTarget(),
                 settings);
 
         JSONObject obj = new JSONObject(buildData);
@@ -101,7 +101,7 @@ public class TeamcityPullrequestEventListener {
           this.connector.QueueBuild(
                   conf,
                   buildConfig.getBranchConfig(),
-                  buildConfig.getTargetId(),
+                  buildConfig.getTarget(),
                   "Pull request Trigger from Bitbucket",
                   false,
                   settings);
@@ -122,7 +122,7 @@ public class TeamcityPullrequestEventListener {
             this.connector.QueueBuild(
                     conf,
                     buildConfig.getBranchConfig(),
-                    buildConfig.getTargetId(),
+                    buildConfig.getTarget(),
                     "Pull request Trigger from Bitbucket",
                     false,
                     settings);
