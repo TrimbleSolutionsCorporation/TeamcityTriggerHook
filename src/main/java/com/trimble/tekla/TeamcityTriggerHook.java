@@ -22,7 +22,7 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.StandardRefType;
 import com.atlassian.bitbucket.scm.git.GitScm;
 import com.atlassian.bitbucket.setting.Settings;
-import com.trimble.tekla.pojo.Listener;
+import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
@@ -133,25 +133,25 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
   }
 
   private void TriggerBuild(final RepositoryHookContext context, final String refId, final TeamcityConfiguration conf, final String timestamp, final boolean isEmptyBranch) throws IOException {
-    final String repositoryListenersJson = context.getSettings().getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
-    if (repositoryListenersJson.isEmpty()) {
+    final String repositoryTriggersJson = context.getSettings().getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+    if (repositoryTriggersJson.isEmpty()) {
       return;
     }
 
-    final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, refId);
-    for (final Listener buildConfig : configurations) {
+    final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, refId);
+    for (final Trigger buildConfig : configurations) {
       if (buildConfig.isTriggerOnPullRequest() || (isEmptyBranch && !buildConfig.isTriggerOnEmptyBranches())) {
         continue;
       }
 
-      if (buildConfig.getTarget().equals("vcs")) {
-        TriggerCheckForChanges(context, buildConfig.getTargetId(), conf, context.getSettings());
+      if (buildConfig.getType().equals("vcs")) {
+        TriggerCheckForChanges(context, buildConfig.getTarget(), conf, context.getSettings());
       }
 
-      if (buildConfig.getTarget().equals("build")) {
+      if (buildConfig.getType().equals("build")) {
         QueueBuild(
             context,
-            buildConfig.getTargetId(),
+            buildConfig.getTarget(),
             buildConfig.getBranchConfig(),
             buildConfig.isCancelRunningBuilds(),
             conf,

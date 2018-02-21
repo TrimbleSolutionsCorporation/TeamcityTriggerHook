@@ -1,0 +1,117 @@
+/* Styles for advanced section */
+#expand-advanced-trigger {
+    width: 100%;
+}
+
+#addTriggerButton>.aui-iconfont-list-add {
+    color: #14892c;
+}
+
+#advanced-settings-content {
+    background-color: #f0f8ff;
+}
+
+#advanced-settings-content>.field-group {
+    padding-left: 210px;
+}
+
+#advanced-settings-content>.field-group>label {
+    margin-left: -210px;
+    width: 195px;
+}
+
+/* Table styles */
+#repository-triggers-table {
+    table-layout: fixed;
+}
+
+/* Column sizes */
+#repository-triggers-table>colgroup>col:first-child {
+    width: 17px;
+}
+
+#repository-triggers-table>colgroup>col:nth-child(3) {
+    width: 23%;
+}
+
+#repository-triggers-table>colgroup>col:nth-child(4) {
+    width: 50px;
+}
+
+#repository-triggers-table>colgroup>col:nth-child(5) {
+    width: 27%;
+}
+
+#repository-triggers-table>colgroup>col:last-child {
+    width: 36px;
+}
+
+/* Cell styles */
+#repository-triggers-table>thead>tr>th {
+    padding: 7px 3px;
+}
+
+#repository-triggers-table>tbody>tr>td {
+    padding: 2px 3px;
+}
+
+#repository-triggers-table>tbody>tr>td:first-child {
+    padding: 2px 1px;
+}
+
+#repository-triggers-table>tbody>tr>td:last-child {
+    text-align: center;
+}
+
+/* Table icon styles */
+#repository-triggers-table>tbody>tr .aui-iconfont-remove {
+    opacity: 0;
+}
+
+#repository-triggers-table>tbody>tr:hover .aui-iconfont-remove {
+    color: #ffbfba;
+    text-decoration: none;
+    opacity: 1;
+}
+
+#repository-triggers-table>tbody>tr .aui-iconfont-remove:hover,
+#repository-triggers-table>tbody>tr .aui-iconfont-error {
+    opacity: 1;
+    color: #d04437;
+}
+
+/* Style to display collapsed cell contents */
+#repository-triggers-table>tbody>tr>td {
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+/* Style to display expanded cell contents on cell hover */
+#repository-triggers-table>tbody>tr>td:hover {
+    white-space: normal;
+    text-overflow: clip;
+    word-break: break-all;
+}
+
+/* Special handling of "advanced" column cells */
+#repository-triggers-table>tbody>tr>td:nth-child(5)>span::after {
+    content: ',';
+}
+
+#repository-triggers-table>tbody>tr>td:nth-child(5)>span>span:first-child::after {
+    content: ':';
+}
+
+/* Special handling of "advanced" column on cell hover */
+#repository-triggers-table>tbody>tr>td:nth-child(5):hover>span {
+    display: block;
+}
+
+#repository-triggers-table>tbody>tr>td:nth-child(5):hover>span::after {
+    content: none;
+}
+
+#repository-triggers-table>tbody>tr>td:nth-child(5):hover>span>span:last-child {
+    float: right;
+}

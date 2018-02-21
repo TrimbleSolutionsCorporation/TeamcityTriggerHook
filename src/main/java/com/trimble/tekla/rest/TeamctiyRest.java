@@ -41,7 +41,7 @@ import com.trimble.tekla.Constant;
 import com.trimble.tekla.Field;
 import com.trimble.tekla.SettingsService;
 import com.trimble.tekla.TeamcityConnectionSettings;
-import com.trimble.tekla.pojo.Listener;
+import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
@@ -185,10 +185,10 @@ public class TeamctiyRest extends RestResource {
     }
 
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
-    final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
+    final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
     try {
-      final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
-      for (Listener configuration : configurations) {
+      final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
+      for (Trigger configuration : configurations) {
         if(configuration.getDownStreamUrl().equals(buildconfig) && configuration.getDownStreamTriggerType().equals("build")) {
           this.connector.QueueBuild(conf, configuration.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket", false, settings);
         }
@@ -228,12 +228,12 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
     }
 
-    final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
-    if (repositoryListenersJson.isEmpty()) {
+    final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+    if (repositoryTriggersJson.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"hook not configured properly\"}";
     }
 
-    final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
+    final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
 
     if (configurations.length == 0) {
       return "{\"status\": \"error\", \"message\": \"no build configurations defined for this branch\"}";
@@ -244,17 +244,17 @@ public class TeamctiyRest extends RestResource {
 
       final JSONObject jObj = new JSONObject();
 
-      for (final Listener buildConfig : configurations) {
+      for (final Trigger buildConfig : configurations) {
 
         try {
-          String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTargetId(), settings);
-          final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTargetId(), settings);
-          jObj.put(buildConfig.getTargetId(), returnData);
-          jObj.put(buildConfig.getTargetId() + "_queue", queueData);
-          jObj.put(buildConfig.getTargetId() + "_wref", url + "/viewType.html?buildTypeId=" + buildConfig);
+          String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings);
+          final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTarget(), settings);
+          jObj.put(buildConfig.getTarget(), returnData);
+          jObj.put(buildConfig.getTarget() + "_queue", queueData);
+          jObj.put(buildConfig.getTarget() + "_wref", url + "/viewType.html?buildTypeId=" + buildConfig);
 
         } catch (final IOException ex) {
-          jObj.put(buildConfig.getTargetId(), "{\"exception\": \"Build Id for configuration throw exception\"}");
+          jObj.put(buildConfig.getTarget(), "{\"exception\": \"Build Id for configuration throw exception\"}");
         }
       }
 
@@ -297,8 +297,8 @@ public class TeamctiyRest extends RestResource {
 
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     try {
-      final String repositoryListenersJson = settings.getString(Field.REPOSITORY_LISTENERS_JSON, StringUtils.EMPTY);
-      if (repositoryListenersJson.isEmpty()) {
+      final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+      if (repositoryTriggersJson.isEmpty()) {
         return "{\"status\": \"error\", \"message\": \"hook not configured properly\"}";
       }
 
@@ -306,10 +306,10 @@ public class TeamctiyRest extends RestResource {
       if ("External1Id".equals(id)) {
         final JSONObject jObj = new JSONObject();
         jObj.put("ExternalBuildsOneNameId", "{\"status\": \"ok\", \"name\": \"Tests\"}");
-        final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
-        for (final Listener buildConfig : configurations) {
+        final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
+        for (final Trigger buildConfig : configurations) {
           if ("build".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamUrl())) {
-            String depBuildId = buildConfig.getTargetId();
+            String depBuildId = buildConfig.getTarget();
             String downBuildId = buildConfig.getDownStreamUrl();
             String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
             final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);
@@ -329,11 +329,11 @@ public class TeamctiyRest extends RestResource {
         final JSONObject jObj = new JSONObject();
         jObj.put("ExternalBuildsTwoNameId", "{\"status\": \"ok\", \"name\": \"External Triggers\"}");
         final JSONArray extRef = new JSONArray();        
-        final Listener[] configurations = Listener.GetBuildConfigurationsFromBranch(repositoryListenersJson, branch);
-        for (final Listener buildConfig : configurations) {
+        final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
+        for (final Trigger buildConfig : configurations) {
           if ("rest".equals(buildConfig.getDownStreamTriggerType()) || 
               "tab".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamUrl())) {
-            String depBuildId = buildConfig.getTargetId();
+            String depBuildId = buildConfig.getTarget();
             String downBuildId = buildConfig.getDownStreamUrl();
             String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
             final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);

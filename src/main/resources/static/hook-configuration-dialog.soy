@@ -36,7 +36,7 @@
             {call aui.tabPane}
                 {param id: 'repository' /}
                 {param content}
-                    {call .repositoryListenersTab data="all" /}
+                    {call .repositoryTriggersTab data="all" /}
                 {/param}
             {/call}
         {/param}
@@ -62,7 +62,10 @@
 {template .toggle}
     {call aui.form.fieldGroup}
         {param content}
-            <aui-label for="{$id}">{$labelText}</aui-label>
+            {call aui.form.label}
+                {param forField: $id /}
+                {param content: $labelText /}
+            {/call}
             <aui-toggle id="{$id}" name="{$id}" {if $value}checked{/if} label="{$labelText}"></aui-toggle>
         {/param}
     {/call}
