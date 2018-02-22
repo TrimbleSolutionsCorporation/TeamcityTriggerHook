@@ -119,6 +119,18 @@ require([
                         }), $('<span/>', {
                             text : trigger.triggerOnEmptyBranches
                         })]
+                    }), $('<span/>', {
+                        html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.target')
+                        }), $('<span/>', {
+                            text : trigger.downStreamUrl
+                        })]
+                    }), $('<span/>', {
+                        html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.type')
+                        }), $('<span/>', {
+                            text : trigger.downStreamTriggerType
+                        })]
                     })]
                 }), $('<td/>', {
                     html : aui.icons.icon({
