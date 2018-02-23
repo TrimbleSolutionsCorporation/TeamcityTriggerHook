@@ -8,7 +8,7 @@
         <input id="repositoryTriggersJson" name="repositoryTriggersJson" type="hidden" />
     {/literal}
     {call aui.form.textField}
-        {param id: 'referenceRegexp' /}
+        {param id: 'referenceRegex' /}
         {param fieldWidth: 'long' /}
         {param labelContent: getText('triggers.regex') /}
         {param infoMessage: getText('triggers.regex.info') /}
@@ -39,6 +39,7 @@
             {param tag: 'button' /}
             {param content: getText('triggers.advanced.expand') /}
             {param replaceText: getText('triggers.advanced.collapse') /}
+            {param extraAttributes: ['type' : 'button'] /}
             {param extraClasses: 'tc-max-width aui-badge aui-button aui-button-light' /}
         {/call}
     </div>
@@ -59,7 +60,7 @@
                 {param value: true /}
             {/call}
             {call aui.form.textField}
-                {param id: 'downStreamUrl' /}
+                {param id: 'downStreamTriggerTarget' /}
                 {param fieldWidth: 'medium-long' /}
                 {param labelContent: getText('triggers.target') /}
                 {param infoMessage: getText('triggers.configuration.info') /}

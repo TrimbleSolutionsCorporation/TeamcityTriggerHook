@@ -1,5 +1,8 @@
 package com.trimble.tekla;
 
+import javax.inject.Inject;
+import javax.inject.Named;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.atlassian.bitbucket.event.repository.RepositoryDeletedEvent;
@@ -11,6 +14,7 @@ import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 /**
  * Manages storing and retrieving of TeamCity user password
  */
+@Named
 public class TeamcityConnectionSettings {
 
     private final PluginSettings pluginSettings;
@@ -20,8 +24,9 @@ public class TeamcityConnectionSettings {
      *
      * @param factory - auto injected {@link PluginSettingsFactory}
      */
+    @Inject
     public TeamcityConnectionSettings(final PluginSettingsFactory factory) {
-        this.pluginSettings = factory.createSettingsForKey(ConcreteSettingsService.KEY);
+        this.pluginSettings = factory.createSettingsForKey(SettingsService.KEY);
     }
 
     /**

@@ -7,6 +7,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 import javax.annotation.Nonnull;
+import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
@@ -22,6 +23,7 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.StandardRefType;
 import com.atlassian.bitbucket.scm.git.GitScm;
 import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
@@ -36,18 +38,14 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
   private static final org.slf4j.Logger Logger = org.slf4j.LoggerFactory.getLogger("TeamcityTriggerHook");
 
   private final TeamcityConnector connector;
-  private GitScm gitScm;
+  private final GitScm gitScm;
   private final TeamcityConnectionSettings connectionSettings;
 
-  public TeamcityTriggerHook(final GitScm gitScm, final TeamcityConnectionSettings connectionSettings) {
+  @Inject
+  public TeamcityTriggerHook(@ComponentImport final GitScm gitScm, final TeamcityConnectionSettings connectionSettings) {
     this.gitScm = gitScm;
     this.connectionSettings = connectionSettings;
     this.connector = new TeamcityConnector(new HttpConnector());
-  }
-
-  public TeamcityTriggerHook(final TeamcityConnector connector, final GitScm gitScm, final TeamcityConnectionSettings connectionSettings) {
-    this.connector = connector;
-    this.connectionSettings = connectionSettings;
   }
 
   /**
@@ -140,7 +138,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
 
     final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, refId);
     for (final Trigger buildConfig : configurations) {
-      if (buildConfig.isTriggerOnPullRequest() || (isEmptyBranch && !buildConfig.isTriggerOnEmptyBranches())) {
+      if (buildConfig.isTriggerOnPullRequest() || isEmptyBranch && !buildConfig.isTriggerOnEmptyBranches()) {
         continue;
       }
 
