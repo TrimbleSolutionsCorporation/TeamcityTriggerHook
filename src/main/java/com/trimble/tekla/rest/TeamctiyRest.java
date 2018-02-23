@@ -4,9 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
 
+import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -18,6 +17,7 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,13 +45,6 @@ import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.regex.Pattern;
-import java.util.regex.Matcher;
-import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 
 /**
  * REST configuration
@@ -74,6 +67,7 @@ public class TeamctiyRest extends RestResource {
    *
    * @param i18nService i18n Service
    */
+  @Inject
   public TeamctiyRest(final I18nService i18nService, final SettingsService settingsService, final TeamcityConnectionSettings connectionSettings) {
     super(i18nService);
     this.connectionSettings = connectionSettings;
@@ -188,16 +182,16 @@ public class TeamctiyRest extends RestResource {
     final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
     try {
       final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
-      for (Trigger configuration : configurations) {
-        if(configuration.getDownStreamUrl().equals(buildconfig) && configuration.getDownStreamTriggerType().equals("build")) {
+      for (final Trigger configuration : configurations) {
+        if(configuration.getDownStreamTriggerTarget().equals(buildconfig) && configuration.getDownStreamTriggerType().equals("build")) {
           this.connector.QueueBuild(conf, configuration.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket", false, settings);
         }
-      }      
+      }
       return "{\"status\": \"ok\" }";
-    } catch (IOException ex) {
+    } catch (final IOException ex) {
       // handle error todo
       return "{\"status\": \"nOk\" }";
-    }    
+    }
   }
 
   @GET
@@ -247,7 +241,7 @@ public class TeamctiyRest extends RestResource {
       for (final Trigger buildConfig : configurations) {
 
         try {
-          String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings);
+          final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings);
           final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTarget(), settings);
           jObj.put(buildConfig.getTarget(), returnData);
           jObj.put(buildConfig.getTarget() + "_queue", queueData);
@@ -308,16 +302,16 @@ public class TeamctiyRest extends RestResource {
         jObj.put("ExternalBuildsOneNameId", "{\"status\": \"ok\", \"name\": \"Tests\"}");
         final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
         for (final Trigger buildConfig : configurations) {
-          if ("build".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamUrl())) {
-            String depBuildId = buildConfig.getTarget();
-            String downBuildId = buildConfig.getDownStreamUrl();
-            String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
+          if ("build".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
+            final String depBuildId = buildConfig.getTarget();
+            final String downBuildId = buildConfig.getDownStreamTriggerTarget();
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
             final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
             jObj.put(depBuildId + "_dep", returnData);
             jObj.put(depBuildId + "_dep_queue", queueData);
 
-            String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, branch, downBuildId, settings);
+            final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, branch, downBuildId, settings);
             final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings);
             jObj.put(downBuildId + "_build", returnDataBuildDep);
             jObj.put(downBuildId + "_build_wref", url + "/viewType.html?buildTypeId=" + downBuildId);
@@ -328,19 +322,19 @@ public class TeamctiyRest extends RestResource {
       } else if ("External2Id".equals(id)) {
         final JSONObject jObj = new JSONObject();
         jObj.put("ExternalBuildsTwoNameId", "{\"status\": \"ok\", \"name\": \"External Triggers\"}");
-        final JSONArray extRef = new JSONArray();        
+        final JSONArray extRef = new JSONArray();
         final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
         for (final Trigger buildConfig : configurations) {
-          if ("rest".equals(buildConfig.getDownStreamTriggerType()) || 
-              "tab".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamUrl())) {
-            String depBuildId = buildConfig.getTarget();
-            String downBuildId = buildConfig.getDownStreamUrl();
-            String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
+          if ("rest".equals(buildConfig.getDownStreamTriggerType()) ||
+              "tab".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
+            final String depBuildId = buildConfig.getTarget();
+            final String downBuildId = buildConfig.getDownStreamTriggerTarget();
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
             final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);
             jObj.put(depBuildId + "_dep", returnData);
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
             jObj.put(depBuildId + "_dep_queue", queueData);
-            
+
             // external trigger configuration
             final JSONObject build = new JSONObject();
             build.put("type", buildConfig.getDownStreamTriggerType());
@@ -349,7 +343,7 @@ public class TeamctiyRest extends RestResource {
             build.put("dependencies", depBuildId);
             build.put("source", branch);
             extRef.put(build.toString());
-            
+
             // add external trigger
             jObj.put("ext_references", extRef.toString());
           }
