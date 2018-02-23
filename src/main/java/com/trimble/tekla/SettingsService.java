@@ -25,7 +25,7 @@ public class SettingsService {
 
   private static final Logger LOGGER = LoggerFactory.getLogger(SettingsService.class);
 
-  public static String KEY = "com.trimble.tekla:teamcity-trigger-hook";
+  public static final String KEY = "com.trimble.tekla:teamcity-trigger-hook";
 
   private final RepositoryHookService hookService;
   private final SecurityService securityService;

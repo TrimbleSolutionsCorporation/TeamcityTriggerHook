@@ -179,7 +179,7 @@ require([
                 triggerOnPullRequest : this._$triggerOnPullRequest[0].checked,
                 cancelRunningBuilds : this._$cancelRunningBuilds[0].checked,
                 downStreamTriggerType : this._$downStreamTriggerType.val(),
-                downStreamTriggerTarget : this._$downStreamTriggerTarget.val(),
+                downStreamTriggerTarget : this._$downStreamTriggerTarget.val()
             };
 
             this._$referenceRegex.val('');
