@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<atlassian-plugin-marketing>
+    <!--Describe names and versions of compatible applications -->
+    <compatibility>
+        <product name="bitbucket" min="5.0"/>
+    </compatibility>
+    <!-- Describe your app logo and banner. The banner is only displayed in the UPM. -->
+    <logo image="images/01_logo.png"/>
+    <!-- Describe highlight and cropped highlight image assets, in order. -->
+    <highlights>
+        <highlight image="images/03_highlight1_ss.jpg" cropped="images/04_highlight1_cropped.jpg"/>
+        <highlight image="images/05_highlight2_ss.jpg" cropped="images/06_highlight2_cropped.jpg"/>
+        <highlight image="images/07_highlight3_ss.jpg" cropped="images/08_highlight3_cropped.jpg"/>
+    </highlights>
+    <!-- Describe additional screenshots you'd like listed on your app listing. -->
+    <screenshots>
+        <screenshot image="images/09_addl_ss1.jpg"/>
+        <screenshot image="images/10_addl_ss2.jpg"/>
+        <screenshot image="images/11_addl_ss3.jpg"/>
+    </screenshots>
+</atlassian-plugin-marketing>
