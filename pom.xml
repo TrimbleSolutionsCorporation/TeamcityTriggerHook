@@ -151,21 +151,12 @@
                         <phase>process-classes</phase>
                     </execution>
                 </executions>
-                <configuration>
-                    <scannedDependencies>
-                        <dependency>
-                            <groupId>com.atlassian.plugin</groupId>
-                            <artifactId>atlassian-spring-scanner-external-jar</artifactId>
-                        </dependency>
-                    </scannedDependencies>
-                    <verbose>false</verbose>
-                </configuration>
             </plugin>
         </plugins>
     </build>
 
     <properties>
-        <bitbucket.version>5.3.2</bitbucket.version>
+        <bitbucket.version>5.0.10</bitbucket.version>
         <bitbucket.data.version>${bitbucket.version}</bitbucket.data.version>
         <amps.version>6.3.4</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>

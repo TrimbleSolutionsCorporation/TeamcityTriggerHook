@@ -12,14 +12,14 @@ require([
     var triggersTableConrtoller = {
         _$triggersTable : undefined,
         _$triggersTableBody : undefined,
-        _$referenceRegexp : undefined,
+        _$referenceRegex : undefined,
         _$triggerTarget : undefined,
         _$triggerType : undefined,
         _$triggerOnEmptyBranches : undefined,
         _$triggerOnPullRequest : undefined,
         _$cancelRunningBuilds : undefined,
         _$downStreamTriggerType : undefined,
-        _$downStreamUrl : undefined,
+        _$downStreamTriggerTarget : undefined,
         _triggers : undefined,
         _errors : undefined,
 
@@ -41,14 +41,14 @@ require([
 
             this._$triggersTable = $('#repository-triggers-table');
             this._$triggersTableBody = $('#repository-triggers-table > tbody');
-            this._$referenceRegexp = $('#referenceRegexp');
+            this._$referenceRegex = $('#referenceRegex');
             this._$triggerTarget = $('#triggerTarget');
             this._$triggerType = $('#triggerType');
             this._$triggerOnEmptyBranches = $('#triggerOnEmptyBranches');
             this._$triggerOnPullRequest = $('#triggerOnPullRequest');
             this._$cancelRunningBuilds = $('#cancelRunningBuilds');
             this._$downStreamTriggerType = $('#downStreamTriggerType');
-            this._$downStreamUrl = $('#downStreamUrl');
+            this._$downStreamTriggerTarget = $('#downStreamTriggerTarget');
 
             $('#addTriggerButton').off().on('click', $.proxy(this._addTriggerHandler, this));
 
@@ -95,7 +95,7 @@ require([
                         }
                     }, this)
                 }), $('<td/>', {
-                    text : trigger.regexp
+                    text : trigger.regex
                 }), $('<td/>', {
                     text : trigger.target
                 }), $('<td/>', {
@@ -123,7 +123,7 @@ require([
                         html : [$('<span/>', {
                             text : AJS.I18n.getText('triggers.target')
                         }), $('<span/>', {
-                            text : trigger.downStreamUrl
+                            text : trigger.downStreamTriggerTarget
                         })]
                     }), $('<span/>', {
                         html : [$('<span/>', {
@@ -172,19 +172,19 @@ require([
             event.preventDefault();
 
             var trigger = {
-                regexp : this._$referenceRegexp.val(),
+                regex : this._$referenceRegex.val(),
                 target : this._$triggerTarget.val(),
                 type : this._$triggerType.val(),
                 triggerOnEmptyBranches : this._$triggerOnEmptyBranches[0].checked,
                 triggerOnPullRequest : this._$triggerOnPullRequest[0].checked,
                 cancelRunningBuilds : this._$cancelRunningBuilds[0].checked,
                 downStreamTriggerType : this._$downStreamTriggerType.val(),
-                downStreamUrl : this._$downStreamUrl.val(),
+                downStreamTriggerTarget : this._$downStreamTriggerTarget.val()
             };
 
-            this._$referenceRegexp.val('');
+            this._$referenceRegex.val('');
             this._$triggerTarget.val('');
-            this._$downStreamUrl.val('');
+            this._$downStreamTriggerTarget.val('');
 
             this._$triggerOnEmptyBranches[0].checked = true;
             this._$triggerOnPullRequest[0].checked = false;

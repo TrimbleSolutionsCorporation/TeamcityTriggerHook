@@ -15,11 +15,11 @@ import org.codehaus.jackson.map.ObjectMapper;
  */
 public class Trigger {
   private String branchConfig;
-  private String regexp;
+  private String regex;
   private String type;
   private String target;
   private boolean triggerOnPullRequest;
-  private String downStreamUrl;
+  private String downStreamTriggerTarget;
   private String downStreamTriggerType;
   private boolean cancelRunningBuilds;
   private boolean triggerOnEmptyBranches;
@@ -56,20 +56,20 @@ public class Trigger {
     this.downStreamTriggerType = downStreamTriggerType;
   }
 
-  public String getDownStreamUrl() {
-    return this.downStreamUrl;
+  public String getDownStreamTriggerTarget() {
+    return this.downStreamTriggerTarget;
   }
 
-  public void setDownStreamUrl(final String downStreamUrl) {
-    this.downStreamUrl = downStreamUrl;
+  public void setDownStreamTriggerTarget(final String downStreamTriggerTarget) {
+    this.downStreamTriggerTarget = downStreamTriggerTarget;
   }
 
-  public String getRegexp() {
-    return this.regexp;
+  public String getRegex() {
+    return this.regex;
   }
 
-  public void setRegexp(final String regexp) {
-    this.regexp = regexp;
+  public void setRegex(final String regex) {
+    this.regex = regex;
   }
 
   public String getType() {
@@ -102,7 +102,7 @@ public class Trigger {
     final List<Trigger> configs = new ArrayList<>();
     triggerMap = mapper.readValue(jsonConfiguration, mapper.getTypeFactory().constructParametricType(HashMap.class, String.class, Trigger.class));
     for (final Map.Entry<String, Trigger> triggerEntry : triggerMap.entrySet()) {
-      final Pattern pattern = Pattern.compile(triggerEntry.getValue().getRegexp(), Pattern.CASE_INSENSITIVE);
+      final Pattern pattern = Pattern.compile(triggerEntry.getValue().getRegex(), Pattern.CASE_INSENSITIVE);
       final Matcher matcher = pattern.matcher(branch);
       if (matcher.find()) {
         triggerEntry.getValue().setBranchConfig(matcher.group(matcher.groupCount()));

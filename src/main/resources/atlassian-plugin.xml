@@ -8,15 +8,6 @@
         <param name="plugin-icon">images/01_logo.jpg</param>
     </plugin-info>
 
-    <!-- deps components -->
-    <component-import key="gitScm" interface="com.atlassian.bitbucket.scm.git.GitScm" />
-    <component-import key="i18nResolver" interface="com.atlassian.sal.api.message.I18nResolver" />
-
-    <!-- my comps -->
-    <component key="connectionSettings" class="com.trimble.tekla.TeamcityConnectionSettings" />
-    <component key="settingsRetriever" class="com.trimble.tekla.ConcreteSettingsService" />
-    <component key="TeamcityPullRequestEventListener" class="com.trimble.tekla.TeamcityPullrequestEventListener" />
-
     <resource type="i18n" name="i18n" location="i18n/teamcity-trigger-hook"/>
 
     <rest key="teamcity-rest" path="/teamcity" version="1.0">
@@ -44,6 +35,7 @@
 
     <web-resource key="plugin-resources" name="plugin Web Resources">
         <context>atl.general</context>
+        <dependency>com.atlassian.auiplugin:aui-toggle</dependency>
         <dependency>com.atlassian.auiplugin:aui-experimental-expander</dependency>
     </web-resource>
 

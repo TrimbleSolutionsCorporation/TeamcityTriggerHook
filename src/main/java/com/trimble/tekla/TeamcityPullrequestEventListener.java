@@ -5,7 +5,16 @@
  */
 package com.trimble.tekla;
 
-import com.trimble.tekla.teamcity.TeamcityLogger;
+import java.io.IOException;
+
+import javax.inject.Inject;
+import javax.inject.Named;
+
+import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
 import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
 import com.atlassian.bitbucket.pull.PullRequestRef;
@@ -16,16 +25,9 @@ import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
-import java.io.IOException;
-import org.apache.commons.lang3.StringUtils;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import com.trimble.tekla.teamcity.TeamcityLogger;
 
-/**
- *
- * @author jocs
- */
+@Named
 public class TeamcityPullrequestEventListener {
 
   private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("TeamcityTriggerHook");
@@ -33,23 +35,24 @@ public class TeamcityPullrequestEventListener {
   private final SettingsService settingsService;
   private final TeamcityConnector connector;
 
-  public TeamcityPullrequestEventListener(TeamcityConnectionSettings connectionSettings, SettingsService settingsService) {
+  @Inject
+  public TeamcityPullrequestEventListener(final TeamcityConnectionSettings connectionSettings, final SettingsService settingsService) {
     this.connectionSettings = connectionSettings;
     this.settingsService = settingsService;
     this.connector = new TeamcityConnector(new HttpConnector());
   }
 
   @EventListener
-  public void onPullRequestOpenedEvent(PullRequestOpenedEvent event) throws IOException, JSONException {
-    PullRequestRef ref = event.getPullRequest().getFromRef();
+  public void onPullRequestOpenedEvent(final PullRequestOpenedEvent event) throws IOException, JSONException {
+    final PullRequestRef ref = event.getPullRequest().getFromRef();
     TriggerBuildFromPullRequest(ref);
   }
 
   @EventListener
-  public void onPullRequestRescoped(PullRequestRescopedEvent event) throws IOException, JSONException {
-    PullRequestRef ref = event.getPullRequest().getFromRef();
-    String previousFromHash = event.getPreviousFromHash();
-    String currentFromHash = ref.getLatestCommit();
+  public void onPullRequestRescoped(final PullRequestRescopedEvent event) throws IOException, JSONException {
+    final PullRequestRef ref = event.getPullRequest().getFromRef();
+    final String previousFromHash = event.getPreviousFromHash();
+    final String currentFromHash = ref.getLatestCommit();
 
     if (currentFromHash.equals(previousFromHash)) {
       return;
@@ -58,17 +61,17 @@ public class TeamcityPullrequestEventListener {
     TriggerBuildFromPullRequest(ref);
   }
 
-  private void TriggerBuildFromPullRequest(PullRequestRef ref) throws IOException, JSONException {
-    Repository repo = ref.getRepository();
-    Settings settings = settingsService.getSettings(repo);
-    String password = this.connectionSettings.getPassword(ref.getRepository());
-    TeamcityConfiguration conf
+  private void TriggerBuildFromPullRequest(final PullRequestRef ref) throws IOException, JSONException {
+    final Repository repo = ref.getRepository();
+    final Settings settings = this.settingsService.getSettings(repo);
+    final String password = this.connectionSettings.getPassword(ref.getRepository());
+    final TeamcityConfiguration conf
             = new TeamcityConfiguration(
                     settings.getString("teamCityUrl"),
                     settings.getString("teamCityUserName"),
                     password);
 
-    String branch = ref.getId();
+    final String branch = ref.getId();
     final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
     if (repositoryTriggersJson.isEmpty()) {
       return;
@@ -88,14 +91,14 @@ public class TeamcityPullrequestEventListener {
         }
 
         // check if build is running
-        String buildData = this.connector.GetBuildsForBranch(
+        final String buildData = this.connector.GetBuildsForBranch(
                 conf,
                 buildConfig.getBranchConfig(),
                 buildConfig.getTarget(),
                 settings);
 
-        JSONObject obj = new JSONObject(buildData);
-        String count = obj.getString("count");
+        final JSONObject obj = new JSONObject(buildData);
+        final String count = obj.getString("count");
 
         if (count.equals("0") || !buildConfig.isCancelRunningBuilds()) {
           this.connector.QueueBuild(
@@ -106,12 +109,12 @@ public class TeamcityPullrequestEventListener {
                   false,
                   settings);
         } else {
-          JSONArray builds = obj.getJSONArray("build");
+          final JSONArray builds = obj.getJSONArray("build");
           Boolean flipRequeue = true;
           for (int i = 0; i < builds.length(); i++) {
-            Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
+            final Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
             if (isRunning) {
-              String id = builds.getJSONObject(i).getString("id");
+              final String id = builds.getJSONObject(i).getString("id");
               this.connector.ReQueueBuild(conf, id, settings, flipRequeue);
               flipRequeue = false;
             }

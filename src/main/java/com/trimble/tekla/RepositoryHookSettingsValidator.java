@@ -7,20 +7,23 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 
+import javax.inject.Inject;
+
 import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
-import com.atlassian.bitbucket.scope.Scope;
+import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
-import com.atlassian.bitbucket.setting.SettingsValidator;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.trimble.tekla.pojo.Trigger;
 
 /**
  * Class for validating hook configuration form
  */
-public class RepositoryHookSettingsValidator implements SettingsValidator {
+public class RepositoryHookSettingsValidator implements RepositorySettingsValidator {
 
     private static final Pattern URL_VALIDATION_PATTERN = Pattern.compile("^https?://[^\\s/$.?#].[^\\s]*$", Pattern.CASE_INSENSITIVE);
     private static final String BRANCH_TEST_STRING = "refs/heads/master";
@@ -32,12 +35,13 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
      *
      * @param i18n - {@link I18nResolver} injected via component-import in atlassian-plugin.xml
      */
-    public RepositoryHookSettingsValidator(final I18nResolver i18n) {
+    @Inject
+    public RepositoryHookSettingsValidator(@ComponentImport final I18nResolver i18n) {
         this.i18n = i18n;
     }
 
     @Override
-    public void validate(final Settings settings, final SettingsValidationErrors errors, final Scope scope) {
+    public void validate(final Settings settings, final SettingsValidationErrors errors, final Repository repository) {
         try {
             validateConnectionTab(settings, errors);
             validaterepositoryTriggersTab(settings, errors);
@@ -97,7 +101,7 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
                 errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.string.contains.whitespace"));
             }
             try {
-                final Pattern pattern = Pattern.compile(triggerEntry.getValue().getRegexp(), Pattern.CASE_INSENSITIVE);
+                final Pattern pattern = Pattern.compile(triggerEntry.getValue().getRegex(), Pattern.CASE_INSENSITIVE);
                 final Matcher matcher = pattern.matcher(BRANCH_TEST_STRING);
                 if (matcher.groupCount() != 1) {
                     errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.regex.needs.capturing"));
