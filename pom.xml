@@ -6,14 +6,14 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.trimble.tekla</groupId>
     <artifactId>TeamCityTriggerHook</artifactId>
-    <version>3.2.2</version>
+    <version>4.0.1</version>
 
     <organization>
         <name>Tekla</name>
         <url>http://www.tekla.com/</url>
     </organization>
     <name>TeamCity Remote Trigger Hook</name>
-    <description>A simple repository hook plugin for notifying an external URL of changes to a repository.</description>
+    <description>A Bitbucket plugin for triggering build in TeamCity Continuous Integration.</description>
     <packaging>atlassian-plugin</packaging>
 
     <repositories>

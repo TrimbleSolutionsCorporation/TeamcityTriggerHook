@@ -26,6 +26,8 @@ import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import com.trimble.tekla.teamcity.TeamcityLogger;
+import java.util.HashSet;
+import java.util.Set;
 
 @Named
 public class TeamcityPullrequestEventListener {
@@ -77,9 +79,15 @@ public class TeamcityPullrequestEventListener {
       return;
     }
 
+    Set triggeredBuilds = new HashSet();
+    
     final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
     for (final Trigger buildConfig : configurations) {
       if (buildConfig.isTriggerOnPullRequest()) {
+        if (triggeredBuilds.contains(buildConfig.getTarget())) {
+          continue;
+        }
+        
         TeamcityLogger.logMessage(settings, "Trigger BuildId: " + buildConfig.getTarget());
         try {
           if (this.connector.IsInQueue(conf, buildConfig.getTarget(), buildConfig.getBranchConfig(), settings)) {
@@ -108,6 +116,7 @@ public class TeamcityPullrequestEventListener {
                   "Pull request Trigger from Bitbucket",
                   false,
                   settings);
+          triggeredBuilds.add(buildConfig.getTarget());
         } else {
           final JSONArray builds = obj.getJSONArray("build");
           Boolean flipRequeue = true;

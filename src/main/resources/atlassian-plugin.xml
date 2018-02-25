@@ -4,8 +4,8 @@
         <description>${project.description}</description>
         <version>${project.version}</version>
         <param name="atlassian-data-center-compatible">true</param>        
-        <param name="atlassian-licensing-enabled">true</param>
-        <param name="plugin-icon">images/01_logo.jpg</param>
+        <param name="plugin-icon">images/01_logo.png</param>
+        <param name="plugin-logo">images/01_logo.png</param>
     </plugin-info>
 
     <resource type="i18n" name="i18n" location="i18n/teamcity-trigger-hook"/>

@@ -179,19 +179,8 @@ public class TeamctiyRest extends RestResource {
     }
 
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
-    final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
-    try {
-      final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
-      for (final Trigger configuration : configurations) {
-        if(configuration.getDownStreamTriggerTarget().equals(buildconfig) && configuration.getDownStreamTriggerType().equals("build")) {
-          this.connector.QueueBuild(conf, configuration.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket", false, settings);
-        }
-      }
-      return "{\"status\": \"ok\" }";
-    } catch (final IOException ex) {
-      // handle error todo
-      return "{\"status\": \"nOk\" }";
-    }
+    this.connector.QueueBuild(conf, branch, buildconfig, "Manual Trigger from Bitbucket", false, settings); // handle error todo
+    return "{\"status\": \"ok\" }";
   }
 
   @GET

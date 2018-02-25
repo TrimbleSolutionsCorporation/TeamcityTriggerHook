@@ -2,7 +2,7 @@
 <atlassian-plugin-marketing>
     <!--Describe names and versions of compatible applications -->
     <compatibility>
-        <product name="bitbucket" min="5.0"/>
+        <product name="bitbucket" min="5.0" max="7.0"/>
     </compatibility>
     <!-- Describe your app logo and banner. The banner is only displayed in the UPM. -->
     <logo image="images/01_logo.png"/>
