@@ -35,6 +35,9 @@ You can use RegEx
      feature/(.)
      bugfix/(.)
      
+### Default branch
+In case you use only default branch in teamcity, for example refs/heads/master the reg expression in teamcity will need to capture the all (refs/heads/master). This is supported only for Teamcity 2017 and above. Triggering default branch in previous versions is deprecated.
+     
 # Bitbucket configuration
 
 ## Connection Settings
