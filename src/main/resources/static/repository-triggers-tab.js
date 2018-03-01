@@ -15,6 +15,8 @@ require([
         _$referenceRegex : undefined,
         _$triggerTarget : undefined,
         _$triggerType : undefined,
+        _$triggerInclusion : undefined,
+        _$triggerExclusion : undefined,
         _$triggerOnEmptyBranches : undefined,
         _$triggerOnPullRequest : undefined,
         _$cancelRunningBuilds : undefined,
@@ -44,6 +46,10 @@ require([
             this._$referenceRegex = $('#referenceRegex');
             this._$triggerTarget = $('#triggerTarget');
             this._$triggerType = $('#triggerType');
+
+            this._$triggerInclusion = $('#triggerInclusion');
+            this._$triggerExclusion = $('#triggerExclusion');
+
             this._$triggerOnEmptyBranches = $('#triggerOnEmptyBranches');
             this._$triggerOnPullRequest = $('#triggerOnPullRequest');
             this._$cancelRunningBuilds = $('#cancelRunningBuilds');
@@ -121,6 +127,18 @@ require([
                         })]
                     }), $('<span/>', {
                         html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.inclusion')
+                        }), $('<span/>', {
+                            text : trigger.triggerInclusion
+                        })]
+                    }), $('<span/>', {
+                        html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.exclusion')
+                        }), $('<span/>', {
+                            text : trigger.triggerExclusion
+                        })]
+                    }), $('<span/>', {
+                        html : [$('<span/>', {
                             text : AJS.I18n.getText('triggers.target')
                         }), $('<span/>', {
                             text : trigger.downStreamTriggerTarget
@@ -178,6 +196,8 @@ require([
                 triggerOnEmptyBranches : this._$triggerOnEmptyBranches[0].checked,
                 triggerOnPullRequest : this._$triggerOnPullRequest[0].checked,
                 cancelRunningBuilds : this._$cancelRunningBuilds[0].checked,
+                triggerInclusion : this._$triggerInclusion.val(),
+                triggerExclusion : this._$triggerExclusion.val(),
                 downStreamTriggerType : this._$downStreamTriggerType.val(),
                 downStreamTriggerTarget : this._$downStreamTriggerTarget.val()
             };
@@ -185,6 +205,9 @@ require([
             this._$referenceRegex.val('');
             this._$triggerTarget.val('');
             this._$downStreamTriggerTarget.val('');
+
+            this._$triggerInclusion.val('');
+            this._$triggerExclusion.val('');
 
             this._$triggerOnEmptyBranches[0].checked = true;
             this._$triggerOnPullRequest[0].checked = false;

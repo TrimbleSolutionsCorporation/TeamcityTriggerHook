@@ -60,6 +60,18 @@
                 {param value: true /}
             {/call}
             {call aui.form.textField}
+                {param id: 'triggerInclusion' /}
+                {param fieldWidth: 'medium-long' /}
+                {param labelContent: getText('triggers.inclusion') /}
+                {param infoMessage: getText('triggers.configuration.inclusion') /}
+            {/call}
+            {call aui.form.textField}
+                {param id: 'triggerExclusion' /}
+                {param fieldWidth: 'medium-long' /}
+                {param labelContent: getText('triggers.exclusion') /}
+                {param infoMessage: getText('triggers.configuration.exclusion') /}
+            {/call}
+            {call aui.form.textField}
                 {param id: 'downStreamTriggerTarget' /}
                 {param fieldWidth: 'medium-long' /}
                 {param labelContent: getText('triggers.target') /}

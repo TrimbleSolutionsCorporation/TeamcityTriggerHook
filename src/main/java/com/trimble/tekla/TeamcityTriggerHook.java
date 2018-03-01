@@ -52,8 +52,9 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
    * Connects to a configured URL to notify of all changes.
    */
   @Override
-  public void postUpdate(@Nonnull final PostRepositoryHookContext context,
-      @Nonnull final RepositoryHookRequest hookRequest) {
+  public void postUpdate(
+          @Nonnull final PostRepositoryHookContext context,
+          @Nonnull final RepositoryHookRequest hookRequest) {
 
     final String password = this.connectionSettings.getPassword(hookRequest.getRepository());
 

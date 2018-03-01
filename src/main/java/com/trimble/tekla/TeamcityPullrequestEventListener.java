@@ -5,6 +5,10 @@
  */
 package com.trimble.tekla;
 
+import com.atlassian.bitbucket.content.Change;
+import com.atlassian.bitbucket.content.ChangeCallback;
+import com.atlassian.bitbucket.content.ChangeContext;
+import com.atlassian.bitbucket.content.ChangeSummary;
 import java.io.IOException;
 
 import javax.inject.Inject;
@@ -17,7 +21,10 @@ import org.json.JSONObject;
 
 import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
 import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.pull.PullRequestChangesRequest;
 import com.atlassian.bitbucket.pull.PullRequestRef;
+import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.event.api.EventListener;
@@ -26,6 +33,7 @@ import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import com.trimble.tekla.teamcity.TeamcityLogger;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -35,45 +43,76 @@ public class TeamcityPullrequestEventListener {
   private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("TeamcityTriggerHook");
   private final TeamcityConnectionSettings connectionSettings;
   private final SettingsService settingsService;
-  private final TeamcityConnector connector;
-
+  private final TeamcityConnector connector;  
+  private final PullRequestService pullRequestService;
+  private boolean shouldTrigger;
+    
   @Inject
-  public TeamcityPullrequestEventListener(final TeamcityConnectionSettings connectionSettings, final SettingsService settingsService) {
+  public TeamcityPullrequestEventListener(
+          final TeamcityConnectionSettings connectionSettings,
+          final SettingsService settingsService,
+          final PullRequestService pullRequestService) {
     this.connectionSettings = connectionSettings;
     this.settingsService = settingsService;
-    this.connector = new TeamcityConnector(new HttpConnector());
+    this.pullRequestService = pullRequestService;
+    this.connector = new TeamcityConnector(new HttpConnector());    
   }
-
+    
   @EventListener
   public void onPullRequestOpenedEvent(final PullRequestOpenedEvent event) throws IOException, JSONException {
-    final PullRequestRef ref = event.getPullRequest().getFromRef();
-    TriggerBuildFromPullRequest(ref);
+    final PullRequest pr = event.getPullRequest();
+    TriggerBuildFromPullRequest(pr);
   }
 
   @EventListener
   public void onPullRequestRescoped(final PullRequestRescopedEvent event) throws IOException, JSONException {
-    final PullRequestRef ref = event.getPullRequest().getFromRef();
     final String previousFromHash = event.getPreviousFromHash();
-    final String currentFromHash = ref.getLatestCommit();
+    final String currentFromHash = event.getPullRequest().getFromRef().getLatestCommit();
 
     if (currentFromHash.equals(previousFromHash)) {
       return;
     }
 
-    TriggerBuildFromPullRequest(ref);
+    TriggerBuildFromPullRequest(event.getPullRequest());
   }
 
-  private void TriggerBuildFromPullRequest(final PullRequestRef ref) throws IOException, JSONException {
-    final Repository repo = ref.getRepository();
+  private Boolean IsIncludedExcluded(final PullRequest pr, final Trigger configuration)
+  {
+    shouldTrigger = false;
+    pullRequestService.streamChanges(new PullRequestChangesRequest.Builder(pr).build(), new ChangeCallback()  {
+      @Override
+      public boolean onChange(Change change) throws IOException {
+        String changedFile = change.getPath().toString();
+        if (changedFile.contains(configuration.gettriggerInclusion())) {
+          shouldTrigger = true;
+        }
+        return true;
+      }
+
+      @Override
+      public void onEnd(ChangeSummary cs) throws IOException {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      }
+      @Override
+      public void onStart(ChangeContext cc) throws IOException {
+        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+      }
+    });
+  
+    return shouldTrigger;
+  }
+    
+  private void TriggerBuildFromPullRequest(final PullRequest pr) throws IOException, JSONException {
+    final Repository repo = pr.getFromRef().getRepository();
     final Settings settings = this.settingsService.getSettings(repo);
-    final String password = this.connectionSettings.getPassword(ref.getRepository());
+    final String password = this.connectionSettings.getPassword(pr.getFromRef().getRepository());
     final TeamcityConfiguration conf
             = new TeamcityConfiguration(
                     settings.getString("teamCityUrl"),
                     settings.getString("teamCityUserName"),
                     password);
 
-    final String branch = ref.getId();
+    final String branch = pr.getFromRef().getId();
     final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
     if (repositoryTriggersJson.isEmpty()) {
       return;
@@ -85,6 +124,10 @@ public class TeamcityPullrequestEventListener {
     for (final Trigger buildConfig : configurations) {
       if (buildConfig.isTriggerOnPullRequest()) {
         if (triggeredBuilds.contains(buildConfig.getTarget())) {
+          continue;
+        }
+        
+        if (!IsIncludedExcluded(pr, buildConfig)) {
           continue;
         }
         

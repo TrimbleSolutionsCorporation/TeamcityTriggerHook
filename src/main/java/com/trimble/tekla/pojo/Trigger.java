@@ -21,9 +21,27 @@ public class Trigger {
   private boolean triggerOnPullRequest;
   private String downStreamTriggerTarget;
   private String downStreamTriggerType;
+  private String triggerInclusion;
+  private String triggerExclusion;
   private boolean cancelRunningBuilds;
   private boolean triggerOnEmptyBranches;
 
+  public String gettriggerInclusion() {
+    return this.triggerInclusion;
+  }
+
+  public void settriggerInclusion(final String triggerInclusion) {
+    this.triggerInclusion = triggerInclusion;
+  }
+  
+   public String gettriggerExclusion() {
+    return this.triggerExclusion;
+  }
+
+  public void setExcludeRule(final String triggerExclusion) {
+    this.triggerExclusion = triggerExclusion;
+  } 
+  
   public String getBranchConfig() {
     return this.branchConfig;
   }
