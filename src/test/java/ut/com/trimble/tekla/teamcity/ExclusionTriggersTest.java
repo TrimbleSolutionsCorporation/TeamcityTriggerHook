@@ -92,7 +92,17 @@ public class ExclusionTriggersTest {
     changedfilespath.add("dir_2/abc.txt");
 
     assertEquals(true, ExclusionTriggers.ShouldTriggerOnListOfFiles("", "dir_1", changedfilespath));    
-  } 
+  }
+  
+  @Test  
+  public void NoTriggersIfMultipleFolderAreDefinedExcluded()  
+  {
+    final ArrayList<String> changedfilespath = new ArrayList<>();
+    changedfilespath.add("dir_1/abc.txt");
+    changedfilespath.add("dir_2/abc.txt");
+
+    assertEquals(false, ExclusionTriggers.ShouldTriggerOnListOfFiles("", "dir_1,dir_2", changedfilespath));    
+  }  
   
   @Test  
   public void TriggersIfFolderIsExcludedWithOnlyOneChange()  

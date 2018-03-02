@@ -292,19 +292,21 @@ public class TeamctiyRest extends RestResource {
         final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
         for (final Trigger buildConfig : configurations) {
           if ("build".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
-            final String depBuildId = buildConfig.getTarget();
+            final String [] depBuildIds = buildConfig.getTarget().split(",");
             final String downBuildId = buildConfig.getDownStreamTriggerTarget();
-            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
-            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);
-            jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
-            jObj.put(depBuildId + "_dep", returnData);
-            jObj.put(depBuildId + "_dep_queue", queueData);
+            for (String depBuildId : depBuildIds) {
+                final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
+                final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);
+                jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
+                jObj.put(depBuildId + "_dep", returnData);
+                jObj.put(depBuildId + "_dep_queue", queueData);
 
-            final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, branch, downBuildId, settings);
-            final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings);
-            jObj.put(downBuildId + "_build", returnDataBuildDep);
-            jObj.put(downBuildId + "_build_wref", url + "/viewType.html?buildTypeId=" + downBuildId);
-            jObj.put(downBuildId + "_build_queue", queueDataBuildDep);
+                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, branch, downBuildId, settings);
+                final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings);
+                jObj.put(downBuildId + "_build", returnDataBuildDep);
+                jObj.put(downBuildId + "_build_wref", url + "/viewType.html?buildTypeId=" + downBuildId);
+                jObj.put(downBuildId + "_build_queue", queueDataBuildDep);            
+            }
           }
         }
         return jObj.toString();

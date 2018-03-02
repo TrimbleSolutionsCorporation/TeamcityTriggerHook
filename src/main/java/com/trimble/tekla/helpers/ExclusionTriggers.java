@@ -39,10 +39,10 @@ public class ExclusionTriggers {
     Boolean isExcluded = false;
     Boolean isNotIncludedOrExcluded = false;
     for (String changeFile : changedfilespath) {
-      if (changeFile.contains(triggerInclusion)) {
+      if (ContainsChange(changeFile, triggerInclusion)) {
         isIncluded = true;
       } else {
-        if (changeFile.contains(triggerExclusion)) {
+        if (ContainsChange(changeFile, triggerExclusion)) {
           isExcluded = true;
         } else {
           isNotIncludedOrExcluded = true;
@@ -68,4 +68,16 @@ public class ExclusionTriggers {
 
     return false;
   }
+
+    private static boolean ContainsChange(String changeFile, String data) {
+        String [] elements = data.split(",");
+        
+        for(String elem : elements) {
+            if (changeFile.contains(elem)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
 }
