@@ -99,6 +99,22 @@
                 {param iconClass: 'aui-icon-small aui-iconfont-list-add' /}
                 {param iconText: 'add' /}
             {/call}
+            {call aui.form.button}
+                {param id: 'exportConfigButton' /}
+                {param text: ' ' + getText('triggers.button.export') /}
+                {param iconType: 'aui' /}
+                {param iconClass: 'aui-icon-small aui-iconfont-devtools-clone' /}
+                {param iconText: 'add' /}
+            {/call}
+            {call aui.form.button}
+                {param id: 'importConfigButton' /}
+                {param text: ' ' + getText('triggers.button.import') /}
+                {param iconType: 'aui' /}
+                {param iconClass: 'aui-icon-small aui-iconfont-devtools-folder-open' /}
+                {param iconText: 'add' /}
+            {/call}
+
+
         {/param}
     {/call}
 

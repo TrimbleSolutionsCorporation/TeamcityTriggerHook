@@ -5,10 +5,7 @@
  */
 package com.trimble.tekla;
 
-import com.atlassian.bitbucket.content.Change;
-import com.atlassian.bitbucket.content.ChangeCallback;
-import com.atlassian.bitbucket.content.ChangeContext;
-import com.atlassian.bitbucket.content.ChangeSummary;
+import com.trimble.tekla.helpers.ExclusionTriggers;
 import java.io.IOException;
 
 import javax.inject.Inject;
@@ -22,12 +19,11 @@ import org.json.JSONObject;
 import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
 import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
 import com.atlassian.bitbucket.pull.PullRequest;
-import com.atlassian.bitbucket.pull.PullRequestChangesRequest;
-import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.event.api.EventListener;
+import com.trimble.tekla.helpers.ChangesetService;
 import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
@@ -45,7 +41,6 @@ public class TeamcityPullrequestEventListener {
   private final SettingsService settingsService;
   private final TeamcityConnector connector;  
   private final PullRequestService pullRequestService;
-  private boolean shouldTrigger;
     
   @Inject
   public TeamcityPullrequestEventListener(
@@ -75,32 +70,6 @@ public class TeamcityPullrequestEventListener {
 
     TriggerBuildFromPullRequest(event.getPullRequest());
   }
-
-  private Boolean IsIncludedExcluded(final PullRequest pr, final Trigger configuration)
-  {
-    shouldTrigger = false;
-    pullRequestService.streamChanges(new PullRequestChangesRequest.Builder(pr).build(), new ChangeCallback()  {
-      @Override
-      public boolean onChange(Change change) throws IOException {
-        String changedFile = change.getPath().toString();
-        if (changedFile.contains(configuration.gettriggerInclusion())) {
-          shouldTrigger = true;
-        }
-        return true;
-      }
-
-      @Override
-      public void onEnd(ChangeSummary cs) throws IOException {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-      @Override
-      public void onStart(ChangeContext cc) throws IOException {
-        //throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-      }
-    });
-  
-    return shouldTrigger;
-  }
     
   private void TriggerBuildFromPullRequest(final PullRequest pr) throws IOException, JSONException {
     final Repository repo = pr.getFromRef().getRepository();
@@ -120,6 +89,7 @@ public class TeamcityPullrequestEventListener {
 
     Set triggeredBuilds = new HashSet();
     
+    final ArrayList<String> changes = ChangesetService.GetChangedFiles(pr, pullRequestService);
     final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
     for (final Trigger buildConfig : configurations) {
       if (buildConfig.isTriggerOnPullRequest()) {
@@ -127,7 +97,7 @@ public class TeamcityPullrequestEventListener {
           continue;
         }
         
-        if (!IsIncludedExcluded(pr, buildConfig)) {
+        if (!ExclusionTriggers.ShouldTriggerOnListOfFiles(buildConfig.gettriggerInclusion(), buildConfig.gettriggerExclusion(), changes)) {
           continue;
         }
         

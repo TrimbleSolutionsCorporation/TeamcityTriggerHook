@@ -29,6 +29,7 @@ require([
          * Initializes repository triggers table controller
          */
         init : function(triggers, errors) {
+            console.log("startup Config");
             if (triggers) {
                 this._triggers = JSON.parse(triggers);
             } else {
@@ -57,6 +58,17 @@ require([
             this._$downStreamTriggerTarget = $('#downStreamTriggerTarget');
 
             $('#addTriggerButton').off().on('click', $.proxy(this._addTriggerHandler, this));
+            $('#exportConfigButton').off().on('click', $.proxy(this._exportTriggerHandler, this));
+            $('#importConfigButton').off().on('click', $.proxy(this._importTriggerHandler, this));
+
+            var inputElement = document.getElementById('importDialogId');
+            if(inputElement === null) {
+                inputElement = document.createElement("input");
+                inputElement.type = "file";
+                inputElement.id = "importDialogId";
+                document.body.appendChild(inputElement);
+                $('#importDialogId').off().on('change', $.proxy(this._loadFileHandler, this));
+            }
 
             this._drawTableContents();
 
@@ -218,6 +230,62 @@ require([
             this._drawTableRow(triggerUUID, trigger);
 
             this._$triggersTable.show();
+        },
+
+        /**
+         * Event handler for button to import configuration
+         */
+        _importTriggerHandler : function(event) {
+
+            event.preventDefault();
+            var inputElement = document.getElementById('importDialogId')
+            inputElement.click();
+        },
+
+        /**
+         * Event handler for button click to add trigger data to the table
+         */
+        _loadFileHandler : function(evt) {
+            evt.preventDefault();
+            var files = evt.target.files;
+            var file = files[0];
+            var hookContext = this;
+            this.reader = new FileReader();
+            this.reader.onload = function(event) {
+                event.preventDefault();
+                var data = "";
+                try {
+                    data = JSON.parse(event.target.result);
+                }
+                catch(err) {
+                    alert("Cannot parse File, try again");
+                    return;
+                }
+
+                hookContext._triggers = data;
+                hookContext._$triggersTableBody.empty();
+                $.each(hookContext._triggers, $.proxy(hookContext._drawTableRow, hookContext));
+                hookContext._$triggersTable.show();       
+            }
+            this.reader.readAsText(file);
+        },
+
+        /**
+         * Event handler for button to export configuration
+         */
+        _exportTriggerHandler : function(event) {
+            event.preventDefault();
+            var configuration = JSON.stringify(this._triggers, null, 4);
+            var element = document.createElement('a');
+            element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(configuration));
+            element.setAttribute('download', "hook_configuration.json");
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
         },
 
         /**
