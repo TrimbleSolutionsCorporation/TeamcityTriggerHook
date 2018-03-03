@@ -21,6 +21,7 @@ public class Trigger {
   private boolean triggerOnPullRequest;
   private String downStreamTriggerTarget;
   private String downStreamTriggerType;
+  private String downStreamTriggerDescription;
   private String triggerInclusion;
   private String triggerExclusion;
   private boolean cancelRunningBuilds;
@@ -72,6 +73,14 @@ public class Trigger {
 
   public void setDownStreamTriggerType(final String downStreamTriggerType) {
     this.downStreamTriggerType = downStreamTriggerType;
+  }
+  
+  public String getDownStreamTriggerDescription() {
+    return this.downStreamTriggerDescription;
+  }
+
+  public void setDownStreamTriggerDescription(final String downStreamTriggerDescription) {
+    this.downStreamTriggerDescription = downStreamTriggerDescription;
   }
 
   public String getDownStreamTriggerTarget() {

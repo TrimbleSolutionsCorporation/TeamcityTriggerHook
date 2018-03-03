@@ -326,13 +326,12 @@ function GetExternalBuildConfigurationsGroup(id) {
         // get builds to trigger
         var externalBuilds = [];
         for (var key in data) {
-          if (key.endsWith("_build") && !key.endsWith("_queue") && !key.endsWith(
-              "_wref")) {
+          if (key.endsWith("_build") && !key.endsWith("_queue") && !key.endsWith("_wref") && !key.endsWith("_branch")) {
             var json = JSON.parse(data[key]);
             var jsonqueue = JSON.parse(data[key + "_queue"]);
+            var jsonCaptureBranch = data[key + "_branch"];
             var wref = data[key + "_wref"];
-            var build = GetBuildFromJson(json, jsonqueue, key.replace(
-              "_build", ""), branchName, wref);
+            var build = GetBuildFromJson(json, jsonqueue, key.replace("_build", ""), jsonCaptureBranch, wref);
             externalBuilds.push(build);
           }
         }
@@ -382,10 +381,8 @@ function GetExternalBuildConfigurationsGroup(id) {
             var json = JSON.parse(data[key]);
             var jsonqueue = JSON.parse(data[key + "_queue"]);
             var wrefconfig = data[key + "_wref"];
-            var build = GetBuildFromJson(json, jsonqueue, key.replace(
-              "_dep", ""), branchName, wrefconfig);
-            if (build.state !== "finished" || build.status !== "SUCCESS" ||
-              build.queue.length !== 0) {
+            var build = GetBuildFromJson(json, jsonqueue, key.replace("_dep", ""), branchName, wrefconfig);
+            if (build.state !== "finished" || build.status !== "SUCCESS" || build.queue.length !== 0) {
               canTriggerBuilds = false;
             }
             dependentBuilds.push(build);
@@ -408,8 +405,7 @@ function GetExternalBuildConfigurationsGroup(id) {
         HookId = 0;
         extData.forEach(function(datainternal) {
           var hook = JSON.parse(datainternal);
-          var href = hook.url.replace("{branch}", branchName).replace(
-            "{pr}", prid);
+          var href = hook.url.replace("{branch}", branchName).replace("{pr}", prid);
           dataRow += CreateButtonWithRef(hook.type, hook.desc, href,
             canTriggerBuilds);
         });

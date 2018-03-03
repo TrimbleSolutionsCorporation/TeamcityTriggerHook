@@ -72,6 +72,12 @@
                 {param infoMessage: getText('triggers.configuration.exclusion') /}
             {/call}
             {call aui.form.textField}
+                {param id: 'downStreamTriggerDescription' /}
+                {param fieldWidth: 'medium-long' /}
+                {param labelContent: getText('triggers.description') /}
+                {param infoMessage: getText('triggers.configuration.description') /}
+            {/call}
+            {call aui.form.textField}
                 {param id: 'downStreamTriggerTarget' /}
                 {param fieldWidth: 'medium-long' /}
                 {param labelContent: getText('triggers.target') /}

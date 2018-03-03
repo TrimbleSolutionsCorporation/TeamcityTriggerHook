@@ -292,18 +292,19 @@ public class TeamctiyRest extends RestResource {
         final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
         for (final Trigger buildConfig : configurations) {
           if ("build".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
-            final String [] depBuildIds = buildConfig.getTarget().split(",");
-            final String downBuildId = buildConfig.getDownStreamTriggerTarget();
-            for (String depBuildId : depBuildIds) {
-                final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
-                final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);
-                jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
-                jObj.put(depBuildId + "_dep", returnData);
-                jObj.put(depBuildId + "_dep_queue", queueData);
+            final String depBuildId = buildConfig.getTarget();
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
+            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);            
+            jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
+            jObj.put(depBuildId + "_dep", returnData);
+            jObj.put(depBuildId + "_dep_queue", queueData);
 
-                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, branch, downBuildId, settings);
+            final String [] downBuildIds = buildConfig.getDownStreamTriggerTarget().split(",");           
+            for (String downBuildId : downBuildIds) {
+                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), downBuildId, settings);
                 final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings);
                 jObj.put(downBuildId + "_build", returnDataBuildDep);
+                jObj.put(downBuildId + "_build_branch", buildConfig.getBranchConfig());                
                 jObj.put(downBuildId + "_build_wref", url + "/viewType.html?buildTypeId=" + downBuildId);
                 jObj.put(downBuildId + "_build_queue", queueDataBuildDep);            
             }
@@ -319,17 +320,22 @@ public class TeamctiyRest extends RestResource {
           if ("rest".equals(buildConfig.getDownStreamTriggerType()) ||
               "tab".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
             final String depBuildId = buildConfig.getTarget();
-            final String downBuildId = buildConfig.getDownStreamTriggerTarget();
+            
             final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
             final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);
             jObj.put(depBuildId + "_dep", returnData);
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
             jObj.put(depBuildId + "_dep_queue", queueData);
 
+            final String downBuildId = buildConfig.getDownStreamTriggerTarget();            
             // external trigger configuration
             final JSONObject build = new JSONObject();
             build.put("type", buildConfig.getDownStreamTriggerType());
-            build.put("desc", "external trigger");
+            if ("".equals(buildConfig.getDownStreamTriggerDescription())) {
+              build.put("desc", "Trigger with description not provided."); 
+            } else {
+              build.put("desc", buildConfig.getDownStreamTriggerDescription()); 
+            }
             build.put("url", downBuildId);
             build.put("dependencies", depBuildId);
             build.put("source", branch);

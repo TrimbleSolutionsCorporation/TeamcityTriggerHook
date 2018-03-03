@@ -120,7 +120,7 @@ function GetBuildsConfigurations(callback) {
     var fromRef = pr.getFromRef();
     var restpoint = parent.resourceUrl('builds') +
             "?prid=" + pr.id +
-            "&branch=" + fromRef.getDisplayId() +
+            "&branch=" + fromRef.id +
             "&hash=" + fromRef.getLatestCommit();
     
       $.get(restpoint)
@@ -143,7 +143,7 @@ function GetExternalBuildsConfigurations(id, callback) {
     var restpoint = parent.resourceUrl('externalbuilds') +
             "?id="   + id +
             "&prid=" + pr.id +
-            "&branch=" + fromRef.getDisplayId() +
+            "&branch=" + fromRef.id +
             "&hash=" + fromRef.getLatestCommit();
     
       $.get(restpoint)

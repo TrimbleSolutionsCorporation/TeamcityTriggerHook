@@ -20,6 +20,7 @@ require([
         _$triggerOnEmptyBranches : undefined,
         _$triggerOnPullRequest : undefined,
         _$cancelRunningBuilds : undefined,
+        _$downStreamTriggerDescription : undefined,        
         _$downStreamTriggerType : undefined,
         _$downStreamTriggerTarget : undefined,
         _triggers : undefined,
@@ -55,6 +56,7 @@ require([
             this._$triggerOnPullRequest = $('#triggerOnPullRequest');
             this._$cancelRunningBuilds = $('#cancelRunningBuilds');
             this._$downStreamTriggerType = $('#downStreamTriggerType');
+            this._$downStreamTriggerDescription = $('#downStreamTriggerDescription');
             this._$downStreamTriggerTarget = $('#downStreamTriggerTarget');
 
             $('#addTriggerButton').off().on('click', $.proxy(this._addTriggerHandler, this));
@@ -148,6 +150,12 @@ require([
                             text : AJS.I18n.getText('triggers.exclusion')
                         }), $('<span/>', {
                             text : trigger.triggerExclusion
+                        })]
+                    }), $('<span/>', {
+                        html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.description')
+                        }), $('<span/>', {
+                            text : trigger.downStreamTriggerDescription
                         })]
                     }), $('<span/>', {
                         html : [$('<span/>', {
