@@ -219,6 +219,7 @@ require([
                 triggerInclusion : this._$triggerInclusion.val(),
                 triggerExclusion : this._$triggerExclusion.val(),
                 downStreamTriggerType : this._$downStreamTriggerType.val(),
+                downStreamTriggerDescription : this._$downStreamTriggerDescription.val(),
                 downStreamTriggerTarget : this._$downStreamTriggerTarget.val()
             };
 
