@@ -162,7 +162,7 @@ public class TeamctiyRest extends RestResource {
   public String triggerBuild(
           @Context final Repository repository,
           @QueryParam("buildconfig") final String buildconfig,
-          @QueryParam("branch") final String branch) {
+          @QueryParam("branch") final String branch) throws IOException {
 
     final Settings settings = this.settingsService.getSettings(repository);
 
@@ -178,8 +178,24 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
     }
 
+    final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+    if (repositoryTriggersJson.isEmpty()) {
+      return "{\"status\": \"error\", \"message\": \"hook not configured properly\"}";
+    }
+
+    final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
+
+    if (configurations.length == 0) {
+      return "{\"status\": \"error\", \"message\": \"no build configurations defined for this branch\"}";
+    }
+        
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
-    this.connector.QueueBuild(conf, branch, buildconfig, "Manual Trigger from Bitbucket", false, settings); // handle error todo
+    
+    for (final Trigger buildConfig : configurations) {
+      if (buildConfig.getTarget().equals(buildconfig)) {
+        this.connector.QueueBuild(conf, branch, buildconfig, "Manual Trigger from Bitbucket", false, settings); // handle error todo
+      }      
+    }
     return "{\"status\": \"ok\" }";
   }
 
