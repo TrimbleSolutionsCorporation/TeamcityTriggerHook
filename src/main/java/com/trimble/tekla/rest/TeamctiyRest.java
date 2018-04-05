@@ -193,7 +193,7 @@ public class TeamctiyRest extends RestResource {
     
     for (final Trigger buildConfig : configurations) {
       if (buildConfig.getTarget().equals(buildconfig)) {
-        this.connector.QueueBuild(conf, branch, buildconfig, "Manual Trigger from Bitbucket", false, settings); // handle error todo
+        this.connector.QueueBuild(conf, buildConfig.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket", false, settings); // handle error todo
       }      
     }
     return "{\"status\": \"ok\" }";

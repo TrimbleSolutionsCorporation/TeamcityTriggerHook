@@ -231,8 +231,7 @@ function CreateBuildRow(elem, cantrigger, triggerCallback, isExternalTrigger) {
   return rowdata;
 }
 
-function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName,
-  wrefconfig) {
+function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName, wrefconfig) {
 
   var queuedBuilds = [];
   if (jsonqueue.count > 0) {
@@ -244,7 +243,7 @@ function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName,
           state: "queued",
           href: build.href,
           webUrl: build.webUrl,
-          branch: build.branchName
+          branch: branchName
         };
         queuedBuilds.push(queuedbuild);
       }
@@ -268,7 +267,6 @@ function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName,
 
     if (queuedBuilds.length > 0) {
       build.state = "queued";
-      build.branchName = queuedBuilds[0].branchName;
       build.buildTypeId = queuedBuilds[0].buildTypeId;
     }
     return build;
@@ -280,7 +278,7 @@ function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName,
       number: json.build[0].number,
       status: json.build[0].status,
       state: json.build[0].state,
-      branchName: json.build[0].branchName,
+      branchName: branchName,
       href: json.build[0].href,
       webUrl: json.build[0].webUrl,
       queue: queuedBuilds
