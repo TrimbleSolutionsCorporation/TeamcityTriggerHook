@@ -55,8 +55,14 @@ public class TeamcityPullrequestEventListener {
     
   @EventListener
   public void onPullRequestOpenedEvent(final PullRequestOpenedEvent event) throws IOException, JSONException {
-    final PullRequest pr = event.getPullRequest();
-    TriggerBuildFromPullRequest(pr);
+    final PullRequest pr = event.getPullRequest();    
+    final Repository repo = pr.getFromRef().getRepository();
+    final Settings settings = this.settingsService.getSettings(repo);    
+    try {
+      TriggerBuildFromPullRequest(pr);
+    } catch (final Exception ex) {
+      TeamcityLogger.logMessage(settings, "PullRequest Opened Event Failed: " + ex.getMessage());
+    }          
   }
 
   @EventListener
@@ -68,7 +74,14 @@ public class TeamcityPullrequestEventListener {
       return;
     }
 
-    TriggerBuildFromPullRequest(event.getPullRequest());
+    final PullRequest pr = event.getPullRequest();
+    final Repository repo = pr.getFromRef().getRepository();
+    final Settings settings = this.settingsService.getSettings(repo);    
+    try {
+      TriggerBuildFromPullRequest(pr);
+    } catch (final Exception ex) {
+      TeamcityLogger.logMessage(settings, "PullRequest Rescoped Event Failed: " + ex.getMessage());
+    }            
   }
     
   private void TriggerBuildFromPullRequest(final PullRequest pr) throws IOException, JSONException {
