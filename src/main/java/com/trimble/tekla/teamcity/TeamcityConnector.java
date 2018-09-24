@@ -80,14 +80,14 @@ public class TeamcityConnector  {
         this.connector.Post(conf, url, null, settings);        
     }
     
-    public void QueueBuild(
+    public String QueueBuild(
             TeamcityConfiguration conf,
             String branch,
             String buildid,
             String comment,
             Boolean isDefault, Settings settings) {
         String url = "/app/rest/buildQueue";
-        this.connector.PostPayload(conf, url, GetPayload(branch, buildid, comment, isDefault), settings);        
+        return this.connector.PostPayload(conf, url, GetPayload(branch, buildid, comment, isDefault), settings);        
     }    
 
     private String GetCancelAndRequeuePayload(String readIntoQueue) {

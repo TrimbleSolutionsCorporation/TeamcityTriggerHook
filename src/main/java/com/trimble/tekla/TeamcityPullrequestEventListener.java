@@ -126,32 +126,28 @@ public class TeamcityPullrequestEventListener {
                   conf,
                   buildConfig.getBranchConfig(),
                   buildConfig.getTarget(),
-                  "Pull request Trigger from Bitbucket",
+                  "Trigger from Bitbucket: Pull Request: " + pr.getId(),
                   false,
                   settings);
           triggeredBuilds.add(buildConfig.getTarget());
         } else {
           final JSONArray builds = obj.getJSONArray("build");
-          Boolean flipRequeue = true;
           for (int i = 0; i < builds.length(); i++) {
             final Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
             if (isRunning) {
               final String id = builds.getJSONObject(i).getString("id");
-              this.connector.ReQueueBuild(conf, id, settings, flipRequeue);
-              flipRequeue = false;
+              this.connector.ReQueueBuild(conf, id, settings, false);
             }
           }
-
-          if(flipRequeue) {
-            // at this point all builds were finished, so we need to trigger
-            this.connector.QueueBuild(
-                    conf,
-                    buildConfig.getBranchConfig(),
-                    buildConfig.getTarget(),
-                    "Pull request Trigger from Bitbucket",
-                    false,
-                    settings);
-          }
+          
+          // at this point all builds were finished, so we need to trigger
+          this.connector.QueueBuild(
+                  conf,
+                  buildConfig.getBranchConfig(),
+                  buildConfig.getTarget(),
+                  "Trigger from Bitbucket: Pull Request: " + pr.getId(),
+                  false,
+                  settings);
         }
       }
     }

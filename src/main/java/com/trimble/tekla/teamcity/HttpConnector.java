@@ -125,7 +125,7 @@ public class HttpConnector {
        
     }
     
-    public void PostPayload(TeamcityConfiguration conf, String url, String payload, Settings settings) {
+    public String PostPayload(TeamcityConfiguration conf, String url, String payload, Settings settings) {
         
         try {                  
             
@@ -160,10 +160,12 @@ public class HttpConnector {
             }
             
             TeamcityLogger.logMessage(settings, "Hook Reply: "  + line);
+            return line;
             
         } catch (Exception e) {
             TeamcityLogger.logMessage(settings, "Hook Exception: "  + e.getMessage());
             e.printStackTrace();
+            return e.getMessage();
         }         
     }    
 }

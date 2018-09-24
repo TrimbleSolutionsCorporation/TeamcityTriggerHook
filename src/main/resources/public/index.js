@@ -327,9 +327,8 @@ function GetExternalBuildConfigurationsGroup(id) {
           if (key.endsWith("_build") && !key.endsWith("_queue") && !key.endsWith("_wref") && !key.endsWith("_branch")) {
             var json = JSON.parse(data[key]);
             var jsonqueue = JSON.parse(data[key + "_queue"]);
-            var jsonCaptureBranch = data[key + "_branch"];
             var wref = data[key + "_wref"];
-            var build = GetBuildFromJson(json, jsonqueue, key.replace("_build", ""), jsonCaptureBranch, wref);
+            var build = GetBuildFromJson(json, jsonqueue, key.replace("_build", ""), branchName, wref);
             externalBuilds.push(build);
           }
         }

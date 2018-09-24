@@ -45,6 +45,7 @@ import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
+import java.util.Arrays;
 
 /**
  * REST configuration
@@ -191,12 +192,19 @@ public class TeamctiyRest extends RestResource {
         
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     
+    StringBuilder builder = new StringBuilder();
+    builder.append("ok will trigger: " + configurations.length);
+            
     for (final Trigger buildConfig : configurations) {
-      if (buildConfig.getTarget().equals(buildconfig)) {
-        this.connector.QueueBuild(conf, buildConfig.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket", false, settings); // handle error todo
-      }      
+      String []donwstramTriggers = buildConfig.getDownStreamTriggerTarget().split(",");
+      if (buildConfig.getTarget().equals(buildconfig) || Arrays.asList(donwstramTriggers).contains(buildconfig)) {
+        builder.append(" trigger " + buildconfig + " " + buildConfig.getBranchConfig());
+        builder.append(" " + this.connector.QueueBuild(conf, buildConfig.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket", false, settings)); // handle error todo
+      } else {
+        builder.append(" trigger skipped " + buildconfig + " different than " + buildConfig.getTarget() + " for branch config " + buildConfig.getBranchConfig());
+      }    
     }
-    return "{\"status\": \"ok\" }";
+    return "{\"status\": \"" + builder.toString() + "\" }";
   }
 
   @GET

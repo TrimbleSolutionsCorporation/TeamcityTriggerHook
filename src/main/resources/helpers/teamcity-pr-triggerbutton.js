@@ -102,11 +102,14 @@ function TriggerBuildConfiguration(buildid, branch, callback) {
             "&branch=" + branch;
     
       $.get(restpoint)
-      .success(function(data) {        
+      .success(function(data) {   
+        var str = JSON.stringify(data, null, 2);
+        console.log("Success : " + str);     
         callback(data);
       })
       .error(function(data) {
-        console.log("Error : " + data);
+        var str = JSON.stringify(data, null, 2);
+        console.log("Error : " + str);
       })        
       .done(function( data ) {
       });  
