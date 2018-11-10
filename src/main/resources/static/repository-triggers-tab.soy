@@ -55,6 +55,10 @@
                 {param labelText: getText('triggers.pull.request') /}
             {/call}
             {call .toggle}
+                {param id: 'hideOnPullRequest' /}
+                {param labelText: getText('triggers.pull.hideonprdialog') /}
+            {/call}
+            {call .toggle}
                 {param id: 'triggerOnEmptyBranches' /}
                 {param labelText: getText('triggers.empty.branches') /}
                 {param value: true /}

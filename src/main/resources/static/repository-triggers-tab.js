@@ -19,6 +19,7 @@ require([
         _$triggerExclusion : undefined,
         _$triggerOnEmptyBranches : undefined,
         _$triggerOnPullRequest : undefined,
+        _$hideOnPullRequest : undefined,
         _$cancelRunningBuilds : undefined,
         _$downStreamTriggerDescription : undefined,        
         _$downStreamTriggerType : undefined,
@@ -54,6 +55,7 @@ require([
 
             this._$triggerOnEmptyBranches = $('#triggerOnEmptyBranches');
             this._$triggerOnPullRequest = $('#triggerOnPullRequest');
+            this._$hideOnPullRequest = $('#hideOnPullRequest');
             this._$cancelRunningBuilds = $('#cancelRunningBuilds');
             this._$downStreamTriggerType = $('#downStreamTriggerType');
             this._$downStreamTriggerDescription = $('#downStreamTriggerDescription');
@@ -132,6 +134,12 @@ require([
                             text : AJS.I18n.getText('triggers.column.pull.request')
                         }), $('<span/>', {
                             text : trigger.triggerOnPullRequest
+                        })]
+                    }), $('<span/>', {
+                        html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.column.hide')
+                        }), $('<span/>', {
+                            text : trigger.hideOnPullRequest
                         })]
                     }), $('<span/>', {
                         html : [$('<span/>', {
@@ -215,6 +223,7 @@ require([
                 type : this._$triggerType.val(),
                 triggerOnEmptyBranches : this._$triggerOnEmptyBranches[0].checked,
                 triggerOnPullRequest : this._$triggerOnPullRequest[0].checked,
+                hideOnPullRequest : this._$hideOnPullRequest[0].checked,
                 cancelRunningBuilds : this._$cancelRunningBuilds[0].checked,
                 triggerInclusion : this._$triggerInclusion.val(),
                 triggerExclusion : this._$triggerExclusion.val(),
@@ -232,6 +241,7 @@ require([
 
             this._$triggerOnEmptyBranches[0].checked = true;
             this._$triggerOnPullRequest[0].checked = false;
+            this._$hideOnPullRequest[0].checked = false;
             this._$cancelRunningBuilds[0].checked = false;
 
             var triggerUUID = uuid();

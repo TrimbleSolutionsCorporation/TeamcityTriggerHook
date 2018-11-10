@@ -252,7 +252,9 @@ public class TeamctiyRest extends RestResource {
       final JSONObject jObj = new JSONObject();
 
       for (final Trigger buildConfig : configurations) {
-
+        if(buildConfig.isHideOnPullRequest()) {
+          continue;
+        }
         try {
           final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings);
           final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTarget(), settings);
