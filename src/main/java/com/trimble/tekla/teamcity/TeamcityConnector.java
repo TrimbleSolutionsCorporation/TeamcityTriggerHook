@@ -6,7 +6,10 @@
 package com.trimble.tekla.teamcity;
 
 import com.atlassian.bitbucket.setting.Settings;
+import com.trimble.tekla.pojo.TeamcityQueuedElement;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +26,11 @@ public class TeamcityConnector  {
      this.connector = connector;     
     }
     
+    public String GetQueueData(TeamcityConfiguration conf, Settings settings) throws IOException {
+      String restpoint = "/app/rest/buildQueue";
+      return this.connector.Get(conf, restpoint, settings);
+    }  
+    
     public String GetQueueDataForConfiguration(TeamcityConfiguration conf, String buildConfiguration, Settings settings) throws IOException {
       String restpoint = "/app/rest/buildQueue?locator=buildType:" + buildConfiguration;
       return this.connector.Get(conf, restpoint, settings);
@@ -33,6 +41,43 @@ public class TeamcityConnector  {
               ",branch:" + branch + ",running:any,canceled:any,count:2";
       return this.connector.Get(conf, restpoint, settings);
     }
+    
+    public List<TeamcityQueuedElement> GetQueuedBuilds(TeamcityConfiguration conf, Settings settings) throws IOException, JSONException {
+        String queueData = this.GetQueueData(conf, settings);
+        JSONObject jsonObj = new JSONObject(queueData);        
+        Integer numberOfQueuedBuilds = jsonObj.getInt("count");        
+        if(numberOfQueuedBuilds == 0) {
+          return new ArrayList<>();
+        }
+        
+        List<TeamcityQueuedElement> queuedElements = new ArrayList<>();
+        JSONArray builds = jsonObj.getJSONArray("build");
+        for (int i = 0; i < builds.length(); i++) {
+            try
+            {                           
+                JSONObject queued = builds.getJSONObject(i);
+                String branchName = "";
+                if(queued.has("branchName")){
+                  branchName = queued.getString("branchName");
+                }
+
+                String buildType = queued.getString("buildTypeId");
+                String id = queued.getString("id");
+                String webUrl = queued.getString("webUrl");
+                TeamcityQueuedElement queuedElement = new TeamcityQueuedElement();
+                queuedElement.setBranch(branchName);
+                queuedElement.setBuildType(buildType);
+                queuedElement.setId(id);
+                queuedElement.setWebUrl(webUrl);
+                
+                queuedElements.add(queuedElement);
+                
+            } catch (JSONException e) {
+            }                                                   
+        }
+        
+        return queuedElements;
+    } 
     
     public Boolean IsInQueue(TeamcityConfiguration conf, String buildConfig, String branch, Settings settings) throws IOException, JSONException {
         String queueData = this.GetQueueDataForConfiguration(conf, buildConfig, settings);

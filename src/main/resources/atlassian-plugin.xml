@@ -20,6 +20,11 @@
         <package>com.trimble.tekla.rest</package>
     </rest>
 
+    <repository-merge-check key="are-builds-in-queue" name="No queued builds in Teamcity" class="bean:areBuildsInQueueCheck" configurable="true">
+        <description>Prevent merge if builds are queued</description>
+        <icon>icons/tc-hook.png</icon>
+    </repository-merge-check>
+    
     <repository-hook key="teamcity-trigger-hook" i18n-name-key="bitbucket-webhook-teamcity.name" name="TeamCity Trigger" class="com.trimble.tekla.TeamcityTriggerHook">
         <description>Remote trigger checking for changed in Teamcity</description>
         <icon>icons/tc-hook.png</icon>
