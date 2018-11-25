@@ -18,6 +18,7 @@ import com.trimble.tekla.pojo.QueueMonitorTask;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
+import com.trimble.tekla.teamcity.TeamcityLogger;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -73,6 +74,7 @@ public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
     }
     
     if(!queuedTasksOnePerTeamcityServer.containsKey(teamcityAddress)) {
+      TeamcityLogger.logMessage(settings, "Startup Queue Checker Thread");
       final String password = this.connectionSettings.getPassword(repository);
       final TeamcityConfiguration conf
               = new TeamcityConfiguration(
@@ -81,8 +83,10 @@ public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
                       password);
       
       TimerTask timerTask = new QueueMonitorTask(this.connector, conf, settings);
-      timer.schedule(timerTask, 0, 10000);    
+      timer.schedule(timerTask, 0, 20000);    
       queuedTasksOnePerTeamcityServer.put(teamcityAddress, timerTask);
+    } else {
+      TeamcityLogger.logMessage(settings, "Queue Checker Thread Started Already");
     }
     
     QueueMonitorTask schedullerTask = (QueueMonitorTask)queuedTasksOnePerTeamcityServer.get(teamcityAddress);
@@ -95,11 +99,14 @@ public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
 
     final String branch = pr.getFromRef().getDisplayId();
     if(schedullerTask.AreBuildsInQueueForBranch(branch)) {
+      TeamcityLogger.logMessage(settings, "Builds in queue for " + branch);
       String teamcityAddressQueue = settings.getString("teamCityUrl") + "/queue.html";
       String summaryMsg = i18nService.getText("mergecheck.builds.inqueue.summary", "Builds in queue");
       String detailedMsg = i18nService.getText("mergecheck.builds.inqueue.detailed", "Builds are still in queue, visit: ") + teamcityAddressQueue;
      
       return RepositoryHookResult.rejected(summaryMsg, detailedMsg);    
+    } else {
+      TeamcityLogger.logMessage(settings, "No builds in queue for " + branch);
     }
     
     return RepositoryHookResult.accepted();

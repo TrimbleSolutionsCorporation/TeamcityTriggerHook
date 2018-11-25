@@ -6,14 +6,11 @@
 package com.trimble.tekla.pojo;
 
 import com.atlassian.bitbucket.setting.Settings;
-import com.trimble.tekla.AreBuildsInQueueCheck;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.TimerTask;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -56,13 +53,14 @@ public class QueueMonitorTask  extends TimerTask {
   @Override
   public void run() {
     try {
+      this.isStarted = false; 
       builds.clear();
       builds.addAll(this.connector.GetQueuedBuilds(conf, settings));
       this.isStarted = true;
     } catch (IOException ex) {
-      Logger.getLogger(AreBuildsInQueueCheck.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger("QueueCheckerThread").log(Level.SEVERE, "IO exception getting Queue, TC down?", ex);
     } catch (JSONException ex) {
-      Logger.getLogger(AreBuildsInQueueCheck.class.getName()).log(Level.SEVERE, null, ex);
+      Logger.getLogger("QueueCheckerThread").log(Level.SEVERE, "Invalid Json getting Queue", ex);
     }
   }  
 }

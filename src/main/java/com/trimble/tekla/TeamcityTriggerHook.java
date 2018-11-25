@@ -1,6 +1,7 @@
 package com.trimble.tekla;
 
 import com.atlassian.bitbucket.commit.CommitService;
+import com.atlassian.bitbucket.commit.NoSuchCommitException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -34,6 +35,9 @@ import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import com.trimble.tekla.teamcity.TeamcityLogger;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.json.JSONException;
 
 /**
  * Note that hooks can implement RepositorySettingsValidator directly.
@@ -119,10 +123,11 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
             continue;
           }      
           TriggerBuild(configuration, context, referenceId, conf, timeStamp, isEmptyBranch);
-        }
-        
-      } catch (final IOException ex) {
-        TeamcityLogger.logMessage(context, "Trigger From Ref Failed Excetion: " + ex.getMessage());
+        }        
+      } catch (NoSuchCommitException ex) {
+        TeamcityLogger.logMessage(context, "No commit Exception: " + ex.getCommitId());
+      } catch (IOException ex) {
+        TeamcityLogger.logMessage(context, "Failed to trigger: " + ex.getMessage());
       }
     }
   }
