@@ -22,6 +22,7 @@ import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
+import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.event.api.EventListener;
 import com.trimble.tekla.helpers.ChangesetService;
 import com.trimble.tekla.pojo.Trigger;
@@ -64,6 +65,17 @@ public class TeamcityPullrequestEventListener {
       TeamcityLogger.logMessage(settings, "PullRequest Opened Event Failed: " + ex.getMessage());
     }          
   }
+  
+  @EventListener
+  public void onPullRequestParticipantsUpdatedEvent(final  PullRequest pullRequest, final Set<ApplicationUser> added, final Set<ApplicationUser> removed) throws IOException, JSONException {
+    final Repository repo = pullRequest.getFromRef().getRepository();
+    final Settings settings = this.settingsService.getSettings(repo);    
+    try {
+      TriggerBuildFromPullRequest(pullRequest);
+    } catch (final Exception ex) {
+      TeamcityLogger.logMessage(settings, "PullRequest Reviwer update event failed: " + ex.getMessage());
+    }          
+  }
 
   @EventListener
   public void onPullRequestRescoped(final PullRequestRescopedEvent event) throws IOException, JSONException {
@@ -88,6 +100,7 @@ public class TeamcityPullrequestEventListener {
     final Repository repo = pr.getFromRef().getRepository();
     final Settings settings = this.settingsService.getSettings(repo);
     final String password = this.connectionSettings.getPassword(pr.getFromRef().getRepository());
+    final Boolean areParticipants = pr.getParticipants().isEmpty();
     final TeamcityConfiguration conf
             = new TeamcityConfiguration(
                     settings.getString("teamCityUrl"),
@@ -105,7 +118,13 @@ public class TeamcityPullrequestEventListener {
     final ArrayList<String> changes = ChangesetService.GetChangedFiles(pr, pullRequestService);
     final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
     for (final Trigger buildConfig : configurations) {
+
+      
       if (buildConfig.isTriggerOnPullRequest()) {
+        if (!areParticipants && !buildConfig.isTriggerWhenNoReviewers()) {
+          continue;
+        }
+        
         if (triggeredBuilds.contains(buildConfig.getTarget())) {
           continue;
         }

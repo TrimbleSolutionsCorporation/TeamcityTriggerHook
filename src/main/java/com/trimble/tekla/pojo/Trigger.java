@@ -27,6 +27,7 @@ public class Trigger {
   private boolean cancelRunningBuilds;
   private boolean triggerOnEmptyBranches;
   private boolean hideOnPullRequest;
+  private boolean triggerWhenNoReviewers;
 
   public String gettriggerInclusion() {
     return this.triggerInclusion;
@@ -75,6 +76,14 @@ public class Trigger {
   public void setHideOnPullRequest(final boolean hideOnPullRequest) {
     this.hideOnPullRequest = hideOnPullRequest;
   }  
+  
+  public boolean isTriggerWhenNoReviewers() {
+      return this.triggerWhenNoReviewers;
+  }
+
+  public void setTriggerWhenNoReviewers(final boolean triggerWhenNoReviewers) {
+    this.triggerWhenNoReviewers = triggerWhenNoReviewers;
+  }   
   
   public String getDownStreamTriggerType() {
     return this.downStreamTriggerType;

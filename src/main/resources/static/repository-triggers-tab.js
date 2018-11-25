@@ -20,6 +20,7 @@ require([
         _$triggerOnEmptyBranches : undefined,
         _$triggerOnPullRequest : undefined,
         _$hideOnPullRequest : undefined,
+        _$triggerWhenNoReviewers : undefined,
         _$cancelRunningBuilds : undefined,
         _$downStreamTriggerDescription : undefined,        
         _$downStreamTriggerType : undefined,
@@ -54,6 +55,7 @@ require([
             this._$triggerExclusion = $('#triggerExclusion');
 
             this._$triggerOnEmptyBranches = $('#triggerOnEmptyBranches');
+            this._$triggerWhenNoReviewers = $('#triggerWhenNoReviewers');
             this._$triggerOnPullRequest = $('#triggerOnPullRequest');
             this._$hideOnPullRequest = $('#hideOnPullRequest');
             this._$cancelRunningBuilds = $('#cancelRunningBuilds');
@@ -149,6 +151,12 @@ require([
                         })]
                     }), $('<span/>', {
                         html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.column.no.reviewers')
+                        }), $('<span/>', {
+                            text : trigger.triggerWhenNoReviewers
+                        })]
+                    }), $('<span/>', {
+                        html : [$('<span/>', {
                             text : AJS.I18n.getText('triggers.inclusion')
                         }), $('<span/>', {
                             text : trigger.triggerInclusion
@@ -222,6 +230,7 @@ require([
                 target : this._$triggerTarget.val(),
                 type : this._$triggerType.val(),
                 triggerOnEmptyBranches : this._$triggerOnEmptyBranches[0].checked,
+                triggerWhenNoReviewers : this._$triggerWhenNoReviewers[0].checked,
                 triggerOnPullRequest : this._$triggerOnPullRequest[0].checked,
                 hideOnPullRequest : this._$hideOnPullRequest[0].checked,
                 cancelRunningBuilds : this._$cancelRunningBuilds[0].checked,
@@ -240,6 +249,7 @@ require([
             this._$triggerExclusion.val('');
 
             this._$triggerOnEmptyBranches[0].checked = true;
+            this._$triggerWhenNoReviewers[0].checked = true;
             this._$triggerOnPullRequest[0].checked = false;
             this._$hideOnPullRequest[0].checked = false;
             this._$cancelRunningBuilds[0].checked = false;

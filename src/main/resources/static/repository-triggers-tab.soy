@@ -63,6 +63,11 @@
                 {param labelText: getText('triggers.empty.branches') /}
                 {param value: true /}
             {/call}
+            {call .toggle}
+                {param id: 'triggerWhenNoReviewers' /}
+                {param labelText: getText('triggers.no.reviewers') /}
+                {param value: true /}
+            {/call}
             {call aui.form.textField}
                 {param id: 'triggerInclusion' /}
                 {param fieldWidth: 'medium-long' /}
