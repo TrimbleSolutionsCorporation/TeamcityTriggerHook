@@ -122,7 +122,8 @@ public class TeamcityPullrequestEventListener {
       
       if (buildConfig.isTriggerOnPullRequest()) {
         if (!areParticipants && !buildConfig.isTriggerWhenNoReviewers()) {
-          continue;
+          TeamcityLogger.logMessage(settings, "Would skip: " + buildConfig.getBranchConfig());
+          // continue;
         }
         
         if (triggeredBuilds.contains(buildConfig.getTarget())) {

@@ -8,6 +8,8 @@ package com.trimble.tekla.teamcity;
 import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
 import com.atlassian.bitbucket.setting.Settings;
 import com.trimble.tekla.Field;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -15,6 +17,8 @@ import com.trimble.tekla.Field;
  */
 public class TeamcityLogger {
   public static void logMessage(RepositoryHookContext context, String message) {
+    System.out.println("[TeamcityTriggerHook] : " + message);
+    Logger.getLogger(TeamcityLogger.class.getName()).log(Level.INFO, message);
     if (context == null) {
       return;
     }
@@ -27,6 +31,8 @@ public class TeamcityLogger {
   }
 
   public static void logMessage(Settings settings, String message) {
+    System.out.println("[TeamcityTriggerHook] : " + message);
+    Logger.getLogger(TeamcityLogger.class.getName()).log(Level.INFO, message);
     if (settings == null) {
       return;
     }
