@@ -1,3 +1,6 @@
+
+[![DepShield Badge](https://depshield.sonatype.org/badges/TrimbleSolutionsCorporation/TeamcityTriggerHook/depshield.svg)](https://depshield.github.io)
+
 # Bitbucket Server Hook to trigger TeamCity builds
 
 Req: Min TeamCity 8.x, BitbucketServer 5.x
