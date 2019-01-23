@@ -8,6 +8,7 @@ package com.trimble.tekla.pojo;
 import com.atlassian.bitbucket.setting.Settings;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
+import com.trimble.tekla.teamcity.TeamcityLogger;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,6 +35,7 @@ public class QueueMonitorTask  extends TimerTask {
     this.conf = conf;
     this.settings = settings;
     this.isStarted = false;
+    TeamcityLogger.logMessage(settings, "[QueueMonitorTask] Started...");
   }
   
   public Boolean IsReady() {
@@ -52,15 +54,24 @@ public class QueueMonitorTask  extends TimerTask {
   
   @Override
   public void run() {
+    TeamcityLogger.logMessage(settings, "[QueueCheckerThread] Run Schedulle Checker Task");
     try {
       this.isStarted = false; 
       builds.clear();
-      builds.addAll(this.connector.GetQueuedBuilds(conf, settings));
+      List<TeamcityQueuedElement> queue = this.connector.GetQueuedBuilds(conf, settings);
+      TeamcityLogger.logMessage(settings, "[QueueCheckerThread] Queue Contains: " + queue.size() + " elemetns");
+      builds.addAll(queue);
       this.isStarted = true;
     } catch (IOException ex) {
+      TeamcityLogger.logMessage(settings, "[QueueCheckerThread] in exception: " + ex.getMessage());
       Logger.getLogger("QueueCheckerThread").log(Level.SEVERE, "IO exception getting Queue, TC down?", ex);
     } catch (JSONException ex) {
+      TeamcityLogger.logMessage(settings, "[QueueCheckerThread] json exception: " + ex.getMessage());
+      Logger.getLogger("QueueCheckerThread").log(Level.SEVERE, "Invalid Json getting Queue", ex);
+    } catch (Exception ex) {
+      TeamcityLogger.logMessage(settings, "[QueueCheckerThread] other exception: " + ex.getMessage());
       Logger.getLogger("QueueCheckerThread").log(Level.SEVERE, "Invalid Json getting Queue", ex);
     }
+    TeamcityLogger.logMessage(settings, "[QueueCheckerThread] Run Schedulle Checker Task Done");
   }  
 }

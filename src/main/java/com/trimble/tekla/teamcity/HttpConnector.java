@@ -31,7 +31,7 @@ public class HttpConnector {
             String urlstr = conf.getUrl() + url;
 
             URL urldata = new URL(urlstr);
-            logger.warn("Hook Request: "  + urlstr);
+            logger.warn("[HttpConnector][Post] Hook Request: "  + urlstr);
             
             String authStr = conf.getUserName() + ":" + conf.getPassWord();
             String authEncoded = Base64.encodeBase64String(authStr.getBytes());
@@ -40,6 +40,7 @@ public class HttpConnector {
 
             connection.setRequestMethod("POST");
             connection.setDoOutput(true);
+            connection.setConnectTimeout(5000);
             connection.setRequestProperty("Authorization", "Basic " + authEncoded);
             
             InputStream content = (InputStream)connection.getInputStream();
@@ -52,120 +53,102 @@ public class HttpConnector {
                 dataout.append(line);
             }
             
-            TeamcityLogger.logMessage(settings, "Hook Reply: "  + line);
+            TeamcityLogger.logMessage(settings, "[HttpConnector][Post] Hook Reply: "  + line);
             
         } catch (Exception e) {
-            TeamcityLogger.logMessage(settings, "Hook Exception: "  + e.getMessage());
+            TeamcityLogger.logMessage(settings, "[HttpConnector][Post] Hook Exception: "  + e.getMessage());
             e.printStackTrace();
         }         
     }
 
     public String Get(TeamcityConfiguration conf, String url, Settings settings) throws MalformedURLException, IOException {
         
-            String urlstr = conf.getUrl() + url;
+      String urlstr = conf.getUrl() + url;
 
-            URL urldata = new URL(urlstr);
-            TeamcityLogger.logMessage(settings, "Hook Request: "  + urlstr);
-            
-            String authStr = conf.getUserName() + ":" + conf.getPassWord();
-            String authEncoded = Base64.encodeBase64String(authStr.getBytes());
-            
-            HttpURLConnection connection = (HttpURLConnection) urldata.openConnection();
+      URL urldata = new URL(urlstr);
+      TeamcityLogger.logMessage(settings, "[HttpConnector][Get] Hook Request with timeout 5 seconds for connect: "  + urlstr);
 
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-            //connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Accept", "application/json");
-            connection.setRequestProperty("Authorization", "Basic " + authEncoded);
-            
-            InputStream content = (InputStream)connection.getInputStream();
-            BufferedReader in   = 
-                new BufferedReader (new InputStreamReader (content));
-            
-            StringBuilder dataout = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null) {
-                dataout.append(line);
-            }
-            
-            TeamcityLogger.logMessage(settings, "Hook Reply: "  + line);
-            
-            return dataout.toString();
-       
+      String authStr = conf.getUserName() + ":" + conf.getPassWord();
+      String authEncoded = Base64.encodeBase64String(authStr.getBytes());
+
+      HttpURLConnection connection = (HttpURLConnection) urldata.openConnection();
+
+      connection.setRequestMethod("GET");
+      connection.setDoOutput(true);
+      connection.setConnectTimeout(5000);
+      connection.setRequestProperty("Accept", "application/json");
+      connection.setRequestProperty("Authorization", "Basic " + authEncoded);
+
+      InputStream content = (InputStream)connection.getInputStream();
+      BufferedReader in = new BufferedReader (new InputStreamReader (content));
+
+      StringBuilder dataout = new StringBuilder();
+      String line;
+      while ((line = in.readLine()) != null) {
+          dataout.append(line);
+      }
+
+      TeamcityLogger.logMessage(settings, "[HttpConnector][Get] Hook Reply: "  + line);
+
+      return dataout.toString();       
     }
     
     public String Get(String url, Settings settings) throws MalformedURLException, IOException {
-        
-            String urlstr = url;
+      String urlstr = url;
+      URL urldata = new URL(urlstr);
+      TeamcityLogger.logMessage(settings, "[HttpConnector][Get]  Hook Request with timeout 5 seconds for connect: "  + urlstr);
+      HttpURLConnection connection = (HttpURLConnection) urldata.openConnection();
+      connection.setConnectTimeout(5000);
+      connection.setRequestMethod("GET");
+      connection.setDoOutput(true);
+      connection.setRequestProperty("Accept", "application/json");
+      InputStream content = (InputStream)connection.getInputStream();
+      BufferedReader in   = 
+          new BufferedReader (new InputStreamReader (content));
 
-            URL urldata = new URL(urlstr);
-            TeamcityLogger.logMessage(settings, "Hook Request: "  + urlstr);
-            
-            
-            HttpURLConnection connection = (HttpURLConnection) urldata.openConnection();
+      StringBuilder dataout = new StringBuilder();
+      String line;
+      while ((line = in.readLine()) != null) {
+          dataout.append(line);
+      }
 
-            connection.setRequestMethod("GET");
-            connection.setDoOutput(true);
-            //connection.setRequestProperty("Content-Type", "application/json");
-            connection.setRequestProperty("Accept", "application/json");
-            
-            InputStream content = (InputStream)connection.getInputStream();
-            BufferedReader in   = 
-                new BufferedReader (new InputStreamReader (content));
-            
-            StringBuilder dataout = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null) {
-                dataout.append(line);
-            }
-            
-            TeamcityLogger.logMessage(settings, "Hook Reply: "  + line);
-            
-            return dataout.toString();
-       
+      TeamcityLogger.logMessage(settings, "[HttpConnector][Get] Hook Reply: "  + line);
+      return dataout.toString();
     }
     
     public String PostPayload(TeamcityConfiguration conf, String url, String payload, Settings settings) {
-        
-        try {                  
-            
-            String urlstr = conf.getUrl() + url;
+      try {                  
+        String urlstr = conf.getUrl() + url;
+        URL urldata = new URL(urlstr);
+        TeamcityLogger.logMessage(settings, "[HttpConnector][PostPayload] Hook Request: "  + urlstr);
+        String authStr = conf.getUserName() + ":" + conf.getPassWord();
+        String authEncoded = Base64.encodeBase64String(authStr.getBytes());
+        HttpURLConnection connection = (HttpURLConnection) urldata.openConnection();
+        connection.setRequestMethod("POST");
+        connection.setConnectTimeout(5000);
+        connection.setDoOutput(true);
+        connection.setRequestProperty("Authorization", "Basic " + authEncoded);
+        if (payload != null) {
+          connection.setRequestProperty("Content-Type", "application/xml; charset=utf-8");
+          connection.setRequestProperty("Content-Length", Integer.toString(payload.length()));
+          connection.getOutputStream().write(payload.getBytes("UTF8"));
+        }
 
-            URL urldata = new URL(urlstr);
-            TeamcityLogger.logMessage(settings, "Hook Request: "  + urlstr);
-            
-            String authStr = conf.getUserName() + ":" + conf.getPassWord();
-            String authEncoded = Base64.encodeBase64String(authStr.getBytes());
-            
-            HttpURLConnection connection = (HttpURLConnection) urldata.openConnection();
+        InputStream content = (InputStream)connection.getInputStream();
+        BufferedReader in   =  new BufferedReader (new InputStreamReader (content));
 
-            connection.setRequestMethod("POST");
-            connection.setDoOutput(true);
-            connection.setRequestProperty("Authorization", "Basic " + authEncoded);
-            
-            if (payload != null) {
-                connection.setRequestProperty("Content-Type", "application/xml; charset=utf-8");
-                connection.setRequestProperty("Content-Length", Integer.toString(payload.length()));
-                connection.getOutputStream().write(payload.getBytes("UTF8"));
-            }
+        StringBuilder dataout = new StringBuilder();
+        String line;
+        while ((line = in.readLine()) != null) {
+          dataout.append(line);
+        }
 
-            InputStream content = (InputStream)connection.getInputStream();
-            BufferedReader in   = 
-                new BufferedReader (new InputStreamReader (content));
-            
-            StringBuilder dataout = new StringBuilder();
-            String line;
-            while ((line = in.readLine()) != null) {
-                dataout.append(line);
-            }
-            
-            TeamcityLogger.logMessage(settings, "Hook Reply: "  + line);
-            return line;
-            
-        } catch (Exception e) {
-            TeamcityLogger.logMessage(settings, "Hook Exception: "  + e.getMessage());
-            e.printStackTrace();
-            return e.getMessage();
-        }         
+        TeamcityLogger.logMessage(settings, "[HttpConnector][PostPayload] Hook Reply: "  + line);
+        return line;
+      } catch (Exception e) {
+        TeamcityLogger.logMessage(settings, "[HttpConnector][PostPayload] Hook Exception: "  + e.getMessage());
+        e.printStackTrace();
+        return e.getMessage();
+      }         
     }    
 }

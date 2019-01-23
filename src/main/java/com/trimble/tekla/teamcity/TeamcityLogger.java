@@ -8,7 +8,7 @@ package com.trimble.tekla.teamcity;
 import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
 import com.atlassian.bitbucket.setting.Settings;
 import com.trimble.tekla.Field;
-import java.util.logging.Level;
+import org.slf4j.LoggerFactory;
 import java.util.logging.Logger;
 
 /**
@@ -16,23 +16,26 @@ import java.util.logging.Logger;
  * @author jocs
  */
 public class TeamcityLogger {
+  private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(TeamcityLogger.class);
+ 
   public static void logMessage(RepositoryHookContext context, String message) {
-    System.out.println("[TeamcityTriggerHook] : " + message);
-    Logger.getLogger(TeamcityLogger.class.getName()).log(Level.INFO, message);
+    LOG.info("[TeamcityTriggerHook ->] : " + message);
+    System.out.println("[TeamcityTriggerHook ->] : " + message);
     if (context == null) {
+      
       return;
     }
 
     Boolean isDebugEnabled = context.getSettings().getBoolean(Field.DEBUG, false);
 
     if(isDebugEnabled) {
-      System.out.println("[TeamcityTriggerHook] : " + message);
+      LOG.info("[TeamcityTriggerHook ->] : " + message);
     }
   }
 
   public static void logMessage(Settings settings, String message) {
-    System.out.println("[TeamcityTriggerHook] : " + message);
-    Logger.getLogger(TeamcityLogger.class.getName()).log(Level.INFO, message);
+    LOG.info("[TeamcityTriggerHook ->] : " + message);
+    System.out.println("[TeamcityTriggerHook ->] : " + message);
     if (settings == null) {
       return;
     }
@@ -40,7 +43,7 @@ public class TeamcityLogger {
     Boolean isDebugEnabled = settings.getBoolean(Field.DEBUG, false);
 
     if(isDebugEnabled) {
-      System.out.println("[TeamcityTriggerHook] : " + message);
+      LOG.info("[TeamcityTriggerHook ->] : " + message);
     }
   }
 
