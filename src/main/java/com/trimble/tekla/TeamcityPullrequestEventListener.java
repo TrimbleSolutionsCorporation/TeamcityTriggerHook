@@ -17,6 +17,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import com.atlassian.bitbucket.event.pull.PullRequestOpenedEvent;
+import com.atlassian.bitbucket.event.pull.PullRequestParticipantsUpdatedEvent;
 import com.atlassian.bitbucket.event.pull.PullRequestRescopedEvent;
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestService;
@@ -65,11 +66,11 @@ public class TeamcityPullrequestEventListener {
   }
   
   @EventListener
-  public void onPullRequestParticipantsUpdatedEvent(final  PullRequest pullRequest, final Set<ApplicationUser> added, final Set<ApplicationUser> removed) throws IOException, JSONException {
-    final Repository repo = pullRequest.getFromRef().getRepository();
+  public void onPullRequestParticipantsUpdatedEvent(final PullRequestParticipantsUpdatedEvent event) throws IOException, JSONException {
+    final Repository repo = event.getPullRequest().getFromRef().getRepository();
     final Settings settings = this.settingsService.getSettings(repo);    
     try {
-      TriggerBuildFromPullRequest(pullRequest);
+      TriggerBuildFromPullRequest(event.getPullRequest());
     } catch (final Exception ex) {
       TeamcityLogger.logMessage(settings, "PullRequest Reviwer update event failed: " + ex.getMessage());
     }          
@@ -98,7 +99,7 @@ public class TeamcityPullrequestEventListener {
     final Repository repo = pr.getFromRef().getRepository();
     final Settings settings = this.settingsService.getSettings(repo);
     final String password = this.connectionSettings.getPassword(pr.getFromRef().getRepository());
-    final Boolean areParticipants = pr.getParticipants().isEmpty();
+    final Boolean areParticipants = !pr.getParticipants().isEmpty();
     final TeamcityConfiguration conf
             = new TeamcityConfiguration(
                     settings.getString("teamCityUrl"),
@@ -120,8 +121,8 @@ public class TeamcityPullrequestEventListener {
       
       if (buildConfig.isTriggerOnPullRequest()) {
         if (!areParticipants && !buildConfig.isTriggerWhenNoReviewers()) {
-          TeamcityLogger.logMessage(settings, "Would skip: " + buildConfig.getBranchConfig());
-          // continue;
+          TeamcityLogger.logMessage(settings, "Skip: " + buildConfig.getBranchConfig());
+          continue;
         }
         
         if (triggeredBuilds.contains(buildConfig.getTarget())) {

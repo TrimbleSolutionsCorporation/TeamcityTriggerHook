@@ -95,6 +95,12 @@ require([
          * Draws a single row in a table with trigger configuration
          */
         _drawTableRow : function(triggerUUID, trigger) {
+            if(typeof trigger.triggerWhenNoReviewers === 'undefined'){
+                trigger.triggerWhenNoReviewers = true;
+            }
+            if(typeof trigger.triggerOnEmptyBranches === 'undefined'){
+                trigger.triggerOnEmptyBranches = true;
+            }            
             var $tableRow = $('<tr/>', {
                 html : [$('<td/>', {
                     html : $.proxy(function() {
