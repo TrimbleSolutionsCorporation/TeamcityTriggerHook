@@ -5,17 +5,6 @@
  */
 package com.trimble.tekla.helpers;
 
-import com.atlassian.bitbucket.content.Change;
-import com.atlassian.bitbucket.content.ChangeCallback;
-import com.atlassian.bitbucket.content.ChangeContext;
-import com.atlassian.bitbucket.content.ChangeSummary;
-import com.atlassian.bitbucket.pull.PullRequest;
-import com.atlassian.bitbucket.pull.PullRequestChangesRequest;
-import com.atlassian.bitbucket.pull.PullRequestService;
-import com.atlassian.bitbucket.repository.RefChange;
-import java.io.IOException;
-import java.util.ArrayList;
-
 /**
  *
  * @author jocs

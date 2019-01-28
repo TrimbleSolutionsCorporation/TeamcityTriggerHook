@@ -56,9 +56,7 @@ import java.util.Arrays;
 @Singleton
 @AnonymousAllowed
 public class TeamctiyRest extends RestResource {
-
-  private static final Logger LOG = LoggerFactory.getLogger(TeamctiyRest.class);
-
+  
   private final TeamcityConnector connector;
   private final SettingsService settingsService;
   private final TeamcityConnectionSettings connectionSettings;
@@ -97,6 +95,7 @@ public class TeamctiyRest extends RestResource {
    * Trigger a build on the Teamcity instance using vcs root
    *
    * @param repository The repository to trigger
+     * @param page
    * @return The response. Ok if it worked. Otherwise, an error.
    */
   @GET
@@ -163,7 +162,8 @@ public class TeamctiyRest extends RestResource {
   public String triggerBuild(
           @Context final Repository repository,
           @QueryParam("buildconfig") final String buildconfig,
-          @QueryParam("branch") final String branch) throws IOException {
+          @QueryParam("branch") final String branch,
+          @QueryParam("prid") final String prid) throws IOException {
 
     final Settings settings = this.settingsService.getSettings(repository);
 
@@ -193,15 +193,24 @@ public class TeamctiyRest extends RestResource {
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     
     StringBuilder builder = new StringBuilder();
-    builder.append("ok will trigger: " + configurations.length);
+    builder.append("ok will trigger: ").append(configurations.length);
             
     for (final Trigger buildConfig : configurations) {
       String []donwstramTriggers = buildConfig.getDownStreamTriggerTarget().split(",");
       if (buildConfig.getTarget().equals(buildconfig) || Arrays.asList(donwstramTriggers).contains(buildconfig)) {
-        builder.append(" trigger " + buildconfig + " " + buildConfig.getBranchConfig());
-        builder.append(" " + this.connector.QueueBuild(conf, buildConfig.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket", false, settings)); // handle error todo
+        builder.append(" trigger ")
+                .append(buildconfig)
+                .append(" ")
+                .append(buildConfig.getBranchConfig());
+        builder.append(" ")
+                .append(this.connector.QueueBuild(conf, buildConfig.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket: Pull Request: " + prid, false, settings)); // handle error todo
       } else {
-        builder.append(" trigger skipped " + buildconfig + " different than " + buildConfig.getTarget() + " for branch config " + buildConfig.getBranchConfig());
+        builder.append(" trigger skipped ")
+                .append(buildconfig)
+                .append(" different than ")
+                .append(buildConfig.getTarget())
+                .append(" for branch config ")
+                .append(buildConfig.getBranchConfig());
       }    
     }
     return "{\"status\": \"" + builder.toString() + "\" }";
@@ -210,7 +219,10 @@ public class TeamctiyRest extends RestResource {
   @GET
   @Path(value = "builds")
   @Produces(MediaType.APPLICATION_JSON)
-  public String getBuildsConfiguration(@Context final Repository repository, @QueryParam("prid") final String prid, @QueryParam("branch") final String branch,
+  public String getBuildsConfiguration(
+          @Context final Repository repository,
+          @QueryParam("prid") final String prid,
+          @QueryParam("branch") final String branch,
           @QueryParam("hash") final String hash) throws IOException {
 
     final Settings settings = this.settingsService.getSettings(repository);

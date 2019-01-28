@@ -99,7 +99,8 @@ function TriggerBuildConfiguration(buildid, branch, callback) {
     var pr = pageStateLocal.getPullRequest();
     var restpoint = parent.resourceUrl('triggerbuild') +
             "?buildconfig=" + buildid +
-            "&branch=" + branch;
+            "&branch=" + branch +
+            "&prid=" + pr.id;
     
       $.get(restpoint)
       .success(function(data) {   

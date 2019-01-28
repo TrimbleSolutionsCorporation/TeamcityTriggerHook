@@ -36,8 +36,6 @@ import java.util.Set;
 
 @Named
 public class TeamcityPullrequestEventListener {
-
-  private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("TeamcityTriggerHook");
   private final TeamcityConnectionSettings connectionSettings;
   private final SettingsService settingsService;
   private final TeamcityConnector connector;

@@ -9,7 +9,6 @@ import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
 import com.atlassian.bitbucket.setting.Settings;
 import com.trimble.tekla.Field;
 import org.slf4j.LoggerFactory;
-import java.util.logging.Logger;
 
 /**
  *
@@ -19,32 +18,28 @@ public class TeamcityLogger {
   private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(TeamcityLogger.class);
  
   public static void logMessage(RepositoryHookContext context, String message) {
-    LOG.info("[TeamcityTriggerHook ->] : " + message);
-    System.out.println("[TeamcityTriggerHook ->] : " + message);
-    if (context == null) {
-      
+    
+    if (context == null) {  
+      LOG.error("[TeamcityTriggerHook] : Context is null, cant get debug flag");
       return;
     }
 
     Boolean isDebugEnabled = context.getSettings().getBoolean(Field.DEBUG, false);
 
     if(isDebugEnabled) {
-      LOG.info("[TeamcityTriggerHook ->] : " + message);
+      LOG.info("[TeamcityTriggerHook] : " + message);
     }
   }
 
   public static void logMessage(Settings settings, String message) {
-    LOG.info("[TeamcityTriggerHook ->] : " + message);
-    System.out.println("[TeamcityTriggerHook ->] : " + message);
     if (settings == null) {
+      LOG.error("[TeamcityTriggerHook] : Context is null, cant get debug flag");
       return;
     }
 
     Boolean isDebugEnabled = settings.getBoolean(Field.DEBUG, false);
-
     if(isDebugEnabled) {
       LOG.info("[TeamcityTriggerHook ->] : " + message);
     }
   }
-
 }

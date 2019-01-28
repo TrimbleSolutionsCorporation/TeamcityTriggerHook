@@ -3,7 +3,8 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
         <description>${project.description}</description>
         <version>${project.version}</version>
-        <param name="atlassian-data-center-compatible">true</param>        
+        <param name="atlassian-data-center-status">compatible</param>
+        <param name="atlassian-data-center-compatible">true</param> 
         <param name="plugin-icon">images/01_logo.png</param>
         <param name="plugin-logo">images/01_logo.png</param>
     </plugin-info>

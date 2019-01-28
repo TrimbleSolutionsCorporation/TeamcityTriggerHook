@@ -20,7 +20,6 @@ import org.json.JSONObject;
  */
 public class TeamcityConnector  {
     public final HttpConnector connector;
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("BitbucketTeamcityHook");
         
     public TeamcityConnector(HttpConnector connector) {
      this.connector = connector;     
@@ -112,10 +111,10 @@ public class TeamcityConnector  {
       try
       {
         String data = this.connector.Get(conf, restpoint, settings);
-        logger.debug("teamcity returned: "  + data);
+        TeamcityLogger.logMessage(settings, "teamcity returned: "  + data);
         return "Ok";
       } catch (Exception e) {
-        logger.debug("Hook Exception: "  + e.getMessage());
+        TeamcityLogger.logMessage(settings, "Hook Exception: "  + e.getMessage());
         return "Not able to Connect to Teamcity Server : " + e.getMessage();
       }        
     }

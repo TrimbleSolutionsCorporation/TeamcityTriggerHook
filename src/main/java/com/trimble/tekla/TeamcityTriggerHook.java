@@ -23,7 +23,6 @@ import com.atlassian.bitbucket.repository.RefChange;
 import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.StandardRefType;
-import com.atlassian.bitbucket.scm.ScmService;
 import com.atlassian.bitbucket.scm.git.GitScm;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
@@ -35,30 +34,21 @@ import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import com.trimble.tekla.teamcity.TeamcityLogger;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import org.json.JSONException;
 
 /**
  * Note that hooks can implement RepositorySettingsValidator directly.
  */
 public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookRequest> {
-
-  private static final org.slf4j.Logger Logger = org.slf4j.LoggerFactory.getLogger("TeamcityTriggerHook");
-
   private final TeamcityConnector connector;
   private final GitScm gitScm;
   private final CommitService scmService;
   private final TeamcityConnectionSettings connectionSettings;
-  private final ChangesetService changeSetService;
 
   @Inject
   public TeamcityTriggerHook(
           @ComponentImport final GitScm gitScm,
           @ComponentImport final CommitService scmService,
-          final TeamcityConnectionSettings connectionSettings,
-          final ChangesetService changeSetService) {
-    this.changeSetService = changeSetService;
+          final TeamcityConnectionSettings connectionSettings) {
     this.gitScm = gitScm;
     this.scmService = scmService;
     this.connectionSettings = connectionSettings;
@@ -67,6 +57,8 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
     
   /**
    * Connects to a configured URL to notify of all changes.
+     * @param context
+     * @param hookRequest
    */
   @Override
   public void postUpdate(

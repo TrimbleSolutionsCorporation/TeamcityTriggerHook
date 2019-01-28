@@ -21,9 +21,7 @@ import org.apache.commons.codec.binary.Base64;
  * @author jocs
  */
 public class HttpConnector {
-    
-    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger("BitbucketTeamcityHook");
-    
+   
     public void Post(TeamcityConfiguration conf, String url, Map<String, String> parameters, Settings settings) {
         
         try {                  
@@ -31,7 +29,7 @@ public class HttpConnector {
             String urlstr = conf.getUrl() + url;
 
             URL urldata = new URL(urlstr);
-            logger.warn("[HttpConnector][Post] Hook Request: "  + urlstr);
+            TeamcityLogger.logMessage(settings, "[HttpConnector][Post] Hook Request: "  + urlstr);
             
             String authStr = conf.getUserName() + ":" + conf.getPassWord();
             String authEncoded = Base64.encodeBase64String(authStr.getBytes());
