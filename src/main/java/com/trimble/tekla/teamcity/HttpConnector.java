@@ -11,8 +11,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.net.UnknownHostException;
 import java.util.Map;
 import org.apache.commons.codec.binary.Base64;
 
@@ -57,6 +59,17 @@ public class HttpConnector {
             TeamcityLogger.logMessage(settings, "[HttpConnector][Post] Hook Exception: "  + e.getMessage());
             e.printStackTrace();
         }         
+    }
+    public boolean isReachable(TeamcityConfiguration conf, Settings settings) throws UnknownHostException, IOException {
+        boolean state = false;
+
+        try {         
+            state = InetAddress.getByName(conf.getUrl().replace("http://", "").replace("https://", "")).isReachable(500);
+        } catch (IOException e) {
+            TeamcityLogger.logMessage(settings, "[HttpConnector][isReachable] Failed to reach server, skip queue checker thread to avoid deadlocks");
+        }
+
+        return state;
     }
 
     public String Get(TeamcityConfiguration conf, String url, Settings settings) throws MalformedURLException, IOException {

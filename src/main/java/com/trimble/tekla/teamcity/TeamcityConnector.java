@@ -27,6 +27,9 @@ public class TeamcityConnector  {
     
     public String GetQueueData(TeamcityConfiguration conf, Settings settings) throws IOException {
       String restpoint = "/app/rest/buildQueue";
+      if(!this.connector.isReachable(conf, settings)) {
+        return "";
+      }
       return this.connector.Get(conf, restpoint, settings);
     }  
     
@@ -43,13 +46,16 @@ public class TeamcityConnector  {
     
     public List<TeamcityQueuedElement> GetQueuedBuilds(TeamcityConfiguration conf, Settings settings) throws IOException, JSONException {
         String queueData = this.GetQueueData(conf, settings);
+        List<TeamcityQueuedElement> queuedElements = new ArrayList<>();
+        if(queueData == ""){
+          return queuedElements;
+        }
         JSONObject jsonObj = new JSONObject(queueData);        
         Integer numberOfQueuedBuilds = jsonObj.getInt("count");        
         if(numberOfQueuedBuilds == 0) {
           return new ArrayList<>();
         }
         
-        List<TeamcityQueuedElement> queuedElements = new ArrayList<>();
         JSONArray builds = jsonObj.getJSONArray("build");
         for (int i = 0; i < builds.length(); i++) {
             try

@@ -57,6 +57,9 @@ public class RepositoryHookSettingsValidator implements RepositorySettingsValida
      * @param errors - callback for reporting validation errors.
      */
     private void validateConnectionTab(final Settings settings, final SettingsValidationErrors errors) {
+        
+        final Boolean isDebugOn = settings.getBoolean(Field.DEBUG);
+                
         final String bitbucketUrl = settings.getString(Field.BITBUCKET_URL, StringUtils.EMPTY);
         if (!URL_VALIDATION_PATTERN.matcher(bitbucketUrl).matches()) {
             errors.addFieldError(Field.BITBUCKET_URL, this.i18n.getText("error.invalid.url"));

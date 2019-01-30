@@ -16,7 +16,9 @@ require([
         var $teamCityUserNameField = $('#teamCityUserName');
         var $teamCityPasswordField = $('#teamCityPassword');
         var $testTeamCityConnectionButton = $('#testTeamCityConnection');
+        var $isDebugEnabled = $('#isDebugEnabled');
         var $testStatusDiv = $testTeamCityConnectionButton.next();
+        console.log("validate settings");
 
         /**
          * Connection validation button handler
@@ -24,11 +26,11 @@ require([
         $testTeamCityConnectionButton.click(function() {
             $testStatusDiv.removeClass('error');
             $testStatusDiv.html('Testing ...');
-
             var testUrl = testUrlNavBuilder.withParams({
                 url : $teamCityUrlField.val(),
                 username : $teamCityUserNameField.val(),
-                password : $teamCityPasswordField.val()
+                password : $teamCityPasswordField.val(),
+                debugon : $isDebugEnabled[0].checked
             }).build();
 
             $.ajax({

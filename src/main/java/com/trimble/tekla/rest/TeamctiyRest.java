@@ -427,8 +427,12 @@ public class TeamctiyRest extends RestResource {
   @GET
   @Path(value = "testconnection")
   @Produces("text/plain; charset=UTF-8")
-  public Response testconnection(@Context final Repository repository, @QueryParam("url") final String url, @QueryParam("username") final String username,
-          @QueryParam("password") final String password) {
+  public Response testconnection(
+          @Context final Repository repository,
+          @QueryParam("url") final String url,
+          @QueryParam("username") final String username,
+          @QueryParam("password") final String password,
+          @QueryParam("debugon") final String isDebugOn) {
 
     String realPasswordValue = password;
     if (Constant.TEAMCITY_PASSWORD_SAVED_VALUE.equals(realPasswordValue)) {
