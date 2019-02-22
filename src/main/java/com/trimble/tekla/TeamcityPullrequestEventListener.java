@@ -38,11 +38,12 @@ import java.util.Set;
 
 @Named
 public class TeamcityPullrequestEventListener {
+
   private final TeamcityConnectionSettings connectionSettings;
   private final SettingsService settingsService;
   private final TeamcityConnector connector;
   private final PullRequestService pullRequestService;
-    
+
   @Inject
   public TeamcityPullrequestEventListener(
           final TeamcityConnectionSettings connectionSettings,
@@ -51,34 +52,43 @@ public class TeamcityPullrequestEventListener {
     this.connectionSettings = connectionSettings;
     this.settingsService = settingsService;
     this.pullRequestService = pullRequestService;
-    this.connector = new TeamcityConnector(new HttpConnector());    
+    this.connector = new TeamcityConnector(new HttpConnector());
   }
-    
+
   @EventListener
   public void onPullRequestOpenedEvent(final PullRequestOpenedEvent event) throws IOException, JSONException {
-    final PullRequest pr = event.getPullRequest();    
+    final PullRequest pr = event.getPullRequest();
     final Repository repo = pr.getFromRef().getRepository();
-    final Settings settings = this.settingsService.getSettings(repo);    
-    try {
-      TriggerBuildFromPullRequest(pr, false);
-    } catch (final Exception ex) {
-      TeamcityLogger.logMessage(settings, "PullRequest Opened Event Failed: " + ex.getMessage());
-    }          
+    final Settings settings = this.settingsService.getSettings(repo);
+    
+    Runnable r = () -> {
+      try {
+        TriggerBuildFromPullRequest(pr, false);
+      } catch (final IOException | JSONException ex) {
+        TeamcityLogger.logMessage(settings, "PullRequest Opened Event Failed: " + ex.getMessage());
+      }
+    };
+
+    new Thread(r).start();
   }
-  
+
   @EventListener
   public void onPullRequestParticipantsUpdatedEvent(final PullRequestParticipantsUpdatedEvent event) throws IOException, JSONException {
     final PullRequest pr = event.getPullRequest();
-    final  Set<PullRequestParticipant> reviewers = pr.getReviewers();
+    final Set<PullRequestParticipant> reviewers = pr.getReviewers();
     final Repository repo = pr.getFromRef().getRepository();
     final Settings settings = this.settingsService.getSettings(repo);
-    if(event.getAddedParticipants().size() > 0 && reviewers.size() > 0) {
+    if (event.getAddedParticipants().size() > 0 && reviewers.size() > 0) {
       // trigger only when number of participations is 2 or higher (author + reviewer)
-      try {
-        TriggerBuildFromPullRequest(event.getPullRequest(), true);
-      } catch (final Exception ex) {
-        TeamcityLogger.logMessage(settings, "PullRequest Reviwer update event failed: " + ex.getMessage());
-      }                  
+      Runnable r = () -> {
+        try {
+          TriggerBuildFromPullRequest(event.getPullRequest(), true);
+        } catch (final IOException | JSONException ex) {
+          TeamcityLogger.logMessage(settings, "PullRequest Reviwer update event failed: " + ex.getMessage());
+        }
+      };
+
+      new Thread(r).start();    
     }
   }
 
@@ -93,14 +103,19 @@ public class TeamcityPullrequestEventListener {
 
     final PullRequest pr = event.getPullRequest();
     final Repository repo = pr.getFromRef().getRepository();
-    final Settings settings = this.settingsService.getSettings(repo);    
-    try {
-      TriggerBuildFromPullRequest(pr, false);
-    } catch (final Exception ex) {
-      TeamcityLogger.logMessage(settings, "PullRequest Rescoped Event Failed: " + ex.getMessage());
-    }            
+    final Settings settings = this.settingsService.getSettings(repo);
+
+    Runnable r = () -> {
+      try {
+        TriggerBuildFromPullRequest(pr, false);
+      } catch (final IOException | JSONException ex) {
+        TeamcityLogger.logMessage(settings, "PullRequest Rescoped Event Failed: " + ex.getMessage());
+      }
+    };
+
+    new Thread(r).start();
   }
-    
+
   private void TriggerBuildFromPullRequest(final PullRequest pr, Boolean UpdatedReviewers) throws IOException, JSONException {
     final Repository repo = pr.getFromRef().getRepository();
     final Settings settings = this.settingsService.getSettings(repo);
@@ -120,33 +135,32 @@ public class TeamcityPullrequestEventListener {
     }
 
     Set triggeredBuilds = new HashSet();
-    
+
     final ArrayList<String> changes = ChangesetService.GetChangedFiles(pr, pullRequestService);
     final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
     for (final Trigger buildConfig : configurations) {
 
-      
       if (buildConfig.isTriggerOnPullRequest()) {
-        if(UpdatedReviewers && buildConfig.isTriggerWhenNoReviewers()) {
+        if (UpdatedReviewers && buildConfig.isTriggerWhenNoReviewers()) {
           TeamcityLogger.logMessage(settings, "Skip For Update Reviewers: " + buildConfig.getBranchConfig());
           // we dont want to build when reviewers were updated and we allow to trigger when no reviwers are defined
           continue;
         }
-        
+
         if (!areParticipants && !buildConfig.isTriggerWhenNoReviewers()) {
           // we dont want to build if there are no participants
           TeamcityLogger.logMessage(settings, "Skip: " + buildConfig.getBranchConfig());
           continue;
         }
-        
+
         if (triggeredBuilds.contains(buildConfig.getTarget())) {
           continue;
         }
-        
+
         if (!ExclusionTriggers.ShouldTriggerOnListOfFiles(buildConfig.gettriggerInclusion(), buildConfig.gettriggerExclusion(), changes)) {
           continue;
         }
-        
+
         TeamcityLogger.logMessage(settings, "Trigger BuildId: " + buildConfig.getTarget());
         try {
           if (this.connector.IsInQueue(conf, buildConfig.getTarget(), buildConfig.getBranchConfig(), settings)) {
@@ -185,7 +199,7 @@ public class TeamcityPullrequestEventListener {
               this.connector.ReQueueBuild(conf, id, settings, false);
             }
           }
-          
+
           // at this point all builds were finished, so we need to trigger
           this.connector.QueueBuild(
                   conf,

@@ -118,8 +118,10 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
         }        
       } catch (NoSuchCommitException ex) {
         TeamcityLogger.logMessage(context, "No commit Exception: " + ex.getCommitId());
+        TeamcityLogger.logMessage(context, "Stacktrace: " + ex.getStackTrace());
       } catch (IOException ex) {
         TeamcityLogger.logMessage(context, "Failed to trigger: " + ex.getMessage());
+        TeamcityLogger.logMessage(context, "Stacktrace: " + ex.getStackTrace());
       }
     }
   }
