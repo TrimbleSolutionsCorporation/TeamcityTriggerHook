@@ -112,8 +112,10 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
         final Iterable<String> changedFiles = ChangesetService.GetChangedFiles(scmService, repository, change);     
         for(Trigger configuration : configurations) {         
           if (!ExclusionTriggers.ShouldTriggerOnListOfFiles(configuration.gettriggerInclusion(), configuration.gettriggerExclusion(), changedFiles)) {
+            TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Excluded: " + configuration.getDownStreamTriggerTarget());          
             continue;
-          }      
+          }
+          TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Target: " + configuration.getDownStreamTriggerTarget());
           TriggerBuild(configuration, context, referenceId, conf, timeStamp, isEmptyBranch);
         }        
       } catch (NoSuchCommitException ex) {
