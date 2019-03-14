@@ -112,10 +112,10 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
         final Iterable<String> changedFiles = ChangesetService.GetChangedFiles(scmService, repository, change);     
         for(Trigger configuration : configurations) {         
           if (!ExclusionTriggers.ShouldTriggerOnListOfFiles(configuration.gettriggerInclusion(), configuration.gettriggerExclusion(), changedFiles)) {
-            TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Excluded: " + configuration.getDownStreamTriggerTarget());          
+            TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Excluded: " +  configuration.getTarget());          
             continue;
           }
-          TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Target: " + configuration.getDownStreamTriggerTarget());
+          TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Target: " + configuration.getTarget());
           TriggerBuild(configuration, context, referenceId, conf, timeStamp, isEmptyBranch);
         }        
       } catch (NoSuchCommitException ex) {
@@ -164,6 +164,16 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
 
   private void TriggerBuild(final Trigger buildConfig, final RepositoryHookContext context, final String refId, final TeamcityConfiguration conf, final String timestamp, final boolean isEmptyBranch) throws IOException {
     if (buildConfig.isTriggerOnPullRequest() || isEmptyBranch && !buildConfig.isTriggerOnEmptyBranches()) {
+      TeamcityLogger.logMessage(context, "Skipped <Return>: " + buildConfig.getTarget() + " RefChange Type: " + refId);
+      if(buildConfig.isTriggerOnPullRequest()) {
+        TeamcityLogger.logMessage(context, "Skipped <buildConfig.isTriggerOnPullRequest() false>: " + buildConfig.getTarget() + " RefChange Type: " + refId);
+      }
+      if(isEmptyBranch) {
+        TeamcityLogger.logMessage(context, "Skipped <isEmptyBranch true>: " + buildConfig.getTarget() + " RefChange Type: " + refId);
+      }
+      if(buildConfig.isTriggerOnEmptyBranches()) {
+        TeamcityLogger.logMessage(context, "Skipped <buildConfig.isTriggerOnEmptyBranches() true>: " + buildConfig.getTarget() + " RefChange Type: " + refId);
+      }
       return;
     }
 
@@ -172,6 +182,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
     }
 
     if (buildConfig.getType().equals("build")) {
+      TeamcityLogger.logMessage(context, "Will Try To Que: " + buildConfig.getTarget() + " RefChange Type: " + refId);
       QueueBuild(
           context,
           buildConfig.getTarget(),

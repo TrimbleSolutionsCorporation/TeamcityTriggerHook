@@ -61,15 +61,11 @@ public class TeamcityPullrequestEventListener {
     final Repository repo = pr.getFromRef().getRepository();
     final Settings settings = this.settingsService.getSettings(repo);
     
-    Runnable r = () -> {
-      try {
-        TriggerBuildFromPullRequest(pr, false);
-      } catch (final IOException | JSONException ex) {
-        TeamcityLogger.logMessage(settings, "PullRequest Opened Event Failed: " + ex.getMessage());
-      }
-    };
-
-    new Thread(r).start();
+    try {
+      TriggerBuildFromPullRequest(pr, false);
+    } catch (final IOException | JSONException ex) {
+      TeamcityLogger.logMessage(settings, "PullRequest Opened Event Failed: " + ex.getMessage());
+    }
   }
 
   @EventListener
@@ -80,15 +76,11 @@ public class TeamcityPullrequestEventListener {
     final Settings settings = this.settingsService.getSettings(repo);
     if (event.getAddedParticipants().size() > 0 && reviewers.size() > 0) {
       // trigger only when number of participations is 2 or higher (author + reviewer)
-      Runnable r = () -> {
-        try {
-          TriggerBuildFromPullRequest(event.getPullRequest(), true);
-        } catch (final IOException | JSONException ex) {
-          TeamcityLogger.logMessage(settings, "PullRequest Reviwer update event failed: " + ex.getMessage());
-        }
-      };
-
-      new Thread(r).start();    
+      try {
+        TriggerBuildFromPullRequest(event.getPullRequest(), true);
+      } catch (final IOException | JSONException ex) {
+        TeamcityLogger.logMessage(settings, "PullRequest Reviwer update event failed: " + ex.getMessage());
+      }
     }
   }
 
@@ -105,15 +97,13 @@ public class TeamcityPullrequestEventListener {
     final Repository repo = pr.getFromRef().getRepository();
     final Settings settings = this.settingsService.getSettings(repo);
 
-    Runnable r = () -> {
-      try {
-        TriggerBuildFromPullRequest(pr, false);
-      } catch (final IOException | JSONException ex) {
-        TeamcityLogger.logMessage(settings, "PullRequest Rescoped Event Failed: " + ex.getMessage());
-      }
-    };
 
-    new Thread(r).start();
+    try {
+      TeamcityLogger.logMessage(settings, "Run PullRequest Rescoped Event : " + pr.getFromRef().getDisplayId());
+      TriggerBuildFromPullRequest(pr, false);
+    } catch (final IOException | JSONException ex) {
+      TeamcityLogger.logMessage(settings, "PullRequest Rescoped Event Failed: " + ex.getMessage() + " " + pr.getFromRef().getDisplayId());
+    }
   }
 
   private void TriggerBuildFromPullRequest(final PullRequest pr, Boolean UpdatedReviewers) throws IOException, JSONException {
@@ -139,17 +129,17 @@ public class TeamcityPullrequestEventListener {
     final ArrayList<String> changes = ChangesetService.GetChangedFiles(pr, pullRequestService);
     final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
     for (final Trigger buildConfig : configurations) {
-
+      TeamcityLogger.logMessage(settings, "Try Trigger: " + buildConfig.getBranchConfig() + " " + branch + " : " + buildConfig.getTarget());
       if (buildConfig.isTriggerOnPullRequest()) {
         if (UpdatedReviewers && buildConfig.isTriggerWhenNoReviewers()) {
-          TeamcityLogger.logMessage(settings, "Skip For Update Reviewers: " + buildConfig.getBranchConfig());
+          TeamcityLogger.logMessage(settings, "Skip For Update Reviewers: " + buildConfig.getBranchConfig() + " " + branch);
           // we dont want to build when reviewers were updated and we allow to trigger when no reviwers are defined
           continue;
         }
 
         if (!areParticipants && !buildConfig.isTriggerWhenNoReviewers()) {
           // we dont want to build if there are no participants
-          TeamcityLogger.logMessage(settings, "Skip: " + buildConfig.getBranchConfig());
+          TeamcityLogger.logMessage(settings, "Skip: " + buildConfig.getBranchConfig() + " " + branch);
           continue;
         }
 
@@ -161,14 +151,14 @@ public class TeamcityPullrequestEventListener {
           continue;
         }
 
-        TeamcityLogger.logMessage(settings, "Trigger BuildId: " + buildConfig.getTarget());
+        TeamcityLogger.logMessage(settings, "Trigger BuildId: " + buildConfig.getTarget() + " " + branch);
         try {
           if (this.connector.IsInQueue(conf, buildConfig.getTarget(), buildConfig.getBranchConfig(), settings)) {
-            TeamcityLogger.logMessage(settings, "Skip already in queue: " + buildConfig.getTarget());
+            TeamcityLogger.logMessage(settings, "Skip already in queue: " + buildConfig.getTarget()+ " " + branch);
             continue;
           }
         } catch (IOException | JSONException ex) {
-          TeamcityLogger.logMessage(settings, "Exception: " + ex.getMessage());
+          TeamcityLogger.logMessage(settings, "Exception: " + ex.getMessage() + " " + branch);
         }
 
         // check if build is running
