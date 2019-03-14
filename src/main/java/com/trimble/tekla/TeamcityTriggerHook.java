@@ -117,11 +117,11 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
           TriggerBuild(configuration, context, referenceId, conf, timeStamp, isEmptyBranch);
         }        
       } catch (NoSuchCommitException ex) {
-        TeamcityLogger.logMessage(context, "No commit Exception: " + ex.getCommitId());
-        TeamcityLogger.logMessage(context, "Stacktrace: " + ex.getStackTrace());
+        TeamcityLogger.logMessage(context, "No commit Exception: " + ex.getCommitId() + " " + referenceId);
+        TeamcityLogger.logMessage(context, "Stacktrace: " + ex.getStackTrace() + " " + referenceId);
       } catch (IOException ex) {
-        TeamcityLogger.logMessage(context, "Failed to trigger: " + ex.getMessage());
-        TeamcityLogger.logMessage(context, "Stacktrace: " + ex.getStackTrace());
+        TeamcityLogger.logMessage(context, "Failed to trigger: " + ex.getMessage() + " " + referenceId);
+        TeamcityLogger.logMessage(context, "Stacktrace: " + ex.getStackTrace() + " " + referenceId);
       }
     }
   }
