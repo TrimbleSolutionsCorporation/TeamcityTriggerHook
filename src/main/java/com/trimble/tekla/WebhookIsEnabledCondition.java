@@ -65,7 +65,7 @@ public class WebhookIsEnabledCondition implements Condition {
     final Repository repo = (Repository) obj;
     final PullRequest pullrequest = (PullRequest) pr;
     final RepositoryHook hook = this.settingsService.getRepositoryHook(repo);
-    final Settings settings = this.settingsService.getSettings(repo);
+    final Settings settings = this.settingsService.getSettings(repo).get();
 
     if (settings == null || hook == null || !hook.isEnabled()) {
       return false;

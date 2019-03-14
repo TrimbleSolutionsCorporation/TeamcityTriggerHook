@@ -3,8 +3,6 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
         <description>${project.description}</description>
         <version>${project.version}</version>
-        <param name="atlassian-data-center-status">compatible</param>
-        <param name="atlassian-data-center-compatible">true</param> 
         <param name="plugin-icon">images/01_logo.png</param>
         <param name="plugin-logo">images/01_logo.png</param>
     </plugin-info>
@@ -21,9 +19,13 @@
         <package>com.trimble.tekla.rest</package>
     </rest>
 
-    <repository-merge-check key="are-builds-in-queue" name="No queued builds in Teamcity" class="bean:areBuildsInQueueCheck" configurable="true">
+    <repository-merge-check key="are-builds-in-queue" name="No queued builds in Teamcity"
+                            class="com.trimble.tekla.AreBuildsInQueueCheck" configurable="true">
         <description>Prevent merge if builds are queued</description>
         <icon>icons/tc-hook.png</icon>
+        <scopes>
+            <scope>repository</scope>
+        </scopes>
     </repository-merge-check>
     
     <repository-hook key="teamcity-trigger-hook" i18n-name-key="bitbucket-webhook-teamcity.name" name="TeamCity Trigger" class="com.trimble.tekla.TeamcityTriggerHook">

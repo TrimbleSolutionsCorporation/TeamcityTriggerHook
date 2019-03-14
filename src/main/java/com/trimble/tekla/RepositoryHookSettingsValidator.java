@@ -13,9 +13,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.codehaus.jackson.map.ObjectMapper;
 
 import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.setting.RepositorySettingsValidator;
+import com.atlassian.bitbucket.scope.Scope;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
+import com.atlassian.bitbucket.setting.SettingsValidator;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
 import com.trimble.tekla.pojo.Trigger;
@@ -23,7 +24,7 @@ import com.trimble.tekla.pojo.Trigger;
 /**
  * Class for validating hook configuration form
  */
-public class RepositoryHookSettingsValidator implements RepositorySettingsValidator {
+public class RepositoryHookSettingsValidator implements SettingsValidator {
 
     private static final Pattern URL_VALIDATION_PATTERN = Pattern.compile("^https?://[^\\s/$.?#].[^\\s]*$", Pattern.CASE_INSENSITIVE);
     private static final String BRANCH_TEST_STRING = "refs/heads/master";
@@ -41,15 +42,15 @@ public class RepositoryHookSettingsValidator implements RepositorySettingsValida
     }
 
     @Override
-    public void validate(final Settings settings, final SettingsValidationErrors errors, final Repository repository) {
+    public void validate(Settings stngs, SettingsValidationErrors sve, Scope scope) {
         try {
-            validateConnectionTab(settings, errors);
-            validaterepositoryTriggersTab(settings, errors);
+            validateConnectionTab(stngs, sve);
+            validaterepositoryTriggersTab(stngs, sve);
         } catch (final IOException e) {
             throw new IllegalArgumentException(e);
         }
     }
-
+    
     /**
      * Validates form fields in connections tab
      *
@@ -114,4 +115,6 @@ public class RepositoryHookSettingsValidator implements RepositorySettingsValida
             }
         }
     }
+
+
 }
