@@ -210,7 +210,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
 
     TeamcityLogger.logMessage(context, "" + timeStamp + " Trigger builds for branch: " + branch);
     try {
-      TeamcityLogger.logMessage(context, "Trigger BuildId: " + buildIdIn);
+      TeamcityLogger.logMessage(context, "Trigger BuildId: " + buildIdIn + " " + branch);
 
       if (!this.connector.IsInQueue(conf, buildIdIn, branch, settings)) {
         // check if build is running
@@ -233,12 +233,13 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
 
           // at this point all builds were finished, so we need to trigger
           this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings);
+          TeamcityLogger.logMessage(context, "Queued: " + buildIdIn + " " + branch);
         }
       } else {
-        TeamcityLogger.logMessage(context, "Skip already in queue: " + buildIdIn);
+        TeamcityLogger.logMessage(context, "Skip already in queue: " + buildIdIn + " " + branch);
       }
     } catch (final Exception e) {
-      TeamcityLogger.logMessage(context, "BuildId: " + buildIdIn + " Failed");
+      TeamcityLogger.logMessage(context, "BuildId: " + buildIdIn + " Failed " + branch);
       TeamcityLogger.logMessage(context, "Error: " + e.getMessage());
     }
   }
