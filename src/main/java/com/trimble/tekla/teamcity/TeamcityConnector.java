@@ -28,9 +28,13 @@ public class TeamcityConnector  {
     public String GetQueueData(TeamcityConfiguration conf, Settings settings) throws IOException {
       String restpoint = "/app/rest/buildQueue";
       if(!this.connector.isReachable(conf, settings)) {
+        TeamcityLogger.logMessage(settings, "[HttpConnector][GetQueueData] Server Not reachable: " + conf.getUrl());
         return "";
       }
-      return this.connector.Get(conf, restpoint, settings);
+      
+      String returnData = this.connector.Get(conf, restpoint, settings);
+      TeamcityLogger.logMessage(settings, "[HttpConnector][GetQueueData] return data: " + returnData);      
+      return returnData;
     }  
     
     public String GetQueueDataForConfiguration(TeamcityConfiguration conf, String buildConfiguration, Settings settings) throws IOException {

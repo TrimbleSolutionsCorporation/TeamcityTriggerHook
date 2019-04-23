@@ -60,16 +60,15 @@ public class HttpConnector {
             e.printStackTrace();
         }         
     }
-    public boolean isReachable(TeamcityConfiguration conf, Settings settings) throws UnknownHostException, IOException {
-        boolean state = false;
-
-        try {         
-            state = InetAddress.getByName(conf.getUrl().replace("http://", "").replace("https://", "")).isReachable(500);
+    public boolean isReachable(TeamcityConfiguration conf, Settings settings) {
+        try {       
+            InetAddress address = InetAddress.getByName(conf.getUrl().replace("http://", "").replace("https://", ""));
+            address.isReachable(500);
+            return true;
         } catch (IOException e) {
-            TeamcityLogger.logMessage(settings, "[HttpConnector][isReachable] Failed to reach server, skip queue checker thread to avoid deadlocks");
+            TeamcityLogger.logMessage(settings, "[HttpConnector][isReachable] Failed to reach server, skip queue checker thread to avoid deadlocks: " + e.getMessage());
+            return false;
         }
-
-        return state;
     }
 
     public String Get(TeamcityConfiguration conf, String url, Settings settings) throws MalformedURLException, IOException {
@@ -77,7 +76,7 @@ public class HttpConnector {
       String urlstr = conf.getUrl() + url;
 
       URL urldata = new URL(urlstr);
-      TeamcityLogger.logMessage(settings, "[HttpConnector][Get] Hook Request with timeout 5 seconds for connect: "  + urlstr);
+      TeamcityLogger.logMessage(settings, "[HttpConnector][Get] Hook Request with timeout 5 seconds for connect: "  + urlstr + "-");
 
       String authStr = conf.getUserName() + ":" + conf.getPassWord();
       String authEncoded = Base64.encodeBase64String(authStr.getBytes());
