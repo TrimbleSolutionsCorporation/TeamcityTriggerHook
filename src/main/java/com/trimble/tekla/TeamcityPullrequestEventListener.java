@@ -136,7 +136,7 @@ public class TeamcityPullrequestEventListener {
                     password);
 
     final String branch = pr.getFromRef().getId();
-    final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+    final String repositoryTriggersJson = settings.get().getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
     if (repositoryTriggersJson.isEmpty()) {
       return;
     }
@@ -146,17 +146,17 @@ public class TeamcityPullrequestEventListener {
     final ArrayList<String> changes = ChangesetService.GetChangedFiles(pr, pullRequestService);
     final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
     for (final Trigger buildConfig : configurations) {
-      TeamcityLogger.logMessage(settings, "Try Trigger: " + buildConfig.getBranchConfig() + " " + branch + " : " + buildConfig.getTarget());
+      TeamcityLogger.logMessage(settings.get(), "Try Trigger: " + buildConfig.getBranchConfig() + " " + branch + " : " + buildConfig.getTarget());
       if (buildConfig.isTriggerOnPullRequest()) {
         if (UpdatedReviewers && buildConfig.isTriggerWhenNoReviewers()) {
-          TeamcityLogger.logMessage(settings, "Skip For Update Reviewers: " + buildConfig.getBranchConfig() + " " + branch);
+          TeamcityLogger.logMessage(settings.get(), "Skip For Update Reviewers: " + buildConfig.getBranchConfig() + " " + branch);
           // we dont want to build when reviewers were updated and we allow to trigger when no reviwers are defined
           continue;
         }
 
         if (!areParticipants && !buildConfig.isTriggerWhenNoReviewers()) {
           // we dont want to build if there are no participants
-          TeamcityLogger.logMessage(settings, "Skip: " + buildConfig.getBranchConfig() + " " + branch);
+          TeamcityLogger.logMessage(settings.get(), "Skip: " + buildConfig.getBranchConfig() + " " + branch);
           continue;
         }
 
@@ -168,14 +168,14 @@ public class TeamcityPullrequestEventListener {
           continue;
         }
 
-        TeamcityLogger.logMessage(settings, "Trigger BuildId: " + buildConfig.getTarget() + " " + branch);
+        TeamcityLogger.logMessage(settings.get(), "Trigger BuildId: " + buildConfig.getTarget() + " " + branch);
         try {
-          if (this.connector.IsInQueue(conf, buildConfig.getTarget(), buildConfig.getBranchConfig(), settings)) {
-            TeamcityLogger.logMessage(settings, "Skip already in queue: " + buildConfig.getTarget()+ " " + branch);
+          if (this.connector.IsInQueue(conf, buildConfig.getTarget(), buildConfig.getBranchConfig(), settings.get())) {
+            TeamcityLogger.logMessage(settings.get(), "Skip already in queue: " + buildConfig.getTarget()+ " " + branch);
             continue;
           }
         } catch (IOException | JSONException ex) {
-          TeamcityLogger.logMessage(settings, "Exception: " + ex.getMessage() + " " + branch);
+          TeamcityLogger.logMessage(settings.get(), "Exception: " + ex.getMessage() + " " + branch);
         }
 
         // check if build is running
@@ -183,7 +183,7 @@ public class TeamcityPullrequestEventListener {
                 conf,
                 buildConfig.getBranchConfig(),
                 buildConfig.getTarget(),
-                settings);
+                settings.get());
 
         final JSONObject obj = new JSONObject(buildData);
         final String count = obj.getString("count");
@@ -195,7 +195,7 @@ public class TeamcityPullrequestEventListener {
                   buildConfig.getTarget(),
                   "Trigger from Bitbucket: Pull Request: " + pr.getId(),
                   false,
-                  settings);
+                  settings.get());
           triggeredBuilds.add(buildConfig.getTarget());
         } else {
           final JSONArray builds = obj.getJSONArray("build");
@@ -203,7 +203,7 @@ public class TeamcityPullrequestEventListener {
             final Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
             if (isRunning) {
               final String id = builds.getJSONObject(i).getString("id");
-              this.connector.ReQueueBuild(conf, id, settings, false);
+              this.connector.ReQueueBuild(conf, id, settings.get(), false);
             }
           }
 
@@ -214,7 +214,7 @@ public class TeamcityPullrequestEventListener {
                   buildConfig.getTarget(),
                   "Trigger from Bitbucket: Pull Request: " + pr.getId(),
                   false,
-                  settings);
+                  settings.get());
         }
       }
     }

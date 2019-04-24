@@ -21,6 +21,7 @@ import com.trimble.tekla.teamcity.TeamcityConnector;
 import com.trimble.tekla.teamcity.TeamcityLogger;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Timer;
 import java.util.TimerTask;
 import javax.annotation.Nonnull;
@@ -58,17 +59,14 @@ public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
     PullRequest pr = t.getPullRequest();
     Repository repository = pr.getToRef().getRepository(); 
 
-    Settings settings = null;
-    try {
-      settings = this.settingsService.getSettings(repository).get();
-      if (settings == null) {
-        return RepositoryHookResult.accepted();
-      }
-    } catch (Exception e) {
+    Optional<Settings> settings = this.settingsService.getSettings(repository);
+    
+    if(!settings.isPresent()) {
+      return RepositoryHookResult.accepted();
     }
- 
-    TeamcityLogger.logMessage(settings, "[AreBuildsInQueueCheck] Queue Checker Started");
-    final String teamcityAddress = settings.getString("teamCityUrl");
+
+    TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] Queue Checker Started");
+    final String teamcityAddress = settings.get().getString("teamCityUrl");
     if(teamcityAddress == null || "".equals(teamcityAddress)) {
       return RepositoryHookResult.accepted();
     }
@@ -76,33 +74,33 @@ public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
     final String password = this.connectionSettings.getPassword(repository);
     final TeamcityConfiguration conf
             = new TeamcityConfiguration(
-                    settings.getString("teamCityUrl"),
-                    settings.getString("teamCityUserName"),
+                    settings.get().getString("teamCityUrl"),
+                    settings.get().getString("teamCityUserName"),
                     password);
 
     if(!queuedTasksOnePerTeamcityServer.containsKey(teamcityAddress)) {
-      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueCheck] Startup Queue Checker Thread");
+      TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] Startup Queue Checker Thread");
 
       
-      TimerTask timerTask = new QueueMonitorTask(this.connector, conf, settings);
+      TimerTask timerTask = new QueueMonitorTask(this.connector, conf, settings.get());
       timer.schedule(timerTask, 0, 20000);    
       queuedTasksOnePerTeamcityServer.put(teamcityAddress, timerTask);
       start = System.currentTimeMillis();
     } else {
-      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueCheck] Queue Checker Thread Started Already");
+      TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] Queue Checker Thread Started Already");
     }
     
     QueueMonitorTask schedullerTask = (QueueMonitorTask)queuedTasksOnePerTeamcityServer.get(teamcityAddress);
            
     if(!schedullerTask.IsReady()) {
-      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueCheck] Scheduller not ready");
+      TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] Scheduller not ready");
       long current = System.currentTimeMillis();
       long elapsed = current - start;
-      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueCheck] Elapsed Time since Start Checker " + elapsed);
+      TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] Elapsed Time since Start Checker " + elapsed);
       if (current - start > 50000) {
         queuedTasksOnePerTeamcityServer.remove(teamcityAddress);
-        TeamcityLogger.logMessage(settings, "[AreBuildsInQueueCheck] will try to restart queue checker");
-        TimerTask timerTask = new QueueMonitorTask(this.connector, conf, settings);
+        TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] will try to restart queue checker");
+        TimerTask timerTask = new QueueMonitorTask(this.connector, conf, settings.get());
         timer.schedule(timerTask, 0, 20000);
         queuedTasksOnePerTeamcityServer.put(teamcityAddress, timerTask);
         start = System.currentTimeMillis();        
@@ -115,15 +113,15 @@ public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
 
     final String branch = pr.getFromRef().getDisplayId();
     if(schedullerTask.AreBuildsInQueueForBranch(branch)) {
-      TeamcityLogger.logMessage(settings, "Builds in queue for " + branch);
-      String teamcityAddressQueue = settings.getString("teamCityUrl") + "/queue.html";
+      TeamcityLogger.logMessage(settings.get(), "Builds in queue for " + branch);
+      String teamcityAddressQueue = settings.get().getString("teamCityUrl") + "/queue.html";
       String summaryMsg = i18nService.getText("mergecheck.builds.inqueue.summary", "Builds in queue");
       String detailedMsg = i18nService.getText("mergecheck.builds.inqueue.detailed", "Builds are still in queue, visit: ") + teamcityAddressQueue;
      
-      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueCheck] builds in queue for " + branch + " reject");
+      TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] builds in queue for " + branch + " reject");
       return RepositoryHookResult.rejected(summaryMsg, detailedMsg);    
     } else {
-      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueCheck] No builds in queue for " + branch);
+      TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] No builds in queue for " + branch);
     }
     
     return RepositoryHookResult.accepted();
