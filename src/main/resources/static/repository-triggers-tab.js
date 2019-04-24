@@ -2,12 +2,11 @@
  * Script to manage configurations within triggers tab.
  */
 require([
-    'aui',
     'jquery',
     'bitbucket/util/events',
     'com/trimble/tekla/teamcity/shared-storage',
     'jed/uuid'
-], function(AJS, $, events, storage, uuid) {
+], function($, events, storage, uuid) {
 
     var triggersTableConrtoller = {
         _$triggersTable : undefined,
@@ -22,7 +21,7 @@ require([
         _$hideOnPullRequest : undefined,
         _$triggerWhenNoReviewers : undefined,
         _$cancelRunningBuilds : undefined,
-        _$downStreamTriggerDescription : undefined,        
+        _$downStreamTriggerDescription : undefined,
         _$downStreamTriggerType : undefined,
         _$downStreamTriggerTarget : undefined,
         _triggers : undefined,

@@ -165,7 +165,7 @@ public class TeamctiyRest extends RestResource {
           @QueryParam("branch") final String branch,
           @QueryParam("prid") final String prid) throws IOException {
 
-    final Settings settings = this.settingsService.getSettings(repository);
+    final Settings settings = this.settingsService.getSettings(repository).get();
 
     if (settings == null) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
@@ -225,7 +225,7 @@ public class TeamctiyRest extends RestResource {
           @QueryParam("branch") final String branch,
           @QueryParam("hash") final String hash) throws IOException {
 
-    final Settings settings = this.settingsService.getSettings(repository);
+    final Settings settings = this.settingsService.getSettings(repository).get();
 
     if (settings == null) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
@@ -294,7 +294,7 @@ public class TeamctiyRest extends RestResource {
           @QueryParam("branch") final String branch,
           @QueryParam("hash") final String hash) {
 
-    final Settings settings = this.settingsService.getSettings(repository);
+    final Settings settings = this.settingsService.getSettings(repository).get();
 
     if (settings == null) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
@@ -408,7 +408,7 @@ public class TeamctiyRest extends RestResource {
     final HttpConnector dummyConnector = new HttpConnector();
     String returnData;
     try {
-      returnData = dummyConnector.Get(url, this.settingsService.getSettings(repository));
+      returnData = dummyConnector.Get(url, this.settingsService.getSettings(repository).get());
       return "{\"status\": \"ok\", \"message\": \" " + returnData + "\" }";
     } catch (final IOException ex) {
       return "{\"status\": \"failed\", \"message\": \" " + ex.getMessage() + "\" }";
@@ -467,7 +467,7 @@ public class TeamctiyRest extends RestResource {
   @Path(value = "build")
   public String getbuild(@Context final Repository repository, @QueryParam("id") final String id) {
 
-    final Settings settings = this.settingsService.getSettings(repository);
+    final Settings settings = this.settingsService.getSettings(repository).get();
 
     if (settings == null) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
@@ -487,7 +487,7 @@ public class TeamctiyRest extends RestResource {
 
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     try {
-      return this.connector.GetBuild(conf, id, this.settingsService.getSettings(repository));
+      return this.connector.GetBuild(conf, id, this.settingsService.getSettings(repository).get());
     } catch (final IOException ex) {
       return "{\"status\": \"error\", \"message\": \"" + ex.getMessage() + "\"}";
     }

@@ -1,5 +1,6 @@
 package com.trimble.tekla;
 
+import com.atlassian.bitbucket.hook.repository.GetRepositoryHookSettingsRequest;
 import javax.inject.Inject;
 import javax.inject.Named;
 
@@ -8,11 +9,15 @@ import org.slf4j.LoggerFactory;
 
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.hook.repository.RepositoryHookService;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookSettings;
 import com.atlassian.bitbucket.permission.Permission;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.scope.RepositoryScope;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.SecurityService;
 import com.atlassian.bitbucket.util.Operation;
+import java.util.Optional;
+import static java.util.Optional.empty;
 
 /**
  * Utility class used to retrieve the Settings for a given repository that uses
@@ -52,7 +57,7 @@ public class SettingsService {
               .call(new Operation<RepositoryHook, RuntimeException>() {
                 @Override
                 public RepositoryHook perform() throws RuntimeException {
-                    return SettingsService.this.hookService.getByKey(repository, SettingsService.KEY);
+                    return SettingsService.this.hookService.getByKey(new RepositoryScope(repository), SettingsService.KEY);
                 }
             });
     } catch (final Exception e) {
@@ -61,23 +66,38 @@ public class SettingsService {
     }
   }
 
-  /**
-   * Get the webhook settings for the provided repository.
-   * @param repository The Repository
-   * @return The webhook settings for the repository. Null if no settings set.
-   */
-  public Settings getSettings(final Repository repository) {
+  public Optional<Settings> getSettings(final Repository repository) {
     try {
-      return this.securityService.withPermission(Permission.REPO_ADMIN, "Retrieving settings")
-              .call(new Operation<Settings, RuntimeException>() {
-                @Override
-                public Settings perform() throws RuntimeException {
-                    return SettingsService.this.hookService.getSettings(repository, SettingsService.KEY);
-                }
-            });
+      final RepositoryHookSettings settings =
+          this.securityService
+              .withPermission(Permission.REPO_ADMIN, "Retrieving settings")
+              .call(
+                  new Operation<RepositoryHookSettings, Exception>() {
+                    @Override
+                    public RepositoryHookSettings perform() throws Exception {
+
+                      final RepositoryHook hook =
+                          SettingsService.this.hookService.getByKey(
+                              new RepositoryScope(repository), SettingsService.KEY);
+                      if (!hook.isEnabled() || !hook.isEnabled()) {
+                        return null;
+                      }
+                      final GetRepositoryHookSettingsRequest req =
+                          new GetRepositoryHookSettingsRequest.Builder(
+                                  new RepositoryScope(repository), SettingsService.KEY)
+                              .build();
+                      return SettingsService.this.hookService.getSettings(req);
+                    }
+                  });
+      if (settings == null) {
+        return empty();
+      }
+
+      LOGGER.info("Using settings:\n" + settings);
+      return Optional.of(settings.getSettings());
     } catch (final Exception e) {
-      LOGGER.error("Unexpected exception trying to get webhook settings", e);
-      return null;
+      LOGGER.error("Unexpected exception trying to get repository settings", e);
+      return empty();
     }
-  }
+  } 
 }

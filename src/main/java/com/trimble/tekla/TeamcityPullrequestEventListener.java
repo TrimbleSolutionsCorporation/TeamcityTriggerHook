@@ -59,7 +59,7 @@ public class TeamcityPullrequestEventListener {
   public void onPullRequestOpenedEvent(final PullRequestOpenedEvent event) throws IOException, JSONException {
     final PullRequest pr = event.getPullRequest();
     final Repository repo = pr.getFromRef().getRepository();
-    final Settings settings = this.settingsService.getSettings(repo);
+    final Settings settings = this.settingsService.getSettings(repo).get();
     
     try {
       TriggerBuildFromPullRequest(pr, false);
@@ -73,7 +73,7 @@ public class TeamcityPullrequestEventListener {
     final PullRequest pr = event.getPullRequest();
     final Set<PullRequestParticipant> reviewers = pr.getReviewers();
     final Repository repo = pr.getFromRef().getRepository();
-    final Settings settings = this.settingsService.getSettings(repo);
+    final Settings settings = this.settingsService.getSettings(repo).get();
     if (event.getAddedParticipants().size() > 0 && reviewers.size() > 0) {
       // trigger only when number of participations is 2 or higher (author + reviewer)
       try {
@@ -95,7 +95,7 @@ public class TeamcityPullrequestEventListener {
 
     final PullRequest pr = event.getPullRequest();
     final Repository repo = pr.getFromRef().getRepository();
-    final Settings settings = this.settingsService.getSettings(repo);
+    final Settings settings = this.settingsService.getSettings(repo).get();
 
 
     try {
@@ -108,7 +108,7 @@ public class TeamcityPullrequestEventListener {
 
   private void TriggerBuildFromPullRequest(final PullRequest pr, Boolean UpdatedReviewers) throws IOException, JSONException {
     final Repository repo = pr.getFromRef().getRepository();
-    final Settings settings = this.settingsService.getSettings(repo);
+    final Settings settings = this.settingsService.getSettings(repo).get();
     final String password = this.connectionSettings.getPassword(pr.getFromRef().getRepository());
     // has one reviewer
     final Boolean areParticipants = !pr.getReviewers().isEmpty();

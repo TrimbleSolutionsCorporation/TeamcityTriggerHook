@@ -3,8 +3,6 @@
         <vendor name="${project.organization.name}" url="${project.organization.url}" />
         <description>${project.description}</description>
         <version>${project.version}</version>
-        <param name="atlassian-data-center-status">compatible</param>
-        <param name="atlassian-data-center-compatible">true</param> 
         <param name="plugin-icon">images/01_logo.png</param>
         <param name="plugin-logo">images/01_logo.png</param>
     </plugin-info>
@@ -21,9 +19,13 @@
         <package>com.trimble.tekla.rest</package>
     </rest>
 
-    <repository-merge-check key="are-builds-in-queue" name="No queued builds in Teamcity" class="bean:areBuildsInQueueCheck" configurable="true">
+    <repository-merge-check key="are-builds-in-queue" name="No queued builds in Teamcity"
+                            class="com.trimble.tekla.AreBuildsInQueueCheck" configurable="true">
         <description>Prevent merge if builds are queued</description>
         <icon>icons/tc-hook.png</icon>
+        <scopes>
+            <scope>repository</scope>
+        </scopes>
     </repository-merge-check>
     
     <repository-hook key="teamcity-trigger-hook" i18n-name-key="bitbucket-webhook-teamcity.name" name="TeamCity Trigger" class="com.trimble.tekla.TeamcityTriggerHook">
@@ -53,16 +55,15 @@
         <dependency>com.atlassian.auiplugin:aui-experimental-spinner</dependency>
     </client-resource>
 
-    <web-item key="stash.teamcity.trigger" name="Trigger Build" weight="50" section="bitbucket.pull-request.toolbar.actions">
+    <client-web-item key="stash.teamcity.trigger" name="Trigger Build" weight="50" section="bitbucket.pullrequest.action">
         <conditions type="AND">
-            <condition class="com.atlassian.bitbucket.web.conditions.CanMergePullRequestCondition" />
             <condition class="com.trimble.tekla.WebhookIsEnabledCondition" />
         </conditions>
         <label key="stash.web.pull-request.toolbar.triggerTeamcity">build &amp; test</label>
         <styleClass>triggerTeamcityBuild</styleClass>
         <dependency>com.atlassian.sal.api.message.I18nResolver</dependency>
         <dependency>${project.groupId}-${project.artifactId}:teamcity-pr-triggerbutton</dependency>
-    </web-item>
+    </client-web-item>
 
     <web-resource key="teamcity-pr-triggerbutton">
         <resource type="download" name="teamcity-pr-triggerbutton.js" location="/helpers/teamcity-pr-triggerbutton.js" />

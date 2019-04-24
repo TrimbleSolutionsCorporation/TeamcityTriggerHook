@@ -10,32 +10,33 @@ import org.apache.commons.lang3.StringUtils;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestRef;
+import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.repository.RepositoryService;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
 import com.trimble.tekla.pojo.Trigger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
 
-
-/**
- * A Condition that passes when the webhook is enabled for the provided
- * repository.
- * From : https://github.com/Nerdwin15/stash-jenkins-postreceive-webhook
- * @author Michael Irwin (mikesir87)
- */
 public class WebhookIsEnabledCondition implements Condition {
-
-  private static final String REPOSITORY = "repository";
-
+  private static final Pattern REPOREGEX = Pattern.compile(".*?/projects/(.*?)/repos/(.*?)/pull-requests/(.*?)/.*");
   private final SettingsService settingsService;
+  private final RepositoryService repositoryService;
+  private final PullRequestService pullRequestService;
 
   /**
    * Create a new instance of the condition
+   *
    * @param settingsService The settings service
    */
   @Inject
-  public WebhookIsEnabledCondition(final SettingsService settingsService) {
+  public WebhookIsEnabledCondition(final SettingsService settingsService, final RepositoryService repositoryService, final PullRequestService pullRequestService) {
     this.settingsService = settingsService;
+    this.repositoryService = repositoryService;
+    this.pullRequestService = pullRequestService;
   }
 
   /**
@@ -51,28 +52,24 @@ public class WebhookIsEnabledCondition implements Condition {
    */
   @Override
   public boolean shouldDisplay(final Map<String, Object> context) {
-    final Object obj = context.get(REPOSITORY);
-    final Object pr = context.get("pullRequest");
 
-    if (obj == null || !(obj instanceof Repository)) {
-        return false;
+    final Repository repository = getRepository(context);
+    if (repository == null) {
+      return false;
     }
-
-    if (pr == null || !(pr instanceof PullRequest)) {
-        return false;
-    }
-
-    final Repository repo = (Repository) obj;
-    final PullRequest pullrequest = (PullRequest) pr;
-    final RepositoryHook hook = this.settingsService.getRepositoryHook(repo);
-    final Settings settings = this.settingsService.getSettings(repo);
+    final RepositoryHook hook = this.settingsService.getRepositoryHook(repository);
+    final Settings settings = this.settingsService.getSettings(repository).get();
 
     if (settings == null || hook == null || !hook.isEnabled()) {
       return false;
     }
+    final PullRequest pullrequest = getPullRequest(context, repository);
+    if (pullrequest == null) {
+      return false;
+    }
 
     final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
-    if(repositoryTriggersJson.isEmpty()) {
+    if (repositoryTriggersJson.isEmpty()) {
       return false;
     }
 
@@ -90,4 +87,39 @@ public class WebhookIsEnabledCondition implements Condition {
 
     return false;
   }
+  
+  private PullRequest getPullRequest(Map<String, Object> context, Repository repo) {
+
+    Object request = context.get("request");
+    if (!(request instanceof HttpServletRequest)) {
+      return null;
+    }
+
+    String path = ((HttpServletRequest) request).getRequestURI();
+    Matcher matcher = REPOREGEX.matcher(path);
+    if (matcher.matches()) {
+      long prId = Long.parseLong(matcher.group(3));
+      return pullRequestService.getById(repo.getId(), prId);
+    }
+    return null;
+  }
+
+  private Repository getRepository(Map<String, Object> context) {
+    final Object obj = context.get("repository");
+    if (!(obj instanceof Repository)) {
+      Object request = context.get("request");
+      if (!(request instanceof HttpServletRequest)) {
+        return null;
+      }
+      String path = ((HttpServletRequest) request).getRequestURI();
+      Matcher matcher = REPOREGEX.matcher(path);
+      if (matcher.matches()) {
+        String projectKey = matcher.group(1);
+        String repoSlug = matcher.group(2);
+        return repositoryService.getBySlug(projectKey, repoSlug);
+      }
+      return null;
+    }
+    return (Repository) obj;
+  }  
 }
