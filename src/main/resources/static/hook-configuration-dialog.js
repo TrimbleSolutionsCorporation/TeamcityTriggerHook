@@ -2,9 +2,8 @@
  * Script to manage events within configuration hook dialog
  */
 require([
-    'aui',
     'bitbucket/util/events'
-], function (AJS, events) {
+], function (events) {
 
     /**
      * Trigger on dialog reload event "com.trimble.tekla.teamcity.hook.init"

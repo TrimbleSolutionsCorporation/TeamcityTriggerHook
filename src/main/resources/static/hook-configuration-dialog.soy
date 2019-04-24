@@ -18,224 +18,29 @@
  * @param errors
  */
 {template .formContents}
-    {call aui.group.group}
-        {param content}
-            {call aui.form.textField}
-                {param id: 'bitbucketUrl' /}
-                {param fieldWidth: 'long' /}
-                {param value: $config['bitbucketUrl'] /}
-                {param labelContent: getText('connetion.bitbucket.url') /}
-                {param errorTexts: $errors['bitbucketUrl'] /}
-                {param isRequired: true /}
-            {/call}
-        {/param}
-    {/call}
-    {call aui.group.group}
-        {param content}
-            {call aui.form.textField}
-                {param id: 'teamCityUrl' /}
-                {param fieldWidth: 'long' /}
-                {param value: $config['teamCityUrl'] /}
-                {param labelContent: getText('connetion.teamcity.url') /}
-                {param errorTexts: $errors['teamCityUrl'] /}
-                {param isRequired: true /}
-            {/call}
-            {call aui.form.textField}
-                {param id: 'teamCityUserName' /}
-                {param fieldWidth: 'medium' /}
-                {param value: $config['teamCityUserName'] /}
-                {param labelContent: getText('connetion.teamcity.username') /}
-                {param errorTexts: $errors['teamCityUserName'] /}
-                {param isRequired: true /}
-            {/call}
-            {call aui.form.passwordField}
-                {param id: 'teamCityPassword' /}
-                {param fieldWidth: 'medium' /}
-                {param value: $config['teamCityPassword'] /}
-                {param labelContent: getText('connetion.teamcity.password') /}
-                {param errorTexts: $errors['teamCityPassword'] /}
-                {param isRequired: true /}
-            {/call}
-            {call aui.form.field}
-                {param id: 'testTeamCityConnection' /}
-                {param type: 'button' /}
-                {param value: getText('connetion.test.button') /}
-                {param descriptionText: getText('connetion.test.button.info') /}
-            {/call}
-            {call .toggle}
-                {param id: 'isDebugEnabled' /}
-                {param value: $config['isDebugEnabled'] /}
-                {param labelText: getText('connetion.debug') /}
-            {/call}
-        {/param}
-    {/call}
-    
-    {call aui.message.info}
-        {param content}
-            <p>{getText('triggers.info')}</p>
-            <p><a href="https://github.com/TrimbleSolutionsCorporation/TeamcityTriggerHook" target="_blank">{getText('triggers.info.more')}</a></p>
-        {/param}
-    {/call}
-
-
-    {literal}
-        <input id="repositoryTriggersJson" name="repositoryTriggersJson" type="hidden" />
-    {/literal}
-    {call aui.form.textField}
-        {param id: 'referenceRegex' /}
-        {param fieldWidth: 'long' /}
-        {param labelContent: getText('triggers.regex') /}
-        {param infoMessage: getText('triggers.regex.info') /}
-    {/call}
-    {call aui.form.textField}
-        {param id: 'triggerTarget' /}
-        {param fieldWidth: 'long' /}
-        {param labelContent: getText('triggers.target') /}
-        {param infoMessage: getText('triggers.target.info') /}
-    {/call}
-    {call aui.form.selectField}
-        {param id: 'triggerType' /}
-        {param fieldWidth: 'short' /}
-        {param labelContent: getText('triggers.type') /}
-        {param options: [
-            ['text' : 'build', 'value' : 'build'],
-            ['text' : 'vcs', 'value' : 'vcs']
+    {call aui.tabs}
+        {param id: 'tc-hook-config' /}
+        {param isDisabled: false /}
+        {param menuItems: [
+            ['text': getText('tab.name.connection'), 'url': '#connection', 'isActive': true],
+            ['text' : getText('tab.name.repository'), 'url' : '#repository']
         ]/}
-    {/call}
-    <div class="field-group">
-        {call aui.form.label}
-            {param forField : 'expand-advanced-trigger' /}
-            {param content : getText('triggers.advanced') /}
-        {/call}
-        {call aui.expander.trigger}
-            {param id: 'expand-advanced-trigger' /}
-            {param contentId: 'advanced-settings-content' /}
-            {param tag: 'button' /}
-            {param content: getText('triggers.advanced.expand') /}
-            {param replaceText: getText('triggers.advanced.collapse') /}
-            {param extraAttributes: ['type' : 'button'] /}
-            {param extraClasses: 'tc-max-width aui-badge aui-button aui-button-light' /}
-        {/call}
-    </div>
-    {call aui.expander.content}
-        {param id: 'advanced-settings-content' /}
-        {param content}
-            {call .toggle}
-                {param id: 'cancelRunningBuilds' /}
-                {param labelText: getText('triggers.cancel.builds') /}
+        {param paneContent}
+            {call aui.tabPane}
+                {param id: 'connection' /}
+                {param isActive: true /}
+                {param content}
+                    {call .connectionTab data="all" /}
+                {/param}
             {/call}
-            {call .toggle}
-                {param id: 'triggerOnPullRequest' /}
-                {param labelText: getText('triggers.pull.request') /}
-            {/call}
-            {call .toggle}
-                {param id: 'hideOnPullRequest' /}
-                {param labelText: getText('triggers.pull.hideonprdialog') /}
-            {/call}
-            {call .toggle}
-                {param id: 'triggerOnEmptyBranches' /}
-                {param labelText: getText('triggers.empty.branches') /}
-                {param value: true /}
-            {/call}
-            {call .toggle}
-                {param id: 'triggerWhenNoReviewers' /}
-                {param labelText: getText('triggers.no.reviewers') /}
-                {param value: true /}
-            {/call}
-            {call aui.form.textField}
-                {param id: 'triggerInclusion' /}
-                {param fieldWidth: 'medium-long' /}
-                {param labelContent: getText('triggers.inclusion') /}
-                {param infoMessage: getText('triggers.configuration.inclusion') /}
-            {/call}
-            {call aui.form.textField}
-                {param id: 'triggerExclusion' /}
-                {param fieldWidth: 'medium-long' /}
-                {param labelContent: getText('triggers.exclusion') /}
-                {param infoMessage: getText('triggers.configuration.exclusion') /}
-            {/call}
-            {call aui.form.textField}
-                {param id: 'downStreamTriggerDescription' /}
-                {param fieldWidth: 'medium-long' /}
-                {param labelContent: getText('triggers.description') /}
-                {param infoMessage: getText('triggers.configuration.description') /}
-            {/call}
-            {call aui.form.textField}
-                {param id: 'downStreamTriggerTarget' /}
-                {param fieldWidth: 'medium-long' /}
-                {param labelContent: getText('triggers.target') /}
-                {param infoMessage: getText('triggers.configuration.info') /}
-            {/call}
-            {call aui.form.selectField}
-                {param id: 'downStreamTriggerType' /}
-                {param fieldWidth: 'medium' /}
-                {param labelContent: getText('triggers.type') /}
-                {param options: [
-                    ['text' : 'build', 'value' : 'build'],
-                    ['text' : 'rest', 'value' : 'rest'],
-                    ['text' : 'new tab', 'value' : 'tab']
-                ]/}
+            {call aui.tabPane}
+                {param id: 'repository' /}
+                {param content}
+                    {call .repositoryTriggersTab data="all" /}
+                {/param}
             {/call}
         {/param}
     {/call}
-
-    {call aui.form.buttons}
-        {param content}
-            {call aui.form.button}
-                {param id: 'addTriggerButton' /}
-                {param text: ' ' + getText('triggers.button.add') /}
-                {param iconType: 'aui' /}
-                {param iconClass: 'aui-icon-small aui-iconfont-list-add' /}
-                {param iconText: 'add' /}
-            {/call}
-            {call aui.form.button}
-                {param id: 'exportConfigButton' /}
-                {param text: ' ' + getText('triggers.button.export') /}
-                {param iconType: 'aui' /}
-                {param iconClass: 'aui-icon-small aui-iconfont-devtools-clone' /}
-                {param iconText: 'add' /}
-            {/call}
-            {call aui.form.button}
-                {param id: 'importConfigButton' /}
-                {param text: ' ' + getText('triggers.button.import') /}
-                {param iconType: 'aui' /}
-                {param iconClass: 'aui-icon-small aui-iconfont-devtools-folder-open' /}
-                {param iconText: 'add' /}
-            {/call}
-
-
-        {/param}
-    {/call}
-
-    {call aui.table}
-        {param id: 'repository-triggers-table' /}
-        {param extraClasses: 'aui-table-interactive' /}
-        {param columnsContent}
-            <colgroup>
-                <col></col>
-                <col></col>
-                <col></col>
-                <col></col>
-                <col></col>
-                <col></col>
-            </colgroup>
-        {/param}
-        {param theadContent}
-            <tr>
-                <th colspan="2">{getText('triggers.column.regex')}</th>
-                <th>{getText('triggers.target')}</th>
-                <th>{getText('triggers.type')}</th>
-                <th>Advanced</th>
-                <th></th>
-            </tr>
-            <tr>
-        {/param}
-        {param content: '' /}
-        {param tfootContent}
-        {/param}
-    {/call}
-
-        
     {literal}
         <script type="text/javascript">
             require([
