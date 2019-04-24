@@ -46,6 +46,7 @@ import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import java.util.Arrays;
+import java.util.Optional;
 
 /**
  * REST configuration
@@ -165,21 +166,21 @@ public class TeamctiyRest extends RestResource {
           @QueryParam("branch") final String branch,
           @QueryParam("prid") final String prid) throws IOException {
 
-    final Settings settings = this.settingsService.getSettings(repository).get();
+    final Optional<Settings> settings = this.settingsService.getSettings(repository);
 
     if (settings == null) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
-    final String url = settings.getString("teamCityUrl", "");
-    final String username = settings.getString("teamCityUserName", "");
+    final String url = settings.get().getString("teamCityUrl", "");
+    final String username = settings.get().getString("teamCityUserName", "");
     final String password = this.connectionSettings.getPassword(repository);
 
     if (url.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
     }
 
-    final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+    final String repositoryTriggersJson = settings.get().getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
     if (repositoryTriggersJson.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"hook not configured properly\"}";
     }
@@ -203,7 +204,7 @@ public class TeamctiyRest extends RestResource {
                 .append(" ")
                 .append(buildConfig.getBranchConfig());
         builder.append(" ")
-                .append(this.connector.QueueBuild(conf, buildConfig.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket: Pull Request: " + prid, false, settings)); // handle error todo
+                .append(this.connector.QueueBuild(conf, buildConfig.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket: Pull Request: " + prid, false, settings.get())); // handle error todo
       } else {
         builder.append(" trigger skipped ")
                 .append(buildconfig)
@@ -225,18 +226,13 @@ public class TeamctiyRest extends RestResource {
           @QueryParam("branch") final String branch,
           @QueryParam("hash") final String hash) throws IOException {
 
-    final Settings settings = this.settingsService.getSettings(repository).get();
-
-    if (settings == null) {
+    final Optional<Settings> settings = this.settingsService.getSettings(repository);
+    if(!settings.isPresent()) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
-    if (settings == null) {
-      return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
-    }
-
-    final String url = settings.getString("teamCityUrl", "");
-    final String username = settings.getString("teamCityUserName", "");
+    final String url = settings.get().getString("teamCityUrl", "");
+    final String username = settings.get().getString("teamCityUserName", "");
     final String password = this.connectionSettings.getPassword(repository);
 
     if (password.isEmpty()) {
@@ -247,7 +243,7 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
     }
 
-    final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+    final String repositoryTriggersJson = settings.get().getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
     if (repositoryTriggersJson.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"hook not configured properly\"}";
     }
@@ -268,8 +264,8 @@ public class TeamctiyRest extends RestResource {
           continue;
         }
         try {
-          final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings);
-          final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTarget(), settings);
+          final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings.get());
+          final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTarget(), settings.get());
           jObj.put(buildConfig.getTarget(), returnData);
           jObj.put(buildConfig.getTarget() + "_queue", queueData);
           jObj.put(buildConfig.getTarget() + "_wref", url + "/viewType.html?buildTypeId=" + buildConfig);
@@ -294,18 +290,15 @@ public class TeamctiyRest extends RestResource {
           @QueryParam("branch") final String branch,
           @QueryParam("hash") final String hash) {
 
-    final Settings settings = this.settingsService.getSettings(repository).get();
+    
+    final Optional<Settings> settings = this.settingsService.getSettings(repository);
 
-    if (settings == null) {
+    if (!settings.isPresent()) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
-    if (settings == null) {
-      return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
-    }
-
-    final String url = settings.getString("teamCityUrl", "");
-    final String username = settings.getString("teamCityUserName", "");
+    final String url = settings.get().getString("teamCityUrl", "");
+    final String username = settings.get().getString("teamCityUserName", "");
     final String password = this.connectionSettings.getPassword(repository);
 
     if (url.isEmpty()) {
@@ -318,7 +311,7 @@ public class TeamctiyRest extends RestResource {
 
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     try {
-      final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+      final String repositoryTriggersJson = settings.get().getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
       if (repositoryTriggersJson.isEmpty()) {
         return "{\"status\": \"error\", \"message\": \"hook not configured properly\"}";
       }
@@ -331,16 +324,16 @@ public class TeamctiyRest extends RestResource {
         for (final Trigger buildConfig : configurations) {
           if ("build".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
             final String depBuildId = buildConfig.getTarget();
-            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
-            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);            
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get());
+            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get());            
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
             jObj.put(depBuildId + "_dep", returnData);
             jObj.put(depBuildId + "_dep_queue", queueData);
 
             final String [] downBuildIds = buildConfig.getDownStreamTriggerTarget().split(",");           
             for (String downBuildId : downBuildIds) {
-                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), downBuildId, settings);
-                final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings);
+                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), downBuildId, settings.get());
+                final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings.get());
                 jObj.put(downBuildId + "_build", returnDataBuildDep);
                 jObj.put(downBuildId + "_build_branch", buildConfig.getBranchConfig());                
                 jObj.put(downBuildId + "_build_wref", url + "/viewType.html?buildTypeId=" + downBuildId);
@@ -359,8 +352,8 @@ public class TeamctiyRest extends RestResource {
               "tab".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
             final String depBuildId = buildConfig.getTarget();
             
-            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings);
-            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings);
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get());
+            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get());
             jObj.put(depBuildId + "_dep", returnData);
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
             jObj.put(depBuildId + "_dep_queue", queueData);
@@ -408,7 +401,13 @@ public class TeamctiyRest extends RestResource {
     final HttpConnector dummyConnector = new HttpConnector();
     String returnData;
     try {
-      returnData = dummyConnector.Get(url, this.settingsService.getSettings(repository).get());
+      final Optional<Settings> settings = this.settingsService.getSettings(repository);
+
+      if (!settings.isPresent()) {
+        return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
+      }
+    
+      returnData = dummyConnector.Get(url, settings.get());
       return "{\"status\": \"ok\", \"message\": \" " + returnData + "\" }";
     } catch (final IOException ex) {
       return "{\"status\": \"failed\", \"message\": \" " + ex.getMessage() + "\" }";
@@ -467,14 +466,14 @@ public class TeamctiyRest extends RestResource {
   @Path(value = "build")
   public String getbuild(@Context final Repository repository, @QueryParam("id") final String id) {
 
-    final Settings settings = this.settingsService.getSettings(repository).get();
+    final Optional<Settings> settings = this.settingsService.getSettings(repository);
 
-    if (settings == null) {
+    if (!settings.isPresent()) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
-    final String url = settings.getString("teamCityUrl", "");
-    final String username = settings.getString("teamCityUserName", "");
+    final String url = settings.get().getString("teamCityUrl", "");
+    final String username = settings.get().getString("teamCityUserName", "");
     final String password = this.connectionSettings.getPassword(repository);
 
     if (url.isEmpty()) {
@@ -486,8 +485,8 @@ public class TeamctiyRest extends RestResource {
     }
 
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
-    try {
-      return this.connector.GetBuild(conf, id, this.settingsService.getSettings(repository).get());
+    try {     
+      return this.connector.GetBuild(conf, id, settings.get());
     } catch (final IOException ex) {
       return "{\"status\": \"error\", \"message\": \"" + ex.getMessage() + "\"}";
     }

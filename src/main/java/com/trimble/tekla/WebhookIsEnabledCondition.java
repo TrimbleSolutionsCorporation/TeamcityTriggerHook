@@ -17,6 +17,7 @@ import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.plugin.PluginParseException;
 import com.atlassian.plugin.web.Condition;
 import com.trimble.tekla.pojo.Trigger;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
@@ -57,32 +58,35 @@ public class WebhookIsEnabledCondition implements Condition {
     if (repository == null) {
       return false;
     }
-    final RepositoryHook hook = this.settingsService.getRepositoryHook(repository);
-    final Settings settings = this.settingsService.getSettings(repository).get();
+    try {    
+      final RepositoryHook hook = this.settingsService.getRepositoryHook(repository);
+      final Optional<Settings> settings = this.settingsService.getSettings(repository);
+      if(!settings.isPresent()) {
+        return false;
+      }      
 
-    if (settings == null || hook == null || !hook.isEnabled()) {
-      return false;
-    }
-    final PullRequest pullrequest = getPullRequest(context, repository);
-    if (pullrequest == null) {
-      return false;
-    }
+      if (hook == null || !hook.isEnabled()) {
+        return false;
+      }
+      final PullRequest pullrequest = getPullRequest(context, repository);
+      if (pullrequest == null) {
+        return false;
+      }
 
-    final String repositoryTriggersJson = settings.getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
-    if (repositoryTriggersJson.isEmpty()) {
-      return false;
-    }
+      final String repositoryTriggersJson = settings.get().getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+      if (repositoryTriggersJson.isEmpty()) {
+        return false;
+      }
 
-    // check if builds are configured
-    final PullRequestRef ref = pullrequest.getFromRef();
-    final String branch = ref.getId();
+      // check if builds are configured
+      final PullRequestRef ref = pullrequest.getFromRef();
+      final String branch = ref.getId();
 
-    try {
       final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
       if (configurations.length > 0) {
         return true;
       }
-    } catch (final IOException ex) {
+    } catch (final Exception ex) {
     }
 
     return false;

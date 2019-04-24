@@ -34,6 +34,7 @@ import com.trimble.tekla.teamcity.TeamcityConnector;
 import com.trimble.tekla.teamcity.TeamcityLogger;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 
 @Named
@@ -59,12 +60,16 @@ public class TeamcityPullrequestEventListener {
   public void onPullRequestOpenedEvent(final PullRequestOpenedEvent event) throws IOException, JSONException {
     final PullRequest pr = event.getPullRequest();
     final Repository repo = pr.getFromRef().getRepository();
-    final Settings settings = this.settingsService.getSettings(repo).get();
+    final Optional<Settings> settings = this.settingsService.getSettings(repo);
+    
+    if(!settings.isPresent()) {
+      return;
+    }
     
     try {
       TriggerBuildFromPullRequest(pr, false);
     } catch (final IOException | JSONException ex) {
-      TeamcityLogger.logMessage(settings, "PullRequest Opened Event Failed: " + ex.getMessage());
+      TeamcityLogger.logMessage(settings.get(), "PullRequest Opened Event Failed: " + ex.getMessage());
     }
   }
 
@@ -73,13 +78,18 @@ public class TeamcityPullrequestEventListener {
     final PullRequest pr = event.getPullRequest();
     final Set<PullRequestParticipant> reviewers = pr.getReviewers();
     final Repository repo = pr.getFromRef().getRepository();
-    final Settings settings = this.settingsService.getSettings(repo).get();
+    final Optional<Settings> settings = this.settingsService.getSettings(repo);
+    
+    if(!settings.isPresent()) {
+      return;
+    }
+    
     if (event.getAddedParticipants().size() > 0 && reviewers.size() > 0) {
       // trigger only when number of participations is 2 or higher (author + reviewer)
       try {
         TriggerBuildFromPullRequest(event.getPullRequest(), true);
       } catch (final IOException | JSONException ex) {
-        TeamcityLogger.logMessage(settings, "PullRequest Reviwer update event failed: " + ex.getMessage());
+        TeamcityLogger.logMessage(settings.get(), "PullRequest Reviwer update event failed: " + ex.getMessage());
       }
     }
   }
@@ -95,27 +105,34 @@ public class TeamcityPullrequestEventListener {
 
     final PullRequest pr = event.getPullRequest();
     final Repository repo = pr.getFromRef().getRepository();
-    final Settings settings = this.settingsService.getSettings(repo).get();
-
+    final Optional<Settings> settings = this.settingsService.getSettings(repo);
+    if(!settings.isPresent()) {
+      return;
+    }
 
     try {
-      TeamcityLogger.logMessage(settings, "Run PullRequest Rescoped Event : " + pr.getFromRef().getDisplayId());
+      TeamcityLogger.logMessage(settings.get(), "Run PullRequest Rescoped Event : " + pr.getFromRef().getDisplayId());
       TriggerBuildFromPullRequest(pr, false);
     } catch (final IOException | JSONException ex) {
-      TeamcityLogger.logMessage(settings, "PullRequest Rescoped Event Failed: " + ex.getMessage() + " " + pr.getFromRef().getDisplayId());
+      TeamcityLogger.logMessage(settings.get(), "PullRequest Rescoped Event Failed: " + ex.getMessage() + " " + pr.getFromRef().getDisplayId());
     }
   }
 
   private void TriggerBuildFromPullRequest(final PullRequest pr, Boolean UpdatedReviewers) throws IOException, JSONException {
     final Repository repo = pr.getFromRef().getRepository();
-    final Settings settings = this.settingsService.getSettings(repo).get();
+    final Optional<Settings> settings = this.settingsService.getSettings(repo);
+
+    if(!settings.isPresent()) {
+      return;
+    }
+    
     final String password = this.connectionSettings.getPassword(pr.getFromRef().getRepository());
     // has one reviewer
     final Boolean areParticipants = !pr.getReviewers().isEmpty();
     final TeamcityConfiguration conf
             = new TeamcityConfiguration(
-                    settings.getString("teamCityUrl"),
-                    settings.getString("teamCityUserName"),
+                    settings.get().getString("teamCityUrl"),
+                    settings.get().getString("teamCityUserName"),
                     password);
 
     final String branch = pr.getFromRef().getId();
