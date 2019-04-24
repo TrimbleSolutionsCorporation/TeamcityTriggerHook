@@ -55,16 +55,15 @@
         <dependency>com.atlassian.auiplugin:aui-experimental-spinner</dependency>
     </client-resource>
 
-    <web-item key="stash.teamcity.trigger" name="Trigger Build" weight="50" section="bitbucket.pullrequest.action">
+    <client-web-item key="stash.teamcity.trigger" name="Trigger Build" weight="50" section="bitbucket.pullrequest.action">
         <conditions type="AND">
-            <condition class="com.atlassian.bitbucket.web.conditions.CanMergePullRequestCondition" />
             <condition class="com.trimble.tekla.WebhookIsEnabledCondition" />
         </conditions>
         <label key="stash.web.pull-request.toolbar.triggerTeamcity">build &amp; test</label>
         <styleClass>triggerTeamcityBuild</styleClass>
         <dependency>com.atlassian.sal.api.message.I18nResolver</dependency>
         <dependency>${project.groupId}-${project.artifactId}:teamcity-pr-triggerbutton</dependency>
-    </web-item>
+    </client-web-item>
 
     <web-resource key="teamcity-pr-triggerbutton">
         <resource type="download" name="teamcity-pr-triggerbutton.js" location="/helpers/teamcity-pr-triggerbutton.js" />
