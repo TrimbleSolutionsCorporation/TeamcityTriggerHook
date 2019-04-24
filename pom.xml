@@ -161,8 +161,8 @@
     </build>
 
     <properties>
-        <bitbucket.data.version>6.0.1</bitbucket.data.version>
-        <bitbucket.version>6.0.1</bitbucket.version>
+        <bitbucket.data.version>6.2.0</bitbucket.data.version>
+        <bitbucket.version>6.2.0</bitbucket.version>
         <quick.reload.version>2.0.0</quick.reload.version>
         <amps.version>6.3.13</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>

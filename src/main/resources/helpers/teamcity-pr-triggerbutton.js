@@ -3,8 +3,10 @@ var pageStateLocal = {}
 var BuildWindowLaunched = false;
 
 function resourceUrl(resourceName) {
-    return AJSLOCAL.contextPath() + '/rest/teamcity/latest/projects/' + pageStateLocal.getProject().getKey() +
-        '/repos/' + pageStateLocal.getRepository().getSlug() + '/' + resourceName;
+    var project = pageStateLocal.getProject();
+    var repository = pageStateLocal.getRepository();
+    return AJSLOCAL.contextPath() + '/rest/teamcity/latest/projects/' + project.key +
+        '/repos/' + repository.name + '/' + resourceName;
 }
 
 function translateResource(id) {
@@ -13,12 +15,10 @@ function translateResource(id) {
 
 define('plugin/teamcity/pr-triggerbutton', [
   'jquery',
-  'aui',
-  'bitbucket/internal/model/page-state'
-  
-], function($, AJS, pageState) {
+  'bitbucket/util/state'
+], function($, state) {
 
-  pageStateLocal = pageState;
+  pageStateLocal = state;
   AJSLOCAL = AJS;
   
   // start frame
@@ -121,15 +121,15 @@ function TriggerBuildConfiguration(buildid, branch, callback) {
 function GetBuildsConfigurations(callback) {
   require(['jquery'], function($) {
     var pr = pageStateLocal.getPullRequest();
-    var fromRef = pr.getFromRef();
+    var fromRef = pr.fromRef;
     var restpoint = parent.resourceUrl('builds') +
             "?prid=" + pr.id +
             "&branch=" + fromRef.id +
-            "&hash=" + fromRef.getLatestCommit();
+            "&hash=" + fromRef.latestCommit;
     
       $.get(restpoint)
       .success(function(data) {        
-        callback(data, fromRef.getDisplayId());
+        callback(data, fromRef.displayId);
       })
       .error(function(data) {
         console.log("Error : " + data);
@@ -143,16 +143,16 @@ function GetBuildsConfigurations(callback) {
 function GetExternalBuildsConfigurations(id, callback) {
   require(['jquery'], function($) {
     var pr = pageStateLocal.getPullRequest();
-    var fromRef = pr.getFromRef();
+    var fromRef = pr.fromRef;
     var restpoint = parent.resourceUrl('externalbuilds') +
             "?id="   + id +
             "&prid=" + pr.id +
             "&branch=" + fromRef.id +
-            "&hash=" + fromRef.getLatestCommit();
+            "&hash=" + fromRef.latestCommit;
     
       $.get(restpoint)
       .success(function(data) {
-        callback(data, fromRef.getDisplayId(), pr.id);
+        callback(data, fromRef.displayId, pr.id);
       })
       .error(function(data) {
         console.log("Error : " + data);
