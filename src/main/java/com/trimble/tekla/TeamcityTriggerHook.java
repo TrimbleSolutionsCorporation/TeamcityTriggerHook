@@ -55,11 +55,11 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
     this.connectionSettings = connectionSettings;
     this.connector = new TeamcityConnector(new HttpConnector());
   }
-    
+
   /**
    * Connects to a configured URL to notify of all changes.
-     * @param context
-     * @param hookRequest
+   * @param context
+   * @param hookRequest
    */
   @Override
   public void postUpdate(
@@ -72,41 +72,41 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
       TeamcityLogger.logMessage(context, "postReceive: Teamcity secret password not set. Please set password so accounts dont get locked.");
       return;
     }
-    
+
     final String repositoryTriggersJson = context.getSettings().getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
     if (repositoryTriggersJson.isEmpty()) {
       return;
     }
-    
+
 
     final TeamcityConfiguration conf = new TeamcityConfiguration(
-        context.getSettings().getString(Field.TEAMCITY_URL),
-        context.getSettings().getString(Field.TEAMCITY_USERNAME),
-        password);
+            context.getSettings().getString(Field.TEAMCITY_URL),
+            context.getSettings().getString(Field.TEAMCITY_USERNAME),
+            password);
 
     final Repository repository = hookRequest.getRepository();
     final String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime());
     final Set<String> uniqueBranches = new LinkedHashSet<>();
     TeamcityLogger.logMessage(context, "postReceive: " + uniqueBranches.size());
-    
+
     for (final RefChange change : hookRequest.getRefChanges()) {
-      final String referenceId = change.getRef().getId();               
+      final String referenceId = change.getRef().getId();
       if (uniqueBranches.contains(referenceId)) {
         continue;
       }
-      
+
       Trigger[] configurations = GetConfigurations(context, repositoryTriggersJson, referenceId);
       if (configurations.length == 0) {
         continue;
       }
-              
+
       if (change.getType().equals(RefChangeType.DELETE)) {
         TeamcityLogger.logMessage(context, "" + timeStamp + " Skip trigger for delete operation in branch: " + referenceId);
         continue;
       }
 
       uniqueBranches.add(referenceId);
-      
+
       TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId);
       try {
         final boolean isEmptyBranch = isEmptyBranch(context, timeStamp, repository, change);
@@ -114,20 +114,18 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
         if (!isEmptyBranch) {
           changedFiles = ChangesetService.GetChangedFiles(scmService, repository, change);
         }
-        for(Trigger configuration : configurations) {         
+        for(Trigger configuration : configurations) {
           if (!ExclusionTriggers.ShouldTriggerOnListOfFiles(configuration.gettriggerInclusion(), configuration.gettriggerExclusion(), changedFiles)) {
-            TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Excluded: " +  configuration.getTarget());          
+            TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Excluded: " +  configuration.getTarget());
             continue;
           }
           TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Target: " + configuration.getTarget());
           TriggerBuild(configuration, context, referenceId, conf, timeStamp, isEmptyBranch);
-        }        
+        }
       } catch (NoSuchCommitException ex) {
-        TeamcityLogger.logMessage(context, "No commit Exception: " + ex.getCommitId() + " " + referenceId);
-        TeamcityLogger.logMessage(context, "Stacktrace: " + ex.getStackTrace() + " " + referenceId);
+        TeamcityLogger.LogError(context, "No commit Exception: " + ex.getCommitId() + " " + referenceId, ex);
       } catch (IOException ex) {
-        TeamcityLogger.logMessage(context, "Failed to trigger: " + ex.getMessage() + " " + referenceId);
-        TeamcityLogger.logMessage(context, "Stacktrace: " + ex.getStackTrace() + " " + referenceId);
+        TeamcityLogger.LogError(context, "Failed to trigger: " + ex.getMessage() + " " + referenceId, ex);
       }
     }
   }
@@ -145,11 +143,11 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
     if ("0000000000000000000000000000000000000000".equals(fromChange) && StandardRefType.BRANCH == change.getRef().getType()) {
 
       final String result = this.gitScm.getCommandBuilderFactory().builder(repository)
-          .command("branch")
-          .argument("--contains")
-          .argument(change.getToHash())
-          .build(new StringCommandOutputHandler())
-          .call();
+              .command("branch")
+              .argument("--contains")
+              .argument(change.getToHash())
+              .build(new StringCommandOutputHandler())
+              .call();
 
       TeamcityLogger.logMessage(context, "" + timeStamp + " git branch: --contains " + change.getToHash());
       TeamcityLogger.logMessage(context, "" + timeStamp + " git result: '" + result + "'");
@@ -188,14 +186,14 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
     if (buildConfig.getType().equals("build")) {
       TeamcityLogger.logMessage(context, "Will Try To Que: " + buildConfig.getTarget() + " RefChange Type: " + refId);
       QueueBuild(
-          context,
-          buildConfig.getTarget(),
-          buildConfig.getBranchConfig(),
-          buildConfig.isCancelRunningBuilds(),
-          conf,
-          timestamp,
-          false,
-          context.getSettings());
+              context,
+              buildConfig.getTarget(),
+              buildConfig.getBranchConfig(),
+              buildConfig.isCancelRunningBuilds(),
+              conf,
+              timestamp,
+              false,
+              context.getSettings());
     }
   }
 
@@ -209,14 +207,14 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
   }
 
   private void QueueBuild(
-      final RepositoryHookContext context,
-      final String buildIdIn,
-      final String branch,
-      final Boolean cancelRunningBuilds,
-      final TeamcityConfiguration conf,
-      final String timeStamp,
-      final Boolean isDefault,
-      final Settings settings) {
+          final RepositoryHookContext context,
+          final String buildIdIn,
+          final String branch,
+          final Boolean cancelRunningBuilds,
+          final TeamcityConfiguration conf,
+          final String timeStamp,
+          final Boolean isDefault,
+          final Settings settings) {
 
     final String baseUrl = context.getSettings().getString(Field.BITBUCKET_URL);
     String comment = "remote trigger from bitbucket server : server address not specified in Bitbucket";
@@ -265,7 +263,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
     try {
       return Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, refBranchId);
     } catch (IOException ex) {
-      TeamcityLogger.logMessage(context, "postReceive: exception on parsing trigger data: " + ex.getMessage());        
+      TeamcityLogger.logMessage(context, "postReceive: exception on parsing trigger data: " + ex.getMessage());
       return new Trigger[0];
     }
   }
