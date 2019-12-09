@@ -4,6 +4,7 @@ import com.atlassian.bitbucket.commit.CommitService;
 import com.atlassian.bitbucket.commit.NoSuchCommitException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.LinkedHashSet;
 import java.util.Set;
@@ -109,7 +110,10 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
       TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId);
       try {
         final boolean isEmptyBranch = isEmptyBranch(context, timeStamp, repository, change);
-        final Iterable<String> changedFiles = ChangesetService.GetChangedFiles(scmService, repository, change);     
+        Iterable<String> changedFiles = new ArrayList<>();
+        if (!isEmptyBranch) {
+          changedFiles = ChangesetService.GetChangedFiles(scmService, repository, change);
+        }
         for(Trigger configuration : configurations) {         
           if (!ExclusionTriggers.ShouldTriggerOnListOfFiles(configuration.gettriggerInclusion(), configuration.gettriggerExclusion(), changedFiles)) {
             TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Excluded: " +  configuration.getTarget());          
@@ -153,7 +157,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
       final String[] branches = result.trim().split("\n");
 
       if (branches.length > 1) {
-        TeamcityLogger.logMessage(context, "" + timeStamp + " Skip trigger no commits in branch: " + change.getRef().getId());
+        TeamcityLogger.logMessage(context, "" + timeStamp + " No commits in branch: " + change.getRef().getId());
         TeamcityLogger.logMessage(context, "" + timeStamp + " From Hash: " + fromChange);
         TeamcityLogger.logMessage(context, "" + timeStamp + " RefChange Type: " + change.getType());
         isEmptyBranch = true;
