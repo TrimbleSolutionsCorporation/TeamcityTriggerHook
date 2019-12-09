@@ -110,10 +110,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
       TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId);
       try {
         final boolean isEmptyBranch = isEmptyBranch(context, timeStamp, repository, change);
-        Iterable<String> changedFiles = new ArrayList<>();
-        if (!isEmptyBranch) {
-          changedFiles = ChangesetService.GetChangedFiles(scmService, repository, change);
-        }
+        final Iterable<String> changedFiles = isEmptyBranch ? new ArrayList<>() : ChangesetService.GetChangedFiles(scmService, repository, change);
         for(Trigger configuration : configurations) {
           if (!ExclusionTriggers.ShouldTriggerOnListOfFiles(configuration.gettriggerInclusion(), configuration.gettriggerExclusion(), changedFiles)) {
             TeamcityLogger.logMessage(context, "Trigger From Ref: " + referenceId + " Excluded: " +  configuration.getTarget());
