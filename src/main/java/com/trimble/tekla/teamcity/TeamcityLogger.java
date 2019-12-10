@@ -42,4 +42,16 @@ public class TeamcityLogger {
       LOG.info("[TeamcityTriggerHook ->] : " + message);
     }
   }
+
+  public static void LogError(RepositoryHookContext context, String message, Throwable ex) {
+    if (context == null) {
+      LOG.error("[TeamcityTriggerHook] : Context is null, cant get debug flag");
+      return;
+    }
+
+    Boolean isDebugEnabled = context.getSettings().getBoolean(Field.DEBUG, false);
+    if(isDebugEnabled) {
+      LOG.error("[TeamcityTriggerHook ->] : " + message, ex);
+    }
+  }
 }
