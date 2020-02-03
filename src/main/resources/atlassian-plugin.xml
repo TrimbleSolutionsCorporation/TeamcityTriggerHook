@@ -20,7 +20,7 @@
     </rest>
 
     <repository-merge-check key="are-builds-in-queue" name="No queued builds in Teamcity"
-                            class="com.trimble.tekla.AreBuildsInQueueCheck" configurable="true">
+                            class="com.trimble.tekla.AreBuildsInQueueOrRunningCheck" configurable="true">
         <description>Prevent merge if builds are queued</description>
         <icon>icons/tc-hook.png</icon>
         <scopes>

@@ -25,8 +25,8 @@ public class TeamcityConnector  {
      this.connector = connector;     
     }
     
-    public String GetQueueData(TeamcityConfiguration conf, Settings settings, String branch) throws IOException {
-      String restpoint = "/app/rest/builds?locator=state:(queued:true),branch:" + branch;
+    public String GetQueueAndRunningData(TeamcityConfiguration conf, Settings settings, String branch) throws IOException {
+      String restpoint = "/app/rest/builds?locator=state:(queued:true,running:true),branch:" + branch;
       if(!this.connector.isReachable(conf, settings)) {
         TeamcityLogger.logMessage(settings, "[HttpConnector][GetQueueData] Server Not reachable: " + conf.getUrl());
         return "";
@@ -48,8 +48,8 @@ public class TeamcityConnector  {
       return this.connector.Get(conf, restpoint, settings);
     }
     
-    public List<TeamcityQueuedElement> GetQueuedBuilds(TeamcityConfiguration conf, Settings settings, String branch) throws IOException, JSONException {
-        String queueData = this.GetQueueData(conf, settings, branch);
+    public List<TeamcityQueuedElement> GetQueuedAndRunningBuilds(TeamcityConfiguration conf, Settings settings, String branch) throws IOException, JSONException {
+        String queueData = this.GetQueueAndRunningData(conf, settings, branch);
         List<TeamcityQueuedElement> queuedElements = new ArrayList<>();
         if(queueData == ""){
           return queuedElements;

@@ -31,7 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
  *
  * @author jocs
  */
-public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
+public class AreBuildsInQueueOrRunningCheck implements RepositoryMergeCheck {
 
   private final I18nService i18nService;
   private final TeamcityConnectionSettings connectionSettings;
@@ -40,7 +40,7 @@ public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
 
   @Autowired
   @Inject
-  public AreBuildsInQueueCheck(@ComponentImport I18nService i18nService,
+  public AreBuildsInQueueOrRunningCheck(@ComponentImport I18nService i18nService,
           final TeamcityConnectionSettings connectionSettings,
           final SettingsService settingsService) {
       this.connectionSettings = connectionSettings;
@@ -60,7 +60,7 @@ public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
       return RepositoryHookResult.accepted();
     }
 
-    TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] Queue Checker Started");
+    TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueOrRunningCheck] Queue Checker Started");
     final String teamcityAddress = settings.get().getString("teamCityUrl");
     if(teamcityAddress == null || "".equals(teamcityAddress)) {
       return RepositoryHookResult.accepted();
@@ -77,14 +77,14 @@ public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
     if(AreBuildsInQueueForBranch(branch, conf, settings.get())) {
       TeamcityLogger.logMessage(settings.get(), "Builds in queue for " + branch);
       String teamcityAddressQueue = settings.get().getString("teamCityUrl") + "/queue.html";
-      String summaryMsg = i18nService.getText("mergecheck.builds.inqueue.summary", "Builds in queue");
-      String detailedMsg = i18nService.getText("mergecheck.builds.inqueue.detailed", "Builds are still in queue, visit: ") + teamcityAddressQueue;
+      String summaryMsg = i18nService.getText("mergecheck.builds.inqueue.summary", "Builds in queue or running");
+      String detailedMsg = i18nService.getText("mergecheck.builds.inqueue.detailed", "Builds are still in queue or running, visit: ") + teamcityAddressQueue;
      
-      TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] builds in queue for " + branch + " reject");
+      TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueOrRunningCheck] builds in queue for " + branch + " reject");
       return RepositoryHookResult.rejected(summaryMsg, detailedMsg);    
     } 
 
-    TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueCheck] No builds in queue for " + branch);    
+    TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueOrRunningCheck] No builds in queue for " + branch);
     return RepositoryHookResult.accepted();
   }
   
@@ -93,11 +93,11 @@ public class AreBuildsInQueueCheck implements RepositoryMergeCheck {
           final Settings settings) {    
     List<TeamcityQueuedElement> queue;    
     try {
-      queue = this.connector.GetQueuedBuilds(conf, settings, branch);
-      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueCheck] Detected: " + queue.size() + " in queue.");
+      queue = this.connector.GetQueuedAndRunningBuilds(conf, settings, branch);
+      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueOrRunningCheck] Detected: " + queue.size() + " in queue.");
       return !queue.isEmpty();
     } catch (IOException | JSONException ex) {
-      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueCheck] Exception " + ex.getMessage());       
+      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueOrRunningCheck] Exception " + ex.getMessage());
     }
     
     return false;    
