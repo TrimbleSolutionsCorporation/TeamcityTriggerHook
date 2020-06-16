@@ -66,7 +66,7 @@ public class TeamcityPullrequestEventListener {
     }
 
     try {
-      TriggerBuildFromPullRequest(pr, false);
+      TriggerBuildFromPullRequest(pr, false, false);
     } catch (final IOException | JSONException ex) {
       TeamcityLogger.logMessage(settings.get(), "PullRequest Opened Event Failed: " + ex.getMessage());
     }
@@ -86,7 +86,7 @@ public class TeamcityPullrequestEventListener {
     if (event.getAddedParticipants().size() > 0 && reviewers.size() > 0) {
       // trigger only when number of participations is 2 or higher (author + reviewer)
       try {
-        TriggerBuildFromPullRequest(event.getPullRequest(), true);
+        TriggerBuildFromPullRequest(event.getPullRequest(), true, false);
       } catch (final IOException | JSONException ex) {
         TeamcityLogger.logMessage(settings.get(), "PullRequest Reviwer update event failed: " + ex.getMessage());
       }
@@ -98,7 +98,10 @@ public class TeamcityPullrequestEventListener {
     final String previousFromHash = event.getPreviousFromHash();
     final String currentFromHash = event.getPullRequest().getFromRef().getLatestCommit();
 
-    if (currentFromHash.equals(previousFromHash)) {
+    final String previousToHash = event.getPreviousToHash();
+    final String currentToHash = event.getPullRequest().getToRef().getLatestCommit();
+
+    if (currentFromHash.equals(previousFromHash) && currentToHash.equals(previousToHash)) {
       return;
     }
 
@@ -111,13 +114,13 @@ public class TeamcityPullrequestEventListener {
 
     try {
       TeamcityLogger.logMessage(settings.get(), "Run PullRequest Rescoped Event : " + pr.getFromRef().getDisplayId());
-      TriggerBuildFromPullRequest(pr, false);
+      TriggerBuildFromPullRequest(pr, false, currentFromHash.equals(previousFromHash));
     } catch (final IOException | JSONException ex) {
       TeamcityLogger.logMessage(settings.get(), "PullRequest Rescoped Event Failed: " + ex.getMessage() + " " + pr.getFromRef().getDisplayId());
     }
   }
 
-  private void TriggerBuildFromPullRequest(final PullRequest pr, Boolean UpdatedReviewers) throws IOException, JSONException {
+  private void TriggerBuildFromPullRequest(final PullRequest pr, final boolean UpdatedReviewers, final boolean skipBranchBuild) throws IOException, JSONException {
     final Repository repo = pr.getFromRef().getRepository();
     final Optional<Settings> settings = this.settingsService.getSettings(repo);
 
@@ -169,7 +172,9 @@ public class TeamcityPullrequestEventListener {
 
         TeamcityLogger.logMessage(settings.get(), "Trigger BuildId: " + buildConfig.getTarget() + " " + branch);
 
-        if(!isInQueue(settings,conf,buildConfig.getTarget(),buildConfig.getBranchConfig(),branch)) {
+        if(skipBranchBuild && buildConfig.isOnlyTriggerOnPullRequest()
+                && !isInQueue(settings,conf,buildConfig.getTarget(),buildConfig.getBranchConfig(),branch)
+        ) {
           queueBuild(
                   settings,
                   conf,
