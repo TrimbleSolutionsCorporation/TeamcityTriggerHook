@@ -19,6 +19,7 @@ public class Trigger {
   private String type;
   private String target;
   private boolean triggerOnPullRequest;
+  private boolean onlyTriggerOnPullRequest;
   private String downStreamTriggerTarget;
   private String downStreamTriggerType;
   private String downStreamTriggerDescription;
@@ -28,6 +29,7 @@ public class Trigger {
   private boolean triggerOnEmptyBranches;
   private boolean hideOnPullRequest;
   private boolean triggerWhenNoReviewers;
+  private boolean triggerPullRequestShadowMerge;
 
   public String gettriggerInclusion() {
     return this.triggerInclusion;
@@ -36,15 +38,15 @@ public class Trigger {
   public void settriggerInclusion(final String triggerInclusion) {
     this.triggerInclusion = triggerInclusion;
   }
-  
+
    public String gettriggerExclusion() {
     return this.triggerExclusion;
   }
 
   public void setExcludeRule(final String triggerExclusion) {
     this.triggerExclusion = triggerExclusion;
-  } 
-  
+  }
+
   public String getBranchConfig() {
     return this.branchConfig;
   }
@@ -67,24 +69,36 @@ public class Trigger {
 
   public void setTriggerOnPullRequest(final boolean triggerOnPullRequest) {
     this.triggerOnPullRequest = triggerOnPullRequest;
+    if(!this.triggerOnPullRequest) {
+      setOnlyTriggerOnPullRequest(false);
+      setTriggerPullRequestShadowMerge(false);
+    }
   }
-  
+
+  public boolean isOnlyTriggerOnPullRequest() {
+    return this.onlyTriggerOnPullRequest;
+  }
+
+  public void setOnlyTriggerOnPullRequest(final boolean onlyTriggerOnPullRequest) {
+    this.onlyTriggerOnPullRequest = onlyTriggerOnPullRequest;
+  }
+
   public boolean isHideOnPullRequest() {
       return this.hideOnPullRequest;
   }
 
   public void setHideOnPullRequest(final boolean hideOnPullRequest) {
     this.hideOnPullRequest = hideOnPullRequest;
-  }  
-  
+  }
+
   public boolean isTriggerWhenNoReviewers() {
       return this.triggerWhenNoReviewers;
   }
 
   public void setTriggerWhenNoReviewers(final boolean triggerWhenNoReviewers) {
     this.triggerWhenNoReviewers = triggerWhenNoReviewers;
-  }   
-  
+  }
+
   public String getDownStreamTriggerType() {
     return this.downStreamTriggerType;
   }
@@ -92,7 +106,7 @@ public class Trigger {
   public void setDownStreamTriggerType(final String downStreamTriggerType) {
     this.downStreamTriggerType = downStreamTriggerType;
   }
-  
+
   public String getDownStreamTriggerDescription() {
     return this.downStreamTriggerDescription;
   }
@@ -141,6 +155,14 @@ public class Trigger {
     this.triggerOnEmptyBranches = triggerOnEmptyBranches;
   }
 
+  public boolean isTriggerPullRequestShadowMerge() {
+    return triggerPullRequestShadowMerge;
+  }
+
+  public void setTriggerPullRequestShadowMerge(boolean triggerPullRequestShadowMerge) {
+    this.triggerPullRequestShadowMerge = triggerPullRequestShadowMerge;
+  }
+
   public static Trigger[] GetBuildConfigurationsFromBranch(final String jsonConfiguration, final String branch) throws IOException {
     final ObjectMapper mapper = new ObjectMapper();
     final Map<String, Trigger> triggerMap;
@@ -157,4 +179,5 @@ public class Trigger {
 
     return configs.toArray(new Trigger[configs.size()]);
   }
+
 }

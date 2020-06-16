@@ -5,8 +5,11 @@
  */
 package com.trimble.tekla;
 
-import com.trimble.tekla.helpers.ExclusionTriggers;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 
 import javax.inject.Inject;
 import javax.inject.Named;
@@ -24,18 +27,14 @@ import com.atlassian.bitbucket.pull.PullRequestParticipant;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
-import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.event.api.EventListener;
 import com.trimble.tekla.helpers.ChangesetService;
+import com.trimble.tekla.helpers.ExclusionTriggers;
 import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import com.trimble.tekla.teamcity.TeamcityLogger;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
 
 @Named
 public class TeamcityPullrequestEventListener {
@@ -61,11 +60,11 @@ public class TeamcityPullrequestEventListener {
     final PullRequest pr = event.getPullRequest();
     final Repository repo = pr.getFromRef().getRepository();
     final Optional<Settings> settings = this.settingsService.getSettings(repo);
-    
+
     if(!settings.isPresent()) {
       return;
     }
-    
+
     try {
       TriggerBuildFromPullRequest(pr, false);
     } catch (final IOException | JSONException ex) {
@@ -79,11 +78,11 @@ public class TeamcityPullrequestEventListener {
     final Set<PullRequestParticipant> reviewers = pr.getReviewers();
     final Repository repo = pr.getFromRef().getRepository();
     final Optional<Settings> settings = this.settingsService.getSettings(repo);
-    
+
     if(!settings.isPresent()) {
       return;
     }
-    
+
     if (event.getAddedParticipants().size() > 0 && reviewers.size() > 0) {
       // trigger only when number of participations is 2 or higher (author + reviewer)
       try {
@@ -125,7 +124,7 @@ public class TeamcityPullrequestEventListener {
     if(!settings.isPresent()) {
       return;
     }
-    
+
     final String password = this.connectionSettings.getPassword(pr.getFromRef().getRepository());
     // has one reviewer
     final Boolean areParticipants = !pr.getReviewers().isEmpty();
@@ -169,54 +168,103 @@ public class TeamcityPullrequestEventListener {
         }
 
         TeamcityLogger.logMessage(settings.get(), "Trigger BuildId: " + buildConfig.getTarget() + " " + branch);
-        try {
-          if (this.connector.IsInQueue(conf, buildConfig.getTarget(), buildConfig.getBranchConfig(), settings.get())) {
-            TeamcityLogger.logMessage(settings.get(), "Skip already in queue: " + buildConfig.getTarget()+ " " + branch);
-            continue;
-          }
-        } catch (IOException | JSONException ex) {
-          TeamcityLogger.logMessage(settings.get(), "Exception: " + ex.getMessage() + " " + branch);
+
+        if(!isInQueue(settings,conf,buildConfig.getTarget(),buildConfig.getBranchConfig(),branch)) {
+          queueBuild(
+                  settings,
+                  conf,
+                  triggeredBuilds,
+                  buildConfig.getBranchConfig(),
+                  buildConfig.getTarget(),
+                  "Trigger from Bitbucket: Pull Request: " + pr.getId(),
+                  buildConfig.isCancelRunningBuilds()
+          );
         }
 
-        // check if build is running
-        final String buildData = this.connector.GetBuildsForBranch(
-                conf,
-                buildConfig.getBranchConfig(),
-                buildConfig.getTarget(),
-                settings.get());
-
-        final JSONObject obj = new JSONObject(buildData);
-        final String count = obj.getString("count");
-
-        if (count.equals("0") || !buildConfig.isCancelRunningBuilds()) {
-          this.connector.QueueBuild(
-                  conf,
-                  buildConfig.getBranchConfig(),
-                  buildConfig.getTarget(),
-                  "Trigger from Bitbucket: Pull Request: " + pr.getId(),
-                  false,
-                  settings.get());
-          triggeredBuilds.add(buildConfig.getTarget());
-        } else {
-          final JSONArray builds = obj.getJSONArray("build");
-          for (int i = 0; i < builds.length(); i++) {
-            final Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
-            if (isRunning) {
-              final String id = builds.getJSONObject(i).getString("id");
-              this.connector.ReQueueBuild(conf, id, settings.get(), false);
-            }
+        if(buildConfig.isTriggerPullRequestShadowMerge()) {
+          final String prShadowTarget = "pull-requests/" + pr.getId();
+          if(!isInQueue(settings,conf,prShadowTarget,buildConfig.getBranchConfig(),branch)) {
+            queueBuild(
+                    settings,
+                    conf,
+                    triggeredBuilds,
+                    prShadowTarget,
+                    buildConfig.getTarget(),
+                                      "Trigger Shadow Merge from Bitbucket: Pull Request: " + pr.getId(),
+                    buildConfig.isCancelRunningBuilds()
+            );
           }
+        }
 
-          // at this point all builds were finished, so we need to trigger
-          this.connector.QueueBuild(
-                  conf,
-                  buildConfig.getBranchConfig(),
-                  buildConfig.getTarget(),
-                  "Trigger from Bitbucket: Pull Request: " + pr.getId(),
-                  false,
-                  settings.get());
+      }
+    }
+  }
+
+  private boolean isInQueue(
+          final Optional<Settings> settings,
+          final TeamcityConfiguration conf,
+          final String target,
+          final String buildConfiguration,
+          final String branch
+  ) {
+    boolean isInQueue = false;
+    try {
+      isInQueue = this.connector.IsInQueue(conf, target, buildConfiguration, settings.get());
+      if (isInQueue) {
+        TeamcityLogger.logMessage(settings.get(), "Skip already in queue: " + target+ " " + branch);
+      }
+    } catch (IOException | JSONException ex) {
+      TeamcityLogger.logMessage(settings.get(), "Exception: " + ex.getMessage() + " " + branch);
+    }
+    return isInQueue;
+  }
+
+  private void queueBuild(
+          final Optional<Settings> settings,
+          final TeamcityConfiguration conf,
+          final Set triggeredBuilds,
+          final String branch,
+          final String buildid,
+          final String comment,
+          final boolean cancelRunningBuilds
+  ) throws IOException, JSONException {
+    // check if build is running
+    final String buildData = this.connector.GetBuildsForBranch(
+            conf,
+            branch,
+            buildid,
+            settings.get());
+
+    final JSONObject obj = new JSONObject(buildData);
+    final String count = obj.getString("count");
+
+    if (count.equals("0") || !cancelRunningBuilds) {
+      this.connector.QueueBuild(
+              conf,
+              branch,
+              buildid,
+              comment,
+              false,
+              settings.get());
+      triggeredBuilds.add(branch);
+    } else {
+      final JSONArray builds = obj.getJSONArray("build");
+      for (int i = 0; i < builds.length(); i++) {
+        final Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
+        if (isRunning) {
+          final String id = builds.getJSONObject(i).getString("id");
+          this.connector.ReQueueBuild(conf, id, settings.get(), false);
         }
       }
+
+      // at this point all builds were finished, so we need to trigger
+      this.connector.QueueBuild(
+              conf,
+              branch,
+              buildid,
+              comment,
+              false,
+              settings.get());
     }
   }
 }

@@ -1,7 +1,5 @@
 package com.trimble.tekla;
 
-import com.atlassian.bitbucket.commit.CommitService;
-import com.atlassian.bitbucket.commit.NoSuchCommitException;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -16,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import com.atlassian.bitbucket.commit.CommitService;
+import com.atlassian.bitbucket.commit.NoSuchCommitException;
 import com.atlassian.bitbucket.hook.repository.PostRepositoryHook;
 import com.atlassian.bitbucket.hook.repository.PostRepositoryHookContext;
 import com.atlassian.bitbucket.hook.repository.RepositoryHookContext;
@@ -29,7 +29,6 @@ import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.trimble.tekla.helpers.ChangesetService;
 import com.trimble.tekla.helpers.ExclusionTriggers;
-
 import com.trimble.tekla.pojo.Trigger;
 import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
@@ -162,10 +161,10 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
   }
 
   private void TriggerBuild(final Trigger buildConfig, final RepositoryHookContext context, final String refId, final TeamcityConfiguration conf, final String timestamp, final boolean isEmptyBranch) throws IOException {
-    if (buildConfig.isTriggerOnPullRequest() || isEmptyBranch && !buildConfig.isTriggerOnEmptyBranches()) {
+    if (buildConfig.isOnlyTriggerOnPullRequest() || isEmptyBranch && !buildConfig.isTriggerOnEmptyBranches()) {
       TeamcityLogger.logMessage(context, "Skipped <Return>: " + buildConfig.getTarget() + " RefChange Type: " + refId);
-      if(buildConfig.isTriggerOnPullRequest()) {
-        TeamcityLogger.logMessage(context, "Skipped <buildConfig.isTriggerOnPullRequest() false>: " + buildConfig.getTarget() + " RefChange Type: " + refId);
+      if(buildConfig.isOnlyTriggerOnPullRequest()) {
+        TeamcityLogger.logMessage(context, "Skipped <buildConfig.isOnlyTriggerOnPullRequest() true>: " + buildConfig.getTarget() + " RefChange Type: " + refId);
       }
       if(isEmptyBranch) {
         TeamcityLogger.logMessage(context, "Skipped <isEmptyBranch true>: " + buildConfig.getTarget() + " RefChange Type: " + refId);
