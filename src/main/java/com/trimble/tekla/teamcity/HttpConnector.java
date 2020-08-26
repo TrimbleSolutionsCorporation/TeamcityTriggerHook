@@ -42,7 +42,8 @@ public class HttpConnector {
             connection.setDoOutput(true);
             connection.setConnectTimeout(5000);
             connection.setRequestProperty("Authorization", "Basic " + authEncoded);
-            connection.setRequestProperty("Content-Length", "0");
+            connection.setRequestProperty("Content-Length", "0"); //JDK-6997628
+            connection.getOutputStream().close();
             
             InputStream content = (InputStream)connection.getInputStream();
             BufferedReader in   = 
@@ -141,8 +142,9 @@ public class HttpConnector {
         connection.setRequestProperty("Authorization", "Basic " + authEncoded);
         if (payload != null) {
           connection.setRequestProperty("Content-Type", "application/xml; charset=utf-8");
-          connection.setRequestProperty("Content-Length", Integer.toString(payload.length()));
+          connection.setRequestProperty("Content-Length", Integer.toString(payload.length())); //JDK-6997628
           connection.getOutputStream().write(payload.getBytes("UTF8"));
+          connection.getOutputStream().close();
         }
 
         InputStream content = (InputStream)connection.getInputStream();
