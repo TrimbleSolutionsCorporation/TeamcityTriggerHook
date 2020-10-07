@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.trimble.tekla</groupId>
     <artifactId>TeamCityTriggerHook</artifactId>
-    <version>4.5.5</version>
+    <version>4.6.0</version>
 
     <organization>
         <name>Tekla</name>
@@ -130,7 +130,6 @@
                             <dataVersion>${bitbucket.data.version}</dataVersion>
                             <enableFastdev>false</enableFastdev>
                             <enableDevToolbox>false</enableDevToolbox>
-                            <enablePde>false</enablePde>
                             <enableQuickReload>true</enableQuickReload>
                             <dataHome>${bitbucket.home}</dataHome>
                         </product>
@@ -161,8 +160,8 @@
     </build>
 
     <properties>
-        <bitbucket.data.version>7.0.0</bitbucket.data.version>
-        <bitbucket.version>7.0.0</bitbucket.version>
+        <bitbucket.data.version>7.4.0</bitbucket.data.version>
+        <bitbucket.version>7.4.0</bitbucket.version>
         <quick.reload.version>2.0.0</quick.reload.version>
         <amps.version>6.3.13</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>

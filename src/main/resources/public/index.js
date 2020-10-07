@@ -3,49 +3,139 @@ console.log("issueCreation Loaded");
 var disableTrigger = false;
 var buildDependencies = [];
 
-function closeModal() {
-  parent.CloseModal();
+function getParamValue(paramName) {
+  var url = window.location.search.substring(1); //get rid of "?" in querystring
+  var qArray = url.split("&"); //get key-value pairs
+  for (var i = 0; i < qArray.length; i++) {
+    var pArr = qArray[i].split("="); //split key and value
+    if (pArr[0] == paramName) return pArr[1]; //return value
+  }
 }
 
-function getText(id) {
-  parent.getText(id);
+function getContextPath() {
+  return window.location.href.split("/rest/")[0];
+}
+
+function resourceUrl(resourceName) {
+  return (
+    getContextPath() +
+    "/rest/teamcity/latest/projects/" +
+    getParamValue("projectId") +
+    "/repos/" +
+    getParamValue("repoName") +
+    "/" +
+    resourceName
+  );
+}
+
+function closeModal() {
+  var modal = window.parent.document.getElementById("myModal");
+  modal.style.display = "none";
+  modal.parentNode.removeChild(modal);
+}
+
+function GetBuildInformation(buildId, htmlId, callback) {
+  var restPoint = resourceUrl("build") + "?id=" + buildId;
+
+  $.ajax({
+    url: restPoint,
+    contentType: "application/json",
+    dataType: "json",
+    success: function (result) {
+      console.log(result);
+      callback(result, htmlId);
+    },
+    error: function (result) {
+      console.log(result);
+    },
+    done: function (data) {},
+  });
+}
+
+function TriggerExternalUrl(url, id, callback) {
+  var restPoint =
+    resourceUrl("triggerexternalurl") +
+    "?url=" +
+    encodeURIComponent(url) +
+    "&method=GET";
+
+  $.ajax({
+    url: restPoint,
+    contentType: "application/json",
+    dataType: "json",
+    success: function (result) {
+      console.log(result);
+      callback(result, id);
+    },
+    error: function (result) {
+      console.log(result);
+    },
+    done: function (data) {},
+  });
+}
+
+function CallExternalApiWithUrl(url, idReport) {
+  var element = document.getElementById("ErrorMessageId");
+  element.innerHTML = "";
+  TriggerExternalUrl(url, idReport, function (data, idReportBack) {
+    var element = document.getElementById("ErrorMessageId");
+    element.innerHTML = data.message;
+    element.style.color = "red";
+  });
+}
+
+function TriggerBuildConfiguration(buildid, branch, callback) {
+  var restPoint =
+    resourceUrl("triggerbuild") +
+    "?buildconfig=" +
+    buildid +
+    "&branch=" +
+    getParamValue("branch") +
+    "&prid=" +
+    getParamValue("prId");
+
+  $.ajax({
+    url: restPoint,
+    contentType: "application/json",
+    dataType: "json",
+    success: function (result) {
+      var str = JSON.stringify(result, null, 2);
+      console.log("Success : " + str);
+      callback(result);
+    },
+    error: function (result) {
+      var str = JSON.stringify(result, null, 2);
+      console.log("Error : " + str);
+    },
+    done: function (data) {},
+  });
 }
 
 function TriggerBuild(id, branch) {
-  var element = document.getElementById('ErrorMessageId');
+  var element = document.getElementById("ErrorMessageId");
   element.innerHTML = "";
   if (disableTrigger) {
     return;
   }
 
   disableTrigger = true;
-  parent.TriggerBuildConfiguration(id, branch, function(data) {
+  TriggerBuildConfiguration(id, branch, function (data) {
     ReloadData();
     disableTrigger = false;
   });
 }
 
 function TriggerExternalTeamcityBuild(id, branch) {
-  var element = document.getElementById('ErrorMessageId');
+  var element = document.getElementById("ErrorMessageId");
   element.innerHTML = "";
   if (disableTrigger) {
     return;
   }
 
   disableTrigger = true;
-  parent.TriggerBuildConfiguration(id, branch, function(data) {
+  TriggerBuildConfiguration(id, branch, function (data) {
     ReloadData();
     disableTrigger = false;
-  });
-}
-
-function CallExternalApiWithUrl(url, idReport) {
-  var element = document.getElementById('ErrorMessageId');
-  element.innerHTML = "";
-  parent.TriggerExternalUrl(url, idReport, function(data, idReportBack) {
-    var element = document.getElementById('ErrorMessageId');
-    element.innerHTML = data.message;
-    element.style.color = "red";
   });
 }
 
@@ -54,37 +144,43 @@ var HookId = 0;
 function CreateButtonWithRef(type, desc, wref, isEnabled) {
   var rowdata = "";
   HookId += 1;
-  rowdata += "<div class=\"row\">"
-  rowdata += "  <div class=\"col-xs-8\">"
-  rowdata += "  <p>" + desc + "</p>"
-  rowdata += "  </div>"
+  rowdata += '<div class="row">';
+  rowdata += '  <div class="col-xs-8">';
+  rowdata += "  <p>" + desc + "</p>";
+  rowdata += "  </div>";
 
-  rowdata += "  <div class=\"col-xs-2\">"
+  rowdata += '  <div class="col-xs-2">';
   if (isEnabled) {
     if (type == "tab") {
-      rowdata += "<button class=\"btn btn-success\" onclick=\" window.open('" +
-        wref + "','_blank')\"> Trigger</button>";
+      rowdata +=
+        '<button class="btn btn-success" onclick=" window.open(\'' +
+        wref +
+        "','_blank')\"> Trigger</button>";
     }
 
     if (type == "rest") {
       rowdata +=
-        "<button class=\"btn btn-success\" onclick=\" CallExternalApiWithUrl('" +
-        wref + "', 'StatusExtHook_" + HookId + "')\"> Trigger</button>";
+        '<button class="btn btn-success" onclick=" CallExternalApiWithUrl(\'' +
+        wref +
+        "', 'StatusExtHook_" +
+        HookId +
+        "')\"> Trigger</button>";
     }
-
   } else {
     rowdata +=
-      "<button class=\"btn btn-danger\"> Dependencies not ready</button>";
+      '<button class="btn btn-danger"> Dependencies not ready</button>';
   }
 
-  rowdata += "  </div>"
+  rowdata += "  </div>";
 
-  rowdata += "  <div class=\"col-xs-2\">"
-  rowdata += "  <span id=\"StatusExtHook_" + HookId +
-    "\" style='margin-left: 10px;'></span>"
-  rowdata += "  </div>"
+  rowdata += '  <div class="col-xs-2">';
+  rowdata +=
+    '  <span id="StatusExtHook_' +
+    HookId +
+    "\" style='margin-left: 10px;'></span>";
+  rowdata += "  </div>";
 
-  rowdata += "</div>"
+  rowdata += "</div>";
   return rowdata;
 }
 
@@ -112,7 +208,7 @@ function GetBuildStatusColumn(elem, isExternalTrigger) {
         rowdata +=
           "<td class=\"buildstatuscol\"><i class='fa fa-exclamation-triangle' style='font-size:16px;color:red'></i></td>";
       } else if (elem.status === "not started" && isExternalTrigger) {
-        rowdata += "<td class=\"buildstatuscol\"><i></i></td>";
+        rowdata += '<td class="buildstatuscol"><i></i></td>';
       } else {
         rowdata +=
           "<td class=\"buildstatuscol\"><i class='fa fa-circle-o-notch fa-spin' style='font-size:16px;color:red'></i></td>";
@@ -128,10 +224,14 @@ function GetBuildStatusColumn(elem, isExternalTrigger) {
 
 function GetQueueColumn(elem) {
   var rowdata = "";
-  rowdata += "<td class=\"buildqueuecol\">";
-  elem.queue.forEach(function(build) {
-    rowdata += "<p><a href='" + build.webUrl + "' target='_blank'>" + build
-      .id + "<a></p>";
+  rowdata += '<td class="buildqueuecol">';
+  elem.queue.forEach(function (build) {
+    rowdata +=
+      "<p><a href='" +
+      build.webUrl +
+      "' target='_blank'>" +
+      build.id +
+      "<a></p>";
   });
   rowdata += "</td>";
 
@@ -142,22 +242,24 @@ function GetRemarksColumn(elem, isExternalDep, canTrigger) {
   var rowdata = "";
 
   if (isExternalDep && !canTrigger) {
-    return "<td class=\"remarkscol\">Dependencies are not ready or failing, cannot trigger</td>";
+    return '<td class="remarkscol">Dependencies are not ready or failing, cannot trigger</td>';
   }
 
-  if (elem.queue.length === 0 && elem.state === "not started" && elem.status ===
-    "not started") {
+  if (
+    elem.queue.length === 0 &&
+    elem.state === "not started" &&
+    elem.status === "not started"
+  ) {
     if (!isExternalDep) {
-      return "<td class=\"remarkscol\">no builds are queued for this pull request, something failed. pr needs manual trigger.</td>";
+      return '<td class="remarkscol">no builds are queued for this pull request, something failed. pr needs manual trigger.</td>';
     } else {
-      return "<td class=\"remarkscol\">trigger to start</td>";
+      return '<td class="remarkscol">trigger to start</td>';
     }
   }
 
   if (elem.queue.length === 0) {
-    rowdata += "<td class=\"remarkscol\" id='" + elem.id + "_remarks'></td>";
-    parent.GetBuildInformation(elem.id, elem.id + "_remarks", function(data,
-      htmlid) {
+    rowdata += '<td class="remarkscol" id=\'' + elem.id + "_remarks'></td>";
+    GetBuildInformation(elem.id, elem.id + "_remarks", function (data, htmlid) {
       var htmlid = document.getElementById(htmlid);
       var elem = "";
       for (var key in data) {
@@ -172,7 +274,7 @@ function GetRemarksColumn(elem, isExternalDep, canTrigger) {
       htmlid.innerHTML = elem;
     });
   } else {
-    rowdata += "<td class=\"remarkscol\"></td>";
+    rowdata += '<td class="remarkscol"></td>';
   }
 
   return rowdata;
@@ -181,26 +283,40 @@ function GetRemarksColumn(elem, isExternalDep, canTrigger) {
 function GetTriggerColumn(elem, cantrigger, triggercallback) {
   var rowdata = "";
 
-  if (elem.state === "not started" && elem.status === "not started" && elem.queue
-    .length === 0 && cantrigger === true) {
-    return "<td class=\"triggerbuildcol\"><span><i onclick=\"" +
-      triggercallback + "(\'" + elem.key + "\',\'" + elem.branchName +
-      "\');\" class='fa fa-play buttonhover'></span></td>";
+  if (
+    elem.state === "not started" &&
+    elem.status === "not started" &&
+    elem.queue.length === 0 &&
+    cantrigger === true
+  ) {
+    return (
+      '<td class="triggerbuildcol"><span><i onclick="' +
+      triggercallback +
+      "('" +
+      elem.key +
+      "','" +
+      elem.branchName +
+      "');\" class='fa fa-play buttonhover'></span></td>"
+    );
   }
 
   if (elem.state !== "finished" || elem.queue.length > 0 || !cantrigger) {
-    rowdata += "<td class=\"triggerbuildcol\"><span></span></td>";
+    rowdata += '<td class="triggerbuildcol"><span></span></td>';
   } else {
-    rowdata += "<td class=\"triggerbuildcol\"><span><i onclick=\"" +
-      triggercallback + "(\'" + elem.key + "\',\'" + elem.branchName +
-      "\');\" class='fa fa-play buttonhover'></span></td>";
+    rowdata +=
+      '<td class="triggerbuildcol"><span><i onclick="' +
+      triggercallback +
+      "('" +
+      elem.key +
+      "','" +
+      elem.branchName +
+      "');\" class='fa fa-play buttonhover'></span></td>";
   }
 
   return rowdata;
 }
 
 function CreateBuildRow(elem, cantrigger, triggerCallback, isExternalTrigger) {
-
   // start row
   var rowdata = "<tr>";
 
@@ -209,11 +325,19 @@ function CreateBuildRow(elem, cantrigger, triggerCallback, isExternalTrigger) {
 
   // build configuration href
   if (elem.buildTypeId !== "") {
-    rowdata += "<td class=\"buildconfigcol\"><a href='" + elem.webUrl +
-      "' target='_blank'><div>" + elem.buildTypeId + "</div></a></td>";
+    rowdata +=
+      '<td class="buildconfigcol"><a href=\'' +
+      elem.webUrl +
+      "' target='_blank'><div>" +
+      elem.buildTypeId +
+      "</div></a></td>";
   } else {
-    rowdata += "<td class=\"buildconfigcol\"><a href='" + elem.webUrl +
-      "' target='_blank'><div>" + elem.key + "</div></a></td>";
+    rowdata +=
+      '<td class="buildconfigcol"><a href=\'' +
+      elem.webUrl +
+      "' target='_blank'><div>" +
+      elem.key +
+      "</div></a></td>";
   }
 
   // build status
@@ -231,11 +355,16 @@ function CreateBuildRow(elem, cantrigger, triggerCallback, isExternalTrigger) {
   return rowdata;
 }
 
-function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName, wrefconfig) {
-
+function GetBuildFromJson(
+  json,
+  jsonqueue,
+  buildConfigurationKey,
+  branchName,
+  wrefconfig
+) {
   var queuedBuilds = [];
   if (jsonqueue.count > 0) {
-    jsonqueue.build.forEach(function(build) {
+    jsonqueue.build.forEach(function (build) {
       if (branchName.endsWith(build.branchName)) {
         var queuedbuild = {
           id: build.id,
@@ -243,7 +372,7 @@ function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName, wr
           state: "queued",
           href: build.href,
           webUrl: build.webUrl,
-          branch: branchName
+          branch: branchName,
         };
         queuedBuilds.push(queuedbuild);
       }
@@ -251,7 +380,7 @@ function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName, wr
   }
 
   if (json.count === 0) {
-    // json builds      
+    // json builds
     var build = {
       key: buildConfigurationKey,
       id: "",
@@ -262,7 +391,7 @@ function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName, wr
       branchName: branchName,
       href: "",
       webUrl: wrefconfig,
-      queue: queuedBuilds
+      queue: queuedBuilds,
     };
 
     if (queuedBuilds.length > 0) {
@@ -281,16 +410,41 @@ function GetBuildFromJson(json, jsonqueue, buildConfigurationKey, branchName, wr
       branchName: branchName,
       href: json.build[0].href,
       webUrl: json.build[0].webUrl,
-      queue: queuedBuilds
+      queue: queuedBuilds,
     };
     return build;
   }
 }
 
-function GetExternalBuildConfigurationsGroup(id) {
-  parent.GetExternalBuildsConfigurations(id, function(data, branchName, prid) {
+function GetExternalBuildsConfigurations(id, callback) {
+  var restPoint =
+    resourceUrl("externalbuilds") +
+    "?id=" +
+    id +
+    "&prid=" +
+    getParamValue("prId") +
+    "&branch=" +
+    getParamValue("branch") +
+    "&hash=" +
+    getParamValue("commit");
 
-    if (typeof data.status !== 'undefined') {
+  $.ajax({
+    url: restPoint,
+    contentType: "application/json",
+    dataType: "json",
+    success: function (result) {
+      callback(result, getParamValue("branch"), getParamValue("prId"));
+    },
+    error: function (result) {
+      console.log("Error : " + result);
+    },
+    done: function (data) {},
+  });
+}
+
+function GetExternalBuildConfigurationsGroup(id) {
+  GetExternalBuildsConfigurations(id, function (data, branchName, prid) {
+    if (typeof data.status !== "undefined") {
       // the variable is defined
       if (data.status === "error") {
         return;
@@ -298,11 +452,10 @@ function GetExternalBuildConfigurationsGroup(id) {
     }
 
     if (data) {
-      if (id === 'External1Id') {
+      if (id === "External1Id") {
         var name = "Tests";
         document.getElementById(id).innerHTML = name;
-        document.getElementById(id).style.display = 'inherit';
-
+        document.getElementById(id).style.display = "inherit";
 
         // get dependent builds
         var canTriggerBuilds = true;
@@ -312,8 +465,13 @@ function GetExternalBuildConfigurationsGroup(id) {
             var json = JSON.parse(data[key]);
             var jsonqueue = JSON.parse(data[key + "_queue"]);
             var wrefconfig = data[key + "_wref"];
-            var build = GetBuildFromJson(json, jsonqueue, key.replace(
-              "_dep", ""), branchName, wrefconfig);
+            var build = GetBuildFromJson(
+              json,
+              jsonqueue,
+              key.replace("_dep", ""),
+              branchName,
+              wrefconfig
+            );
             if (build.state !== "finished" || build.status !== "SUCCESS") {
               canTriggerBuilds = false;
             }
@@ -324,37 +482,52 @@ function GetExternalBuildConfigurationsGroup(id) {
         // get builds to trigger
         var externalBuilds = [];
         for (var key in data) {
-          if (key.endsWith("_build") && !key.endsWith("_queue") && !key.endsWith("_wref") && !key.endsWith("_branch")) {
+          if (
+            key.endsWith("_build") &&
+            !key.endsWith("_queue") &&
+            !key.endsWith("_wref") &&
+            !key.endsWith("_branch")
+          ) {
             var json = JSON.parse(data[key]);
             var jsonqueue = JSON.parse(data[key + "_queue"]);
             var wref = data[key + "_wref"];
-            var build = GetBuildFromJson(json, jsonqueue, key.replace("_build", ""), branchName, wref);
+            var build = GetBuildFromJson(
+              json,
+              jsonqueue,
+              key.replace("_build", ""),
+              branchName,
+              wref
+            );
             externalBuilds.push(build);
           }
         }
 
         var rowdata = "";
-        dependentBuilds.forEach(function(build) {
+        dependentBuilds.forEach(function (build) {
           rowdata += CreateBuildRow(build, false, false);
         });
 
-        var tableBody = document.getElementById('tableDependenciesId');
+        var tableBody = document.getElementById("tableDependenciesId");
         tableBody.innerHTML = rowdata;
 
         var rowdata = "";
-        externalBuilds.forEach(function(build) {
-          rowdata += CreateBuildRow(build, canTriggerBuilds,
-            "TriggerExternalTeamcityBuild", true);
+        externalBuilds.forEach(function (build) {
+          rowdata += CreateBuildRow(
+            build,
+            canTriggerBuilds,
+            "TriggerExternalTeamcityBuild",
+            true
+          );
         });
 
-        var tableBody = document.getElementById('tableBuildsId');
+        var tableBody = document.getElementById("tableBuildsId");
         tableBody.innerHTML = rowdata;
       }
 
-      if (id === 'External2Id') {
+      if (id === "External2Id") {
         var name = JSON.parse(data["ExternalBuildsTwoNameId"]).name;
         if (name === "") {
-          document.getElementById(id).style.display = 'none';
+          document.getElementById(id).style.display = "none";
           return;
         }
 
@@ -363,7 +536,7 @@ function GetExternalBuildConfigurationsGroup(id) {
         try {
           extData = JSON.parse(data["ext_references"]);
         } catch (err) {
-          document.getElementById(id).style.display = 'none';
+          document.getElementById(id).style.display = "none";
           return;
         }
 
@@ -378,8 +551,18 @@ function GetExternalBuildConfigurationsGroup(id) {
             var json = JSON.parse(data[key]);
             var jsonqueue = JSON.parse(data[key + "_queue"]);
             var wrefconfig = data[key + "_wref"];
-            var build = GetBuildFromJson(json, jsonqueue, key.replace("_dep", ""), branchName, wrefconfig);
-            if (build.state !== "finished" || build.status !== "SUCCESS" || build.queue.length !== 0) {
+            var build = GetBuildFromJson(
+              json,
+              jsonqueue,
+              key.replace("_dep", ""),
+              branchName,
+              wrefconfig
+            );
+            if (
+              build.state !== "finished" ||
+              build.status !== "SUCCESS" ||
+              build.queue.length !== 0
+            ) {
               canTriggerBuilds = false;
             }
             dependentBuilds.push(build);
@@ -387,24 +570,32 @@ function GetExternalBuildConfigurationsGroup(id) {
         }
 
         var rowdata = "";
-        dependentBuilds.forEach(function(build) {
+        dependentBuilds.forEach(function (build) {
           rowdata += CreateBuildRow(build, false, false);
         });
 
         var tableBody = document.getElementById(
-          'tableDependenciesExternalTeamcityId');
+          "tableDependenciesExternalTeamcityId"
+        );
         tableBody.innerHTML = rowdata;
 
         var container = document.getElementById(
-          'ExternalTeamcityBuildsContainerId');
+          "ExternalTeamcityBuildsContainerId"
+        );
         var dataRow = "";
         var extData = JSON.parse(data["ext_references"]);
         HookId = 0;
-        extData.forEach(function(datainternal) {
+        extData.forEach(function (datainternal) {
           var hook = JSON.parse(datainternal);
-          var href = hook.url.replace("{branch}", branchName).replace("{pr}", prid);
-          dataRow += CreateButtonWithRef(hook.type, hook.desc, href,
-            canTriggerBuilds);
+          var href = hook.url
+            .replace("{branch}", branchName)
+            .replace("{pr}", prid);
+          dataRow += CreateButtonWithRef(
+            hook.type,
+            hook.desc,
+            href,
+            canTriggerBuilds
+          );
         });
         container.innerHTML = dataRow;
       }
@@ -412,10 +603,34 @@ function GetExternalBuildConfigurationsGroup(id) {
   });
 }
 
-function GetMainBuilds() {
-  parent.GetBuildsConfigurations(function(data, branchName) {
+function GetBuildsConfigurations(callback) {
+  var restPoint =
+    resourceUrl("builds") +
+    "?prid=" +
+    getParamValue("prId") +
+    "&branch=" +
+    getParamValue("branch") +
+    "&hash=" +
+    getParamValue("commit");
 
-    if (typeof data.status !== 'undefined') {
+  $.ajax({
+    url: restPoint,
+    contentType: "application/json",
+    dataType: "json",
+    success: function (result) {
+      console.log(result);
+      callback(result, getParamValue("branch"));
+    },
+    error: function (result) {
+      console.log(result);
+    },
+    done: function (data) {},
+  });
+}
+
+function GetMainBuilds() {
+  GetBuildsConfigurations(function (data, branchName) {
+    if (typeof data.status !== "undefined") {
       // the variable is defined
       if (data.status === "error") {
         return;
@@ -424,10 +639,13 @@ function GetMainBuilds() {
     var rowdata = "";
     var builds = [];
     for (var key in data) {
-      if (data.hasOwnProperty(key) && !key.endsWith("_queue") && !key.endsWith(
-          "_wref")) {
+      if (
+        data.hasOwnProperty(key) &&
+        !key.endsWith("_queue") &&
+        !key.endsWith("_wref")
+      ) {
         var json = JSON.parse(data[key]);
-        if (typeof json.exception !== 'undefined') {
+        if (typeof json.exception !== "undefined") {
           // handle error
           continue;
         }
@@ -440,35 +658,34 @@ function GetMainBuilds() {
     }
 
     var rowdata = "";
-    builds.forEach(function(build) {
+    builds.forEach(function (build) {
       rowdata += CreateBuildRow(build, true, "TriggerBuild", false);
     });
 
-    var tableBody = document.getElementById('tableBuildsContentId');
+    var tableBody = document.getElementById("tableBuildsContentId");
     tableBody.innerHTML = rowdata;
   });
 }
 
 function ReloadData() {
-  setTimeout(function() {
+  setTimeout(function () {
     if (parent.BuildWindowLaunched === true) {
       GetMainBuilds();
-      GetExternalBuildConfigurationsGroup('External1Id');
-      GetExternalBuildConfigurationsGroup('External2Id');
+      GetExternalBuildConfigurationsGroup("External1Id");
+      GetExternalBuildConfigurationsGroup("External2Id");
     }
     ReloadData();
   }, 5000);
 }
 
-
-$(document).ready(function() {
+$(document).ready(function () {
   console.log("ready!");
   buildDependencies = [];
-  document.getElementById('External2Id').style.display = 'none';
-  document.getElementById('External1Id').style.display = 'none';
+  document.getElementById("External2Id").style.display = "none";
+  document.getElementById("External1Id").style.display = "none";
   GetMainBuilds();
-  GetExternalBuildConfigurationsGroup('External1Id');
-  GetExternalBuildConfigurationsGroup('External2Id');
+  GetExternalBuildConfigurationsGroup("External1Id");
+  GetExternalBuildConfigurationsGroup("External2Id");
   ReloadData();
 });
 

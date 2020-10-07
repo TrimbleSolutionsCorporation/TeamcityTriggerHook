@@ -55,15 +55,34 @@
         <dependency>com.atlassian.auiplugin:aui-experimental-spinner</dependency>
     </client-resource>
 
-    <client-web-item key="stash.teamcity.trigger" name="Trigger Build" weight="50" section="bitbucket.pullrequest.action">
+    <web-resource key="pb-pr-trigger-resource">
+        <resource type="download" name="pb-pr-trigger.js" location="/helpers/pb-pr-trigger.js"/>
+        <dependency>${project.groupId}.${project.artifactId}:build-dialog</dependency>
+        <dependency>com.atlassian.plugins.atlassian-plugins-webresource-plugin:context-path</dependency>
+        <context>bitbucket.ui.pullrequest.action</context>
+        <context>pr-trigger-js</context>
+      </web-resource>
+
+      <web-item key="pr-trigger-jenkins" name="Trigger Jenkins Build From Pull Request" weight="1000" section="bitbucket.ui.pullrequest.action">
+        <label>Build in Jenkins</label>
+        <tooltip>Build branch in Jenkins</tooltip>
+      </web-item>
+
+    <web-item key="pr-teamcity-jenkins" name="Trigger Teamcity Build From Pull Request" weight="1000" section="bitbucket.ui.pullrequest.action">
+        <label>build &amp; test</label>
+        <tooltip>Triggers builds in Teamcity server</tooltip>
+      </web-item>
+
+    <web-item key="stash.teamcity.trigger" name="Trigger Build" weight="1000" section="bitbucket.ui.pullrequest.action">
         <conditions type="AND">
             <condition class="com.trimble.tekla.WebhookIsEnabledCondition" />
         </conditions>
+        <tooltip>Build branch in Teamcity</tooltip>
         <label key="stash.web.pull-request.toolbar.triggerTeamcity">build &amp; test</label>
         <styleClass>triggerTeamcityBuild</styleClass>
         <dependency>com.atlassian.sal.api.message.I18nResolver</dependency>
         <dependency>${project.groupId}-${project.artifactId}:teamcity-pr-triggerbutton</dependency>
-    </client-web-item>
+    </web-item>
 
     <web-resource key="teamcity-pr-triggerbutton">
         <resource type="download" name="teamcity-pr-triggerbutton.js" location="/helpers/teamcity-pr-triggerbutton.js" />
