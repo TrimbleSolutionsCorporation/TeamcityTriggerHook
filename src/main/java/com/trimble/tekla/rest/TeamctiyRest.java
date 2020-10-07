@@ -24,7 +24,12 @@ import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.atlassian.bitbucket.auth.AuthenticationContext;
+import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.i18n.I18nService;
+import com.atlassian.bitbucket.pull.PullRequest;
+import com.atlassian.bitbucket.pull.PullRequestRef;
+import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.rest.RestResource;
 import com.atlassian.bitbucket.rest.util.ResourcePatterns;
@@ -61,6 +66,8 @@ public class TeamctiyRest extends RestResource {
   private final TeamcityConnector connector;
   private final SettingsService settingsService;
   private final TeamcityConnectionSettings connectionSettings;
+  private final AuthenticationContext authContext;
+  private final PullRequestService pullRequestService;
 
   /**
    * Creates Rest resource for testing the Jenkins configuration
@@ -68,10 +75,16 @@ public class TeamctiyRest extends RestResource {
    * @param i18nService i18n Service
    */
   @Inject
-  public TeamctiyRest(final I18nService i18nService, final SettingsService settingsService, final TeamcityConnectionSettings connectionSettings) {
+  public TeamctiyRest(final I18nService i18nService,
+                      final SettingsService settingsService,
+                      final TeamcityConnectionSettings connectionSettings,
+                      final AuthenticationContext authContext,
+                      final PullRequestService pullRequestService) {
     super(i18nService);
     this.connectionSettings = connectionSettings;
     this.settingsService = settingsService;
+    this.authContext = authContext;
+    this.pullRequestService = pullRequestService;
     this.connector = new TeamcityConnector(new HttpConnector());
   }
 
@@ -443,11 +456,11 @@ public class TeamctiyRest extends RestResource {
 
     try {
       final ClientResponse response = restClient.resource(url + "/app/rest/builds?locator=lookupLimit:0").accept(MediaType.APPLICATION_XML).get(ClientResponse.class);
-      if (ClientResponse.Status.OK == response.getClientResponseStatus()) {
+      if (ClientResponse.Status.OK == response.getStatusInfo()) {
         this.connectionSettings.savePassword(realPasswordValue, repository);
         return Response.ok(Constant.TEAMCITY_PASSWORD_SAVED_VALUE).build();
       } else {
-        return Response.status(response.getClientResponseStatus()).entity(response.getEntity(String.class)).build();
+        return Response.status(response.getStatusInfo()).entity(response.getEntity(String.class)).build();
       }
     } catch (final UniformInterfaceException | ClientHandlerException e) {
       return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
@@ -508,5 +521,51 @@ public class TeamctiyRest extends RestResource {
     } catch (final Exception e) {
       return Response.status(Status.INTERNAL_SERVER_ERROR).entity(e.getMessage()).build();
     }
+  }
+
+  @GET
+  @Path(value = "getHookEnabled")
+  public Response getHookEnabled(@Context final Repository repository, @QueryParam("prid") final String prid) {
+      if (authContext.isAuthenticated()) {
+
+        if (repository == null) {
+          return Response.ok(false).build();
+        }
+        try {    
+          final RepositoryHook hook = this.settingsService.getRepositoryHook(repository);
+          final Optional<Settings> settings = this.settingsService.getSettings(repository);
+          if(!settings.isPresent()) {
+            return Response.ok(false).build();
+          }      
+    
+          if (hook == null || !hook.isEnabled()) {
+            return Response.ok(false).build();
+          }
+          
+          final PullRequest pullRequest = pullRequestService.getById(repository.getId(), Long.parseLong(prid));
+          if (pullRequest == null) {
+            return Response.ok(false).build();
+          }
+    
+          final String repositoryTriggersJson = settings.get().getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
+          if (repositoryTriggersJson.isEmpty()) {
+            return Response.ok(false).build();
+          }
+    
+          // check if builds are configured
+          final PullRequestRef ref = pullRequest.getFromRef();
+          final String branch = ref.getId();
+    
+          final Trigger[] configurations = Trigger.GetBuildConfigurationsFromBranch(repositoryTriggersJson, branch);
+          if (configurations.length > 0) {
+            return Response.ok(true).build();
+          }
+        } catch (final Exception ex) {
+          // no prb
+        }
+    
+        return Response.ok(false).build();
+      }
+      return Response.status(Response.Status.FORBIDDEN).build();
   }
 }
