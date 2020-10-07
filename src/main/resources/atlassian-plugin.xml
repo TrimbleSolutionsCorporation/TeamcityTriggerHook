@@ -63,12 +63,7 @@
         <context>pr-trigger-js</context>
       </web-resource>
 
-      <web-item key="pr-trigger-jenkins" name="Trigger Jenkins Build From Pull Request" weight="1000" section="bitbucket.ui.pullrequest.action">
-        <label>Build in Jenkins</label>
-        <tooltip>Build branch in Jenkins</tooltip>
-      </web-item>
-
-    <web-item key="pr-teamcity-jenkins" name="Trigger Teamcity Build From Pull Request" weight="1000" section="bitbucket.ui.pullrequest.action">
+      <web-item key="pr-trigger-teamcity" name="Trigger Teamcity Build From Pull Request" weight="1000" section="bitbucket.ui.pullrequest.action">
         <label>build &amp; test</label>
         <tooltip>Triggers builds in Teamcity server</tooltip>
       </web-item>
