@@ -110,7 +110,7 @@ define("teamcity/manual-build-pullrequest", [
   }
 
   registry.registerExtension(
-    "com.trimble.tekla:pr-trigger-jenkins",
+    "com.trimble.tekla:pr-trigger-teamcity",
     buttonPluginFactory
   );
 });
