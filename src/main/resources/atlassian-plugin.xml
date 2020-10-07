@@ -68,19 +68,4 @@
         <tooltip>Triggers builds in Teamcity server</tooltip>
       </web-item>
 
-    <web-item key="stash.teamcity.trigger" name="Trigger Build" weight="1000" section="bitbucket.ui.pullrequest.action">
-        <conditions type="AND">
-            <condition class="com.trimble.tekla.WebhookIsEnabledCondition" />
-        </conditions>
-        <tooltip>Build branch in Teamcity</tooltip>
-        <label key="stash.web.pull-request.toolbar.triggerTeamcity">build &amp; test</label>
-        <styleClass>triggerTeamcityBuild</styleClass>
-        <dependency>com.atlassian.sal.api.message.I18nResolver</dependency>
-        <dependency>${project.groupId}-${project.artifactId}:teamcity-pr-triggerbutton</dependency>
-    </web-item>
-
-    <web-resource key="teamcity-pr-triggerbutton">
-        <resource type="download" name="teamcity-pr-triggerbutton.js" location="/helpers/teamcity-pr-triggerbutton.js" />
-        <context>bitbucket.page.pullRequest.view</context>
-    </web-resource>
 </atlassian-plugin>
