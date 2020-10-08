@@ -83,6 +83,7 @@ define("teamcity/manual-build-pullrequest", [
       window.onclick = function (event) {
         if (!ModalFirstStart) {
             modalDialogParentDiv.style.display = "none";
+            modalDialogParentDiv.parentNode.removeChild(modalDialogParentDiv);
         }
 
         ModalFirstStart = false;
