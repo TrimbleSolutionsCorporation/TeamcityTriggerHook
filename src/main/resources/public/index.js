@@ -1,6 +1,7 @@
 console.log("issueCreation Loaded");
 
 var disableTrigger = false;
+var dialogLoaded = true;
 var buildDependencies = [];
 
 function getParamValue(paramName) {
@@ -32,6 +33,7 @@ function closeModal() {
   var modal = window.parent.document.getElementById("myModal");
   modal.style.display = "none";
   modal.parentNode.removeChild(modal);
+  dialogLoaded = false;
 }
 
 function GetBuildInformation(buildId, htmlId, callback) {
@@ -669,7 +671,7 @@ function GetMainBuilds() {
 
 function ReloadData() {
   setTimeout(function () {
-    if (parent.BuildWindowLaunched === true) {
+    if (dialogLoaded) {
       GetMainBuilds();
       GetExternalBuildConfigurationsGroup("External1Id");
       GetExternalBuildConfigurationsGroup("External2Id");
@@ -686,6 +688,7 @@ $(document).ready(function () {
   GetMainBuilds();
   GetExternalBuildConfigurationsGroup("External1Id");
   GetExternalBuildConfigurationsGroup("External2Id");
+  dialogLoaded = true;
   ReloadData();
 });
 
