@@ -2,6 +2,7 @@ console.log("issueCreation Loaded");
 
 var disableTrigger = false;
 var dialogLoaded = true;
+var loadingBuilds = false;
 var buildDependencies = [];
 
 function getParamValue(paramName) {
@@ -670,14 +671,25 @@ function GetMainBuilds() {
 }
 
 function ReloadData() {
-  setTimeout(function () {
+    if (loadingBuilds) {
+      var elementLog = document.getElementById("ErrorMessageId");
+      elementLog.innerHTML = "Please, try again in 10 seconds, too much polling...";
+      elementLog.style.color = "blue";
+      return;
+    }
+    var element = document.getElementById("ErrorMessageId");
+    element.innerHTML = "";
+    loadingBuilds = true;
     if (dialogLoaded) {
       GetMainBuilds();
-      GetExternalBuildConfigurationsGroup("External1Id");
-      GetExternalBuildConfigurationsGroup("External2Id");
+      setTimeout(function () {
+        GetExternalBuildConfigurationsGroup("External1Id");
+        GetExternalBuildConfigurationsGroup("External2Id");
+        setTimeout(function () {
+          loadingBuilds = false;
+        }, 7000);
+      }, 3000);
     }
-    ReloadData();
-  }, 5000);
 }
 
 $(document).ready(function () {

@@ -185,8 +185,8 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
-    final String url = settings.get().getString("teamCityUrl", "");
-    final String username = settings.get().getString("teamCityUserName", "");
+    final String url = settings.get().getString(Field.TEAMCITY_URL, "");
+    final String username = settings.get().getString(Field.TEAMCITY_USERNAME, "");
     final String password = this.connectionSettings.getPassword(repository);
 
     if (url.isEmpty()) {
@@ -217,7 +217,13 @@ public class TeamctiyRest extends RestResource {
                 .append(" ")
                 .append(buildConfig.getBranchConfig());
         builder.append(" ")
-                .append(this.connector.QueueBuild(conf, buildConfig.getBranchConfig(), buildconfig, "Manual Trigger from Bitbucket: Pull Request: " + prid, false, settings.get())); // handle error todo
+                .append(this.connector.QueueBuild(conf,
+                                                  buildConfig.getBranchConfig(),
+                                                  buildconfig,
+                                                  "Manual Trigger from Bitbucket: Pull Request: " + prid,
+                                                  false,
+                                                  settings.get(),
+                                                  repository.getName())); // handle error todo
       } else {
         builder.append(" trigger skipped ")
                 .append(buildconfig)
@@ -244,7 +250,7 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
-    final String url = settings.get().getString("teamCityUrl", "");
+    final String url = settings.get().getString(Field.TEAMCITY_URL, "");
     final String username = settings.get().getString("teamCityUserName", "");
     final String password = this.connectionSettings.getPassword(repository);
 
@@ -277,8 +283,8 @@ public class TeamctiyRest extends RestResource {
           continue;
         }
         try {
-          final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings.get());
-          final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTarget(), settings.get());
+          final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings.get(), repository.getName());
+          final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTarget(), settings.get(), repository.getName());
           jObj.put(buildConfig.getTarget(), returnData);
           jObj.put(buildConfig.getTarget() + "_queue", queueData);
           jObj.put(buildConfig.getTarget() + "_wref", url + "/viewType.html?buildTypeId=" + buildConfig);
@@ -310,7 +316,7 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
-    final String url = settings.get().getString("teamCityUrl", "");
+    final String url = settings.get().getString(Field.TEAMCITY_URL, "");
     final String username = settings.get().getString("teamCityUserName", "");
     final String password = this.connectionSettings.getPassword(repository);
 
@@ -337,16 +343,16 @@ public class TeamctiyRest extends RestResource {
         for (final Trigger buildConfig : configurations) {
           if ("build".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
             final String depBuildId = buildConfig.getTarget();
-            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get());
-            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get());            
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get(), repository.getName());
+            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get(), repository.getName());
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
             jObj.put(depBuildId + "_dep", returnData);
             jObj.put(depBuildId + "_dep_queue", queueData);
 
             final String [] downBuildIds = buildConfig.getDownStreamTriggerTarget().split(",");           
             for (String downBuildId : downBuildIds) {
-                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), downBuildId, settings.get());
-                final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings.get());
+                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), downBuildId, settings.get(), repository.getName());
+                final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings.get(), repository.getName());
                 jObj.put(downBuildId + "_build", returnDataBuildDep);
                 jObj.put(downBuildId + "_build_branch", buildConfig.getBranchConfig());                
                 jObj.put(downBuildId + "_build_wref", url + "/viewType.html?buildTypeId=" + downBuildId);
@@ -365,8 +371,8 @@ public class TeamctiyRest extends RestResource {
               "tab".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
             final String depBuildId = buildConfig.getTarget();
             
-            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get());
-            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get());
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get(), repository.getName());
+            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get(), repository.getName());
             jObj.put(depBuildId + "_dep", returnData);
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
             jObj.put(depBuildId + "_dep_queue", queueData);
@@ -420,7 +426,7 @@ public class TeamctiyRest extends RestResource {
         return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
       }
     
-      returnData = dummyConnector.Get(url, settings.get());
+      returnData = dummyConnector.Get(url, settings.get(), repository.getName());
       return "{\"status\": \"ok\", \"message\": \" " + returnData + "\" }";
     } catch (final IOException ex) {
       return "{\"status\": \"failed\", \"message\": \" " + ex.getMessage() + "\" }";
@@ -485,7 +491,7 @@ public class TeamctiyRest extends RestResource {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
-    final String url = settings.get().getString("teamCityUrl", "");
+    final String url = settings.get().getString(Field.TEAMCITY_URL, "");
     final String username = settings.get().getString("teamCityUserName", "");
     final String password = this.connectionSettings.getPassword(repository);
 
@@ -499,7 +505,7 @@ public class TeamctiyRest extends RestResource {
 
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     try {     
-      return this.connector.GetBuild(conf, id, settings.get());
+      return this.connector.GetBuild(conf, id, settings.get(), repository.getName());
     } catch (final IOException ex) {
       return "{\"status\": \"error\", \"message\": \"" + ex.getMessage() + "\"}";
     }

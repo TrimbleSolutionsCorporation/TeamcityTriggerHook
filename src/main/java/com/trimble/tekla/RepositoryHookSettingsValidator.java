@@ -66,8 +66,8 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
             errors.addFieldError(Field.BITBUCKET_URL, this.i18n.getText("error.invalid.url"));
         }
 
-        final String teamCityUrl = settings.getString(Field.TEAMCITY_URL, StringUtils.EMPTY);
-        if (!URL_VALIDATION_PATTERN.matcher(teamCityUrl).matches()) {
+        final String urlTeamcity = settings.getString(Field.TEAMCITY_URL, StringUtils.EMPTY);
+        if (!URL_VALIDATION_PATTERN.matcher(urlTeamcity).matches()) {
             errors.addFieldError(Field.TEAMCITY_URL, this.i18n.getText("error.invalid.url"));
         }
 

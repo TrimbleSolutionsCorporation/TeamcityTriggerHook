@@ -16,8 +16,7 @@ public class TeamcityConnectorTest
         TeamcityConfiguration conf = new TeamcityConfiguration("host", "user", "pass");
         HttpConnector connector = mock(HttpConnector.class);
         TeamcityConnector component = new TeamcityConnector(connector);
-        component.TriggerCheckForChanges(conf, "vcsRootForRepo", null);
-        
-        verify(connector).Post(conf, "/app/rest/debug/vcsCheckingForChangesQueue?locator=vcsRoot:vcsRootForRepo", null, null);
+        component.TriggerCheckForChanges(conf, "vcsRootForRepo", null, "repo");        
+        verify(connector).Post(conf, "/app/rest/debug/vcsCheckingForChangesQueue?locator=vcsRoot:vcsRootForRepo", null, null, "repo");
     }
 }
