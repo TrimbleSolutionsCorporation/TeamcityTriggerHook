@@ -24,14 +24,14 @@ import org.apache.commons.codec.binary.Base64;
  */
 public class HttpConnector {
    
-    public void Post(TeamcityConfiguration conf, String url, Map<String, String> parameters, Settings settings) {
+    public void Post(TeamcityConfiguration conf, String url, Map<String, String> parameters, Settings settings, String repoName) {
         
         try {                  
             
             String urlstr = conf.getUrl() + url;
 
             URL urldata = new URL(urlstr);
-            TeamcityLogger.logMessage(settings, "[HttpConnector][Post] Hook Request: "  + urlstr);
+            TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Post] Hook Request: "  + urlstr);
             
             String authStr = conf.getUserName() + ":" + conf.getPassWord();
             String authEncoded = Base64.encodeBase64String(authStr.getBytes());
@@ -55,30 +55,30 @@ public class HttpConnector {
                 dataout.append(line);
             }
             
-            TeamcityLogger.logMessage(settings, "[HttpConnector][Post] Hook Reply: "  + line);
+            TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Post] Hook Reply: "  + line);
             
         } catch (Exception e) {
-            TeamcityLogger.logMessage(settings, "[HttpConnector][Post] Hook Exception: "  + e.getMessage());
+            TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Post] Hook Exception: "  + e.getMessage());
             e.printStackTrace();
         }         
     }
-    public boolean isReachable(TeamcityConfiguration conf, Settings settings) {
+    public boolean isReachable(TeamcityConfiguration conf, Settings settings, String repoName) {
         try {       
             InetAddress address = InetAddress.getByName(conf.getUrl().replace("http://", "").replace("https://", ""));
             address.isReachable(500);
             return true;
         } catch (IOException e) {
-            TeamcityLogger.logMessage(settings, "[HttpConnector][isReachable] Failed to reach server, skip queue checker thread to avoid deadlocks: " + e.getMessage());
+            TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][isReachable] Failed to reach server, skip queue checker thread to avoid deadlocks: " + e.getMessage());
             return false;
         }
     }
 
-    public String Get(TeamcityConfiguration conf, String url, Settings settings) throws MalformedURLException, IOException {
+    public String Get(TeamcityConfiguration conf, String url, Settings settings, String repoName) throws MalformedURLException, IOException {
         
       String urlstr = conf.getUrl() + url;
 
       URL urldata = new URL(urlstr);
-      TeamcityLogger.logMessage(settings, "[HttpConnector][Get] Hook Request with timeout 5 seconds for connect: "  + urlstr + "-");
+      TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Get] Hook Request with timeout 50 seconds for connect: "  + urlstr + "-");
 
       String authStr = conf.getUserName() + ":" + conf.getPassWord();
       String authEncoded = Base64.encodeBase64String(authStr.getBytes());
@@ -87,7 +87,7 @@ public class HttpConnector {
 
       connection.setRequestMethod("GET");
       connection.setDoOutput(true);
-      connection.setConnectTimeout(5000);
+      connection.setConnectTimeout(50000);
       connection.setRequestProperty("Accept", "application/json");
       connection.setRequestProperty("Authorization", "Basic " + authEncoded);
 
@@ -100,15 +100,15 @@ public class HttpConnector {
           dataout.append(line);
       }
 
-      TeamcityLogger.logMessage(settings, "[HttpConnector][Get] Hook Reply: "  + line);
+      TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Get] Hook Reply: "  + line);
 
       return dataout.toString();       
     }
     
-    public String Get(String url, Settings settings) throws MalformedURLException, IOException {
+    public String Get(String url, Settings settings, String repoName) throws MalformedURLException, IOException {
       String urlstr = url;
       URL urldata = new URL(urlstr);
-      TeamcityLogger.logMessage(settings, "[HttpConnector][Get]  Hook Request with timeout 5 seconds for connect: "  + urlstr);
+      TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Get]  Hook Request with timeout 5 seconds for connect: "  + urlstr);
       HttpURLConnection connection = (HttpURLConnection) urldata.openConnection();
       connection.setConnectTimeout(5000);
       connection.setRequestMethod("GET");
@@ -124,15 +124,15 @@ public class HttpConnector {
           dataout.append(line);
       }
 
-      TeamcityLogger.logMessage(settings, "[HttpConnector][Get] Hook Reply: "  + line);
+      TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Get] Hook Reply: "  + line);
       return dataout.toString();
     }
     
-    public String PostPayload(TeamcityConfiguration conf, String url, String payload, Settings settings) {
+    public String PostPayload(TeamcityConfiguration conf, String url, String payload, Settings settings, String repoName) {
       try {                  
         String urlstr = conf.getUrl() + url;
         URL urldata = new URL(urlstr);
-        TeamcityLogger.logMessage(settings, "[HttpConnector][PostPayload] Hook Request: "  + urlstr);
+        TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][PostPayload] Hook Request: "  + urlstr);
         String authStr = conf.getUserName() + ":" + conf.getPassWord();
         String authEncoded = Base64.encodeBase64String(authStr.getBytes());
         HttpURLConnection connection = (HttpURLConnection) urldata.openConnection();
@@ -156,10 +156,10 @@ public class HttpConnector {
           dataout.append(line);
         }
 
-        TeamcityLogger.logMessage(settings, "[HttpConnector][PostPayload] Hook Reply: "  + line);
+        TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][PostPayload] Hook Reply: "  + line);
         return line;
       } catch (Exception e) {
-        TeamcityLogger.logMessage(settings, "[HttpConnector][PostPayload] Hook Exception: "  + e.getMessage());
+        TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][PostPayload] Hook Exception: "  + e.getMessage());
         e.printStackTrace();
         return e.getMessage();
       }         

@@ -25,31 +25,36 @@ public class TeamcityConnector  {
      this.connector = connector;     
     }
     
-    public String GetQueueAndRunningData(TeamcityConfiguration conf, Settings settings, String branch) throws IOException {
-      String restpoint = "/app/rest/builds?locator=state:(queued:true,running:true),branch:" + branch;
-      if(!this.connector.isReachable(conf, settings)) {
-        TeamcityLogger.logMessage(settings, "[HttpConnector][GetQueueData] Server Not reachable: " + conf.getUrl());
-        return "";
-      }
-      
-      String returnData = this.connector.Get(conf, restpoint, settings);
-      TeamcityLogger.logMessage(settings, "[HttpConnector][GetQueueData] return data: " + returnData);      
+    public String GetQueueAndRunningData(TeamcityConfiguration conf, Settings settings, String branch, String repoName) throws IOException {
+      String restpoint = "/app/rest/builds?locator=state:(queued:true,running:true),branch:" + branch;     
+      String returnData = this.connector.Get(conf, restpoint, settings, repoName);
+      TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][GetQueueData] return data: " + returnData);      
       return returnData;
     }  
     
-    public String GetQueueDataForConfiguration(TeamcityConfiguration conf, String buildConfiguration, Settings settings) throws IOException {
+    public String GetQueueDataForConfiguration(TeamcityConfiguration conf,
+                                               String buildConfiguration,
+                                               Settings settings,
+                                               String repoName) throws IOException {
       String restpoint = "/app/rest/buildQueue?locator=buildType:" + buildConfiguration;
-      return this.connector.Get(conf, restpoint, settings);
+      return this.connector.Get(conf, restpoint, settings, repoName);
     }
     
-    public String GetBuildsForBranch(TeamcityConfiguration conf, String branch, String buildConfiguration, Settings settings) throws IOException {
+    public String GetBuildsForBranch(TeamcityConfiguration conf,
+                                     String branch,
+                                     String buildConfiguration,
+                                     Settings settings,
+                                     String repoName) throws IOException {
       String restpoint = "/app/rest/builds/" + "?locator=buildType:" + buildConfiguration + 
               ",branch:" + branch + ",running:any,canceled:any,count:2";
-      return this.connector.Get(conf, restpoint, settings);
+      return this.connector.Get(conf, restpoint, settings, repoName);
     }
     
-    public List<TeamcityQueuedElement> GetQueuedAndRunningBuilds(TeamcityConfiguration conf, Settings settings, String branch) throws IOException, JSONException {
-        String queueData = this.GetQueueAndRunningData(conf, settings, branch);
+    public List<TeamcityQueuedElement> GetQueuedAndRunningBuilds(TeamcityConfiguration conf,
+                                                                 Settings settings,
+                                                                 String branch,
+                                                                 String repoName) throws IOException, JSONException {
+        String queueData = this.GetQueueAndRunningData(conf, settings, branch, repoName);
         List<TeamcityQueuedElement> queuedElements = new ArrayList<>();
         if(queueData == ""){
           return queuedElements;
@@ -88,8 +93,8 @@ public class TeamcityConnector  {
         return queuedElements;
     } 
     
-    public Boolean IsInQueue(TeamcityConfiguration conf, String buildConfig, String branch, Settings settings) throws IOException, JSONException {
-        String queueData = this.GetQueueDataForConfiguration(conf, buildConfig, settings);
+    public Boolean IsInQueue(TeamcityConfiguration conf, String buildConfig, String branch, Settings settings, String repoName) throws IOException, JSONException {
+        String queueData = this.GetQueueDataForConfiguration(conf, buildConfig, settings, repoName);
         JSONObject jsonObj = new JSONObject(queueData);
         
         Integer numberOfQueuedBuilds = jsonObj.getInt("count");
@@ -115,23 +120,23 @@ public class TeamcityConnector  {
         return false;
     } 
     
-    public String TestTeamcityConnection(TeamcityConfiguration conf, Settings settings) {
+    public String TestTeamcityConnection(TeamcityConfiguration conf, Settings settings, String repoName) {
       String restpoint = "/app/rest/builds";
       
       try
       {
-        String data = this.connector.Get(conf, restpoint, settings);
-        TeamcityLogger.logMessage(settings, "teamcity returned: "  + data);
+        String data = this.connector.Get(conf, restpoint, settings, repoName);
+        TeamcityLogger.logMessage(settings, repoName, "teamcity returned: "  + data);
         return "Ok";
       } catch (Exception e) {
-        TeamcityLogger.logMessage(settings, "Hook Exception: "  + e.getMessage());
+        TeamcityLogger.logMessage(settings, repoName, "Hook Exception: "  + e.getMessage());
         return "Not able to Connect to Teamcity Server : " + e.getMessage();
       }        
     }
     
-    public void TriggerCheckForChanges(TeamcityConfiguration conf, String vcsRoot, Settings settings) {
+    public void TriggerCheckForChanges(TeamcityConfiguration conf, String vcsRoot, Settings settings, String repoName) {
         String url = "/app/rest/debug/vcsCheckingForChangesQueue?locator=vcsRoot:"  + vcsRoot;
-        this.connector.Post(conf, url, null, settings);        
+        this.connector.Post(conf, url, null, settings, repoName);        
     }
     
     public String QueueBuild(
@@ -139,9 +144,11 @@ public class TeamcityConnector  {
             String branch,
             String buildid,
             String comment,
-            Boolean isDefault, Settings settings) {
+            Boolean isDefault,
+            Settings settings,
+            String repoName) {
         String url = "/app/rest/buildQueue";
-        return this.connector.PostPayload(conf, url, GetPayload(branch, buildid, comment, isDefault), settings);        
+        return this.connector.PostPayload(conf, url, GetPayload(branch, buildid, comment, isDefault), settings, repoName);        
     }    
 
     private String GetCancelAndRequeuePayload(String readIntoQueue) {
@@ -172,17 +179,17 @@ public class TeamcityConnector  {
         return builder.toString();
     }
 
-  public String GetBuild(TeamcityConfiguration conf, String id, Settings settings) throws IOException {
+  public String GetBuild(TeamcityConfiguration conf, String id, Settings settings, String repoName) throws IOException {
     String url = "/app/rest/builds/id:" + id;
-    return this.connector.Get(conf, url, settings);            
+    return this.connector.Get(conf, url, settings, repoName);
   }
 
-  public void ReQueueBuild(TeamcityConfiguration conf, String id, Settings settings, Boolean readIntoQueue) {
+  public void ReQueueBuild(TeamcityConfiguration conf, String id, Settings settings, Boolean readIntoQueue, String repoName) {
     String url = "/app/rest/builds/id:" + id;
     if (readIntoQueue) {
-      this.connector.PostPayload(conf, url, this.GetCancelAndRequeuePayload("true"), settings);
+      this.connector.PostPayload(conf, url, this.GetCancelAndRequeuePayload("true"), settings, repoName);
     } else {
-      this.connector.PostPayload(conf, url, this.GetCancelAndRequeuePayload("false"), settings);
+      this.connector.PostPayload(conf, url, this.GetCancelAndRequeuePayload("false"), settings, repoName);
     }
     
   }

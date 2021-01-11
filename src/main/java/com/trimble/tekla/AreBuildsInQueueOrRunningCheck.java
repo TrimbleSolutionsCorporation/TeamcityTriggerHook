@@ -52,7 +52,8 @@ public class AreBuildsInQueueOrRunningCheck implements RepositoryMergeCheck {
   @Override
   public RepositoryHookResult preUpdate(@Nonnull PreRepositoryHookContext prhc, @Nonnull PullRequestMergeHookRequest t) {
     PullRequest pr = t.getPullRequest();
-    Repository repository = pr.getToRef().getRepository(); 
+    Repository repository = pr.getToRef().getRepository();
+    final String repoName = repository.getName();
 
     Optional<Settings> settings = this.settingsService.getSettings(repository);
     
@@ -60,8 +61,8 @@ public class AreBuildsInQueueOrRunningCheck implements RepositoryMergeCheck {
       return RepositoryHookResult.accepted();
     }
 
-    TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueOrRunningCheck] Queue Checker Started");
-    final String teamcityAddress = settings.get().getString("teamCityUrl");
+    TeamcityLogger.logMessage(settings.get(), repoName, "[AreBuildsInQueueOrRunningCheck] Queue Checker Started");
+    final String teamcityAddress = settings.get().getString(Field.TEAMCITY_URL);
     if(teamcityAddress == null || "".equals(teamcityAddress)) {
       return RepositoryHookResult.accepted();
     }
@@ -69,37 +70,42 @@ public class AreBuildsInQueueOrRunningCheck implements RepositoryMergeCheck {
     final String password = this.connectionSettings.getPassword(repository);
     final TeamcityConfiguration conf
             = new TeamcityConfiguration(
-                    settings.get().getString("teamCityUrl"),
-                    settings.get().getString("teamCityUserName"),
+                    settings.get().getString(Field.TEAMCITY_URL),
+                    settings.get().getString(Field.TEAMCITY_USERNAME),
                     password);
            
     final String branch = pr.getFromRef().getDisplayId();
-    if(AreBuildsInQueueForBranch(branch, conf, settings.get())) {
-      TeamcityLogger.logMessage(settings.get(), "Builds in queue for " + branch);
-      String teamcityAddressQueue = settings.get().getString("teamCityUrl") + "/queue.html";
-      String summaryMsg = i18nService.getText("mergecheck.builds.inqueue.summary", "Builds in queue or running");
-      String detailedMsg = i18nService.getText("mergecheck.builds.inqueue.detailed", "Builds are still in queue or running, visit: ") + teamcityAddressQueue;
-     
-      TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueOrRunningCheck] builds in queue for " + branch + " reject");
-      return RepositoryHookResult.rejected(summaryMsg, detailedMsg);    
-    } 
 
-    TeamcityLogger.logMessage(settings.get(), "[AreBuildsInQueueOrRunningCheck] No builds in queue for " + branch);
+    try {
+      if(AreBuildsInQueueForBranch(branch, conf, settings.get(), repoName)) {
+        TeamcityLogger.logMessage(settings.get(), repoName, "Builds in queue for " + branch);
+        String teamcityAddressQueue = settings.get().getString(Field.TEAMCITY_URL) + "/queue.html";
+        String teamcityAddressAgents = settings.get().getString(Field.TEAMCITY_URL) + "/agents.html";
+        String summaryMsg = i18nService.getText("mergecheck.builds.inqueue.summary", "Builds in queue or running");
+        String detailedMsg = i18nService.getText("mergecheck.builds.inqueue.detailed", "Builds are still in queue or running, visit: ") + 
+          teamcityAddressQueue + " or " + teamcityAddressAgents;       
+        TeamcityLogger.logMessage(settings.get(), repoName, "[AreBuildsInQueueOrRunningCheck] builds in queue for " + branch + " reject");
+        return RepositoryHookResult.rejected(summaryMsg, detailedMsg);    
+      }
+    } catch (Exception ex) {
+      TeamcityLogger.logMessage(settings.get(), repoName, "Exception retriving queued or running builds for " + branch);
+      String summaryMsg = i18nService.getText("mergecheck.builds.inqueue.summary", "Exception: Cannot retrive data from Teamcity server");
+      String detailedMsg = i18nService.getText("mergecheck.builds.inqueue.detailed", "Make sure: ") + teamcityAddress + " is up and running. And accessible to current Bitbucket server";     
+      TeamcityLogger.logMessage(settings.get(), repoName, "[AreBuildsInQueueOrRunningCheck] exception " + ex.getMessage() + " reject");
+      return RepositoryHookResult.rejected(summaryMsg, detailedMsg);  
+    }
+    
+    TeamcityLogger.logMessage(settings.get(), repoName, "[AreBuildsInQueueOrRunningCheck] No builds in queue for " + branch);
     return RepositoryHookResult.accepted();
   }
   
    private Boolean AreBuildsInQueueForBranch(String branch,
           final TeamcityConfiguration conf,
-          final Settings settings) {    
+          final Settings settings,
+          final String repoName) throws IOException, JSONException {
     List<TeamcityQueuedElement> queue;    
-    try {
-      queue = this.connector.GetQueuedAndRunningBuilds(conf, settings, branch);
-      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueOrRunningCheck] Detected: " + queue.size() + " in queue.");
+      queue = this.connector.GetQueuedAndRunningBuilds(conf, settings, branch, repoName);
+      TeamcityLogger.logMessage(settings, repoName, "[AreBuildsInQueueOrRunningCheck] Detected: " + queue.size() + " in queue.");
       return !queue.isEmpty();
-    } catch (IOException | JSONException ex) {
-      TeamcityLogger.logMessage(settings, "[AreBuildsInQueueOrRunningCheck] Exception " + ex.getMessage());
-    }
-    
-    return false;    
   } 
 }

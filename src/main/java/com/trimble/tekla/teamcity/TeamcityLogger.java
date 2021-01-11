@@ -17,41 +17,45 @@ import org.slf4j.LoggerFactory;
 public class TeamcityLogger {
   private static final org.slf4j.Logger LOG = LoggerFactory.getLogger(TeamcityLogger.class);
  
-  public static void logMessage(RepositoryHookContext context, String message) {
-    
+  public static void logMessage(RepositoryHookContext context, String repoName, String message) {    
     if (context == null) {  
-      LOG.error("[TeamcityTriggerHook] : Context is null, cant get debug flag");
+      LOG.error("[TeamcityTriggerHook][INFO][" + repoName + "] : Context is null, cant get debug flag");
       return;
     }
-
-    Boolean isDebugEnabled = context.getSettings().getBoolean(Field.DEBUG, false);
-
-    if(isDebugEnabled) {
-      LOG.info("[TeamcityTriggerHook] : " + message);
+   
+    if(isDebugEnabled(context.getSettings(), repoName)) {
+      LOG.info("[TeamcityTriggerHook][INFO][" + repoName + "] : " + message);
     }
   }
 
-  public static void logMessage(Settings settings, String message) {
+  public static void logMessage(Settings settings, String repoName, String message) {
     if (settings == null) {
-      LOG.error("[TeamcityTriggerHook] : Context is null, cant get debug flag");
+      LOG.error("[TeamcityTriggerHook][INFO][" + repoName + "] : Context is null, cant get debug flag");
       return;
     }
 
-    Boolean isDebugEnabled = settings.getBoolean(Field.DEBUG, false);
-    if(isDebugEnabled) {
-      LOG.info("[TeamcityTriggerHook ->] : " + message);
+    if(isDebugEnabled(settings, repoName)) {
+      LOG.info("[TeamcityTriggerHook][INFO][" + repoName + "] : " + message);
+    } else {
+      LOG.info("[TeamcityTriggerHook][INFO][" + repoName + "] : Logging Disable");
     }
   }
 
-  public static void LogError(RepositoryHookContext context, String message, Throwable ex) {
+  public static void logError(RepositoryHookContext context, String repoName, String message, Throwable ex) {
     if (context == null) {
-      LOG.error("[TeamcityTriggerHook] : Context is null, cant get debug flag");
+      LOG.error("[TeamcityTriggerHook][ERROR][" + repoName + "] : Context is null, cant get debug flag");
       return;
     }
 
-    Boolean isDebugEnabled = context.getSettings().getBoolean(Field.DEBUG, false);
-    if(isDebugEnabled) {
-      LOG.error("[TeamcityTriggerHook ->] : " + message, ex);
-    }
+    LOG.error("[TeamcityTriggerHook][ERROR][" + repoName + "] : " + message, ex);
+  }
+
+  private static boolean isDebugEnabled(Settings settings, String repoName) {
+    try {
+      return settings.getBoolean(Field.DEBUG);  
+    } catch (Exception e) {      
+      LOG.info("[TeamcityTriggerHook][INFO][" + repoName + "] : Logging is not setup, will be disabled");
+      return false;
+    }    
   }
 }
