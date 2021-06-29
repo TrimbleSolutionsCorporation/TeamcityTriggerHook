@@ -5,6 +5,7 @@
  */
 package com.trimble.tekla.teamcity;
 
+import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.setting.Settings;
 import com.trimble.tekla.pojo.TeamcityQueuedElement;
 import java.io.IOException;
@@ -146,10 +147,11 @@ public class TeamcityConnector  {
             String comment,
             Boolean isDefault,
             Settings settings,
-            String repoName) {
+            String repoName,
+            PullRequest prInfo) {
         String url = "/app/rest/buildQueue";
-        return this.connector.PostPayload(conf, url, GetPayload(branch, buildid, comment, isDefault), settings, repoName);        
-    }    
+        return this.connector.PostPayload(conf, url, GetPayload(branch, buildid, comment, isDefault, prInfo), settings, repoName);
+    }
 
     private String GetCancelAndRequeuePayload(String readIntoQueue) {
         StringBuilder builder = new StringBuilder();
@@ -157,7 +159,7 @@ public class TeamcityConnector  {
         return builder.toString();
     }
     
-    private String GetPayload(String branch, String buildid, String comment, Boolean isDefault) {
+    private String GetPayload(String branch, String buildid, String comment, Boolean isDefault, PullRequest prInfo) {
         StringBuilder builder = new StringBuilder();
         if (!"".equals(branch)) {            
             if (isDefault) {
@@ -168,6 +170,12 @@ public class TeamcityConnector  {
           
             builder.append(String.format("<buildType id=\"%s\"/>", buildid));
             builder.append(String.format("<comment><text>%s</text></comment>", comment));
+            builder.append("<properties>");
+            builder.append(String.format("<property name=\"bitbucket.pr.source.branch\" value=\"%s\"/>", branch));
+            builder.append(String.format("<property name=\"bitbucket.pr.target.branch\" value=\"%s\"/>", prInfo.getToRef().getId()));
+            builder.append(String.format("<property name=\"bitbucket.pr.number\" value=\"%s\"/>", prInfo.getId()));
+            builder.append(String.format("<property name=\"bitbucket.pr.title\" value=\"%s\"/>", prInfo.getTitle()));
+            builder.append("</properties>");
             builder.append("</build>");
         } else {
             builder.append("<build>");

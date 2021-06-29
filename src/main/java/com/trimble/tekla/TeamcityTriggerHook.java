@@ -277,7 +277,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
         final String count = obj.getString("count");
 
         if (count.equals("0") || !cancelRunningBuilds) {
-          this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings, repoName);
+          this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings, repoName, null);
         } else {
           final JSONArray builds = obj.getJSONArray("build");
           for (int i = 0; i < builds.length(); i++) {
@@ -289,7 +289,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
           }
 
           // at this point all builds were finished, so we need to trigger
-          this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings, repoName);
+          this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings, repoName, null);
           TeamcityLogger.logMessage(context, repoName, "Queued: " + buildIdIn + " " + branch);
         }
       } else {
