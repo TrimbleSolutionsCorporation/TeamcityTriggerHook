@@ -197,7 +197,8 @@ public class TeamcityPullrequestEventListener {
                   "Trigger from Bitbucket: Pull Request: " + pr.getId(),
                   false,
                   settings.get(),
-                  repo.getName());
+                  repo.getName(),
+                  pr);
           triggeredBuilds.add(buildConfig.getTarget());
         } else {
           final JSONArray builds = obj.getJSONArray("build");
@@ -217,7 +218,8 @@ public class TeamcityPullrequestEventListener {
                   "Trigger from Bitbucket: Pull Request: " + pr.getId(),
                   false,
                   settings.get(),
-                  repo.getName());
+                  repo.getName(),
+                  pr);
         }
       }
     }
