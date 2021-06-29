@@ -183,7 +183,8 @@ public class TeamcityPullrequestEventListener {
                   buildConfig.getTarget(),
                   "Trigger from Bitbucket: Pull Request: " + pr.getId(),
                   buildConfig.isCancelRunningBuilds(),
-                  repo.getName());
+                  repo.getName(),
+                  pr);
         }
 
         if(buildConfig.isTriggerPullRequestShadowMerge()) {
@@ -197,7 +198,8 @@ public class TeamcityPullrequestEventListener {
                     buildConfig.getTarget(),
                     "Trigger Shadow Merge from Bitbucket: Pull Request: " + pr.getId(),
                     buildConfig.isCancelRunningBuilds(),
-                    repo.getName());
+                    repo.getName(),
+                    pr);
           }
         }
 
@@ -232,8 +234,8 @@ public class TeamcityPullrequestEventListener {
           final String buildid,
           final String comment,
           final boolean cancelRunningBuilds,
-          final String repoName
-  ) throws IOException, JSONException {
+          final String repoName,
+          PullRequest prInfo) throws IOException, JSONException {
     // check if build is running
     final String buildData = this.connector.GetBuildsForBranch(
             conf,
@@ -253,7 +255,8 @@ public class TeamcityPullrequestEventListener {
               comment,
               false,
               settings.get(),
-              repoName);
+              repoName,
+              prInfo);
       triggeredBuilds.add(branch);
     } else {
       final JSONArray builds = obj.getJSONArray("build");
@@ -273,8 +276,8 @@ public class TeamcityPullrequestEventListener {
               comment,
               false,
               settings.get(),
-              repoName);
-
+              repoName,
+              prInfo);
     }
   }
 }

@@ -223,7 +223,7 @@ public class TeamctiyRest extends RestResource {
                                                   "Manual Trigger from Bitbucket: Pull Request: " + prid,
                                                   false,
                                                   settings.get(),
-                                                  repository.getName())); // handle error todo
+                                                  repository.getName(), null)); // handle error todo
       } else {
         builder.append(" trigger skipped ")
                 .append(buildconfig)
