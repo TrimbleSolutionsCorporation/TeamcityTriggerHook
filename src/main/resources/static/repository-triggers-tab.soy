@@ -55,16 +55,6 @@
                 {param labelText: getText('triggers.pull.request') /}
             {/call}
             {call .toggle}
-                {param id: 'triggerPullRequestShadowMerge' /}
-                {param labelText: getText('triggers.pull.shadowmerge') /}
-                {param isDisabled: 'triggerOnPullRequest'/}
-            {/call}
-            {call .toggle}
-                {param id: 'onlyTriggerOnPullRequest' /}
-                {param labelText: getText('triggers.pull.only') /}
-                {param isDisabled: 'triggerOnPullRequest'/}
-            {/call}
-            {call .toggle}
                 {param id: 'hideOnPullRequest' /}
                 {param labelText: getText('triggers.pull.hideonprdialog') /}
             {/call}

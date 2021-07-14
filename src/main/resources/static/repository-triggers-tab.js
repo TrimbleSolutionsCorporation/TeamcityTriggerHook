@@ -18,8 +18,6 @@ require([
         _$triggerExclusion : undefined,
         _$triggerOnEmptyBranches : undefined,
         _$triggerOnPullRequest : undefined,
-        _$triggerPullRequestShadowMerge : undefined,
-        _$onlyTriggerOnPullRequest : undefined,
         _$hideOnPullRequest : undefined,
         _$triggerWhenNoReviewers : undefined,
         _$cancelRunningBuilds : undefined,
@@ -58,8 +56,6 @@ require([
             this._$triggerOnEmptyBranches = $('#triggerOnEmptyBranches');
             this._$triggerWhenNoReviewers = $('#triggerWhenNoReviewers');
             this._$triggerOnPullRequest = $('#triggerOnPullRequest');
-            this._$triggerPullRequestShadowMerge = $('#triggerPullRequestShadowMerge');
-            this._$onlyTriggerOnPullRequest = $('#onlyTriggerOnPullRequest');
             this._$hideOnPullRequest = $('#hideOnPullRequest');
             this._$cancelRunningBuilds = $('#cancelRunningBuilds');
             this._$downStreamTriggerType = $('#downStreamTriggerType');
@@ -69,11 +65,6 @@ require([
             $('#addTriggerButton').off().on('click', $.proxy(this._addTriggerHandler, this));
             $('#exportConfigButton').off().on('click', $.proxy(this._exportTriggerHandler, this));
             $('#importConfigButton').off().on('click', $.proxy(this._importTriggerHandler, this));
-
-            this._$triggerOnPullRequest.off().on('change', $.proxy(this._disableAllTriggerPr, this));
-
-            this._$triggerPullRequestShadowMerge.off().on('change', $.proxy(this._toggleTriggerPr, this));
-            this._$onlyTriggerOnPullRequest.off().on('change', $.proxy(this._toggleTriggerPr, this));
 
             var inputElement = document.getElementById('importDialogId');
             if(inputElement === null) {
@@ -108,13 +99,7 @@ require([
             }
             if(typeof trigger.triggerOnEmptyBranches === 'undefined'){
                 trigger.triggerOnEmptyBranches = true;
-            }
-            if(typeof trigger.triggerPullRequestShadowMerge === 'undefined'){
-                trigger.triggerPullRequestShadowMerge = false;
-            }
-            if(typeof trigger.onlyTriggerOnPullRequest === 'undefined'){
-                trigger.onlyTriggerOnPullRequest = false;
-            }
+            }            
             var $tableRow = $('<tr/>', {
                 html : [$('<td/>', {
                     html : $.proxy(function() {
@@ -156,18 +141,6 @@ require([
                             text : AJS.I18n.getText('triggers.column.pull.request')
                         }), $('<span/>', {
                             text : trigger.triggerOnPullRequest
-                        })]
-                    }), $('<span/>', {
-                        html : [$('<span/>', {
-                            text : AJS.I18n.getText('triggers.column.pull.shadow')
-                        }), $('<span/>', {
-                            text : trigger.triggerPullRequestShadowMerge
-                        })]
-                    }), $('<span/>', {
-                        html : [$('<span/>', {
-                            text : AJS.I18n.getText('triggers.column.pull.only')
-                        }), $('<span/>', {
-                            text : trigger.onlyTriggerOnPullRequest
                         })]
                     }), $('<span/>', {
                         html : [$('<span/>', {
@@ -252,25 +225,6 @@ require([
         },
 
         /**
-         * Event handler for toggle enable pr hook
-         */
-        _toggleTriggerPr : function(event) {
-             if (this._$onlyTriggerOnPullRequest[0].checked || this._$triggerPullRequestShadowMerge[0].checked) {
-                 this._$triggerOnPullRequest[0].checked = true
-             }
-        },
-
-        /**
-         * Event handler for disable pr hook
-         */
-        _disableAllTriggerPr : function(event) {
-            if (!this._$triggerOnPullRequest[0].checked) {
-                this._$onlyTriggerOnPullRequest[0].checked = false
-                this._$triggerPullRequestShadowMerge[0].checked = false
-            }
-        },
-
-        /**
          * Event handler for button click to add trigger data to the table
          */
         _addTriggerHandler : function(event) {
@@ -283,8 +237,6 @@ require([
                 triggerOnEmptyBranches : this._$triggerOnEmptyBranches[0].checked,
                 triggerWhenNoReviewers : this._$triggerWhenNoReviewers[0].checked,
                 triggerOnPullRequest : this._$triggerOnPullRequest[0].checked,
-                triggerPullRequestShadowMerge : this._$triggerPullRequestShadowMerge[0].checked,
-                onlyTriggerOnPullRequest : this._$onlyTriggerOnPullRequest[0].checked,
                 hideOnPullRequest : this._$hideOnPullRequest[0].checked,
                 cancelRunningBuilds : this._$cancelRunningBuilds[0].checked,
                 triggerInclusion : this._$triggerInclusion.val(),
@@ -304,8 +256,6 @@ require([
             this._$triggerOnEmptyBranches[0].checked = true;
             this._$triggerWhenNoReviewers[0].checked = true;
             this._$triggerOnPullRequest[0].checked = false;
-            this._$triggerPullRequestShadowMerge[0].checked = false;
-            this._$onlyTriggerOnPullRequest[0].checked = false;
             this._$hideOnPullRequest[0].checked = false;
             this._$cancelRunningBuilds[0].checked = false;
 
@@ -349,7 +299,7 @@ require([
                 hookContext._triggers = data;
                 hookContext._$triggersTableBody.empty();
                 $.each(hookContext._triggers, $.proxy(hookContext._drawTableRow, hookContext));
-                hookContext._$triggersTable.show();
+                hookContext._$triggersTable.show();       
             }
             this.reader.readAsText(file);
         },
