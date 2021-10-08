@@ -11,6 +11,8 @@ import com.trimble.tekla.pojo.TeamcityQueuedElement;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,9 +47,30 @@ public class TeamcityConnector  {
                                      String branch,
                                      String buildConfiguration,
                                      Settings settings,
-                                     String repoName) throws IOException {
+                                     String repoName,
+                                     Boolean includeQueued) throws IOException {
       String restpoint = "/app/rest/builds/" + "?locator=buildType:" + buildConfiguration + 
-              ",branch:" + branch + ",running:any,canceled:any,count:2";
+              ",branch:" + branch + ",canceled:any,state:(queued:" + includeQueued + ",running:true),count:2";
+      return this.connector.Get(conf, restpoint, settings, repoName);
+    }
+
+    public String GetDependentBuilds(TeamcityConfiguration conf,
+                                       String id,
+                                       Settings settings,
+                                       String repoName,
+                                       Boolean includeInitial) throws IOException {
+      String restpoint = "/app/rest/builds/" + "?locator=snapshotDependency:(from:(id:" + id + 
+              "),recursive:true,includeInitial:" + includeInitial + "),state:(queued:true,running:true)";
+      return this.connector.Get(conf, restpoint, settings, repoName);
+    }
+
+    public String GetBuildDependencies(TeamcityConfiguration conf,
+                                       String id,
+                                       Settings settings,
+                                       String repoName,
+                                       Boolean includeInitial) throws IOException {
+      String restpoint = "/app/rest/builds/" + "?locator=snapshotDependency:(to:(id:" + id + 
+              "),recursive:true,includeInitial:" + includeInitial + "),state:(queued:true,running:true)";
       return this.connector.Get(conf, restpoint, settings, repoName);
     }
     
@@ -93,32 +116,13 @@ public class TeamcityConnector  {
         
         return queuedElements;
     } 
-    
-    public Boolean IsInQueue(TeamcityConfiguration conf, String buildConfig, String branch, Settings settings, String repoName) throws IOException, JSONException {
-        String queueData = this.GetQueueDataForConfiguration(conf, buildConfig, settings, repoName);
-        JSONObject jsonObj = new JSONObject(queueData);
-        
-        Integer numberOfQueuedBuilds = jsonObj.getInt("count");
-        
-        if(numberOfQueuedBuilds == 0) {
-          return false;
-        }
-        
-        JSONArray builds = jsonObj.getJSONArray("build");
-        for (int i = 0; i < builds.length(); i++) {
-            try
-            {                           
-                JSONObject queued = builds.getJSONObject(i);
-                String branchName = queued.getString("branchName");
 
-                if (branchName.equals(branch)) {
-                    return true;
-                }                            
-            } catch (JSONException e) {
-            }                                                   
-        }
-        
-        return false;
+    public Boolean IsInQueue(TeamcityConfiguration conf, String buildConfig, String branch, String revision, Settings settings, String repoName) throws IOException, JSONException {
+        String restpoint = String.format("/app/rest/builds/?locator=buildType:%s,branch:%s,revision(version:%s),state:(queued:true,running:false)", buildConfig , branch, revision);
+        String queueData = this.connector.Get(conf, restpoint, settings, repoName);
+      
+        JSONObject jsonObj = new JSONObject(queueData);
+        return jsonObj.getInt("count") > 0;
     } 
     
     public String TestTeamcityConnection(TeamcityConfiguration conf, Settings settings, String repoName) {
@@ -202,5 +206,39 @@ public class TeamcityConnector  {
       this.connector.PostPayload(conf, url, this.GetCancelAndRequeuePayload("false"), settings, repoName);
     }
     
+  }
+
+  public void CancelDependenciesOfBuild(TeamcityConfiguration conf, String id, Settings settings, String repoName) throws IOException, JSONException{
+    final String dependenciesData = this.GetBuildDependencies(conf, id, settings, repoName, true);
+    Set<Integer> targetDependenciesIds = BuildIdsSetFromResponse(dependenciesData);
+
+    Set<Integer> cancelableDependencies = new HashSet<Integer>();
+    for (Integer buildId : targetDependenciesIds) {
+      // Get a set of all builds that depend on this
+      final String dependentBuildsData = this.GetDependentBuilds(conf, Integer.toString(buildId), settings, repoName, true);
+      Set<Integer> dependentBuildIds = BuildIdsSetFromResponse(dependentBuildsData);
+
+      // Remove all the dependencies of the target build
+      // If any build remain in the set, this mean another build chain is using this as a dependency
+      dependentBuildIds.removeAll(targetDependenciesIds);
+      if (dependentBuildIds.isEmpty()) {
+        cancelableDependencies.add(buildId);
+      }
+    }
+
+    for (Integer buildId : cancelableDependencies) {
+        this.ReQueueBuild(conf, Integer.toString(buildId), settings, false, repoName);
+    }
+  }
+
+  private Set<Integer> BuildIdsSetFromResponse(String buildsReponse) throws JSONException {
+    Set<Integer> buildIdsSet = new HashSet<Integer>();
+    final JSONObject buildsObj = new JSONObject(buildsReponse);
+    final JSONArray builds = buildsObj.getJSONArray("build");
+
+    for (int i = 0; i < builds.length(); i++) {
+      buildIdsSet.add(builds.getJSONObject(i).getInt("id"));
+    }
+    return buildIdsSet;
   }
 }

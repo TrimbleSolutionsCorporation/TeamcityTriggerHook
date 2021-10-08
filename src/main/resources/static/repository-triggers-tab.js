@@ -21,6 +21,7 @@ require([
         _$hideOnPullRequest : undefined,
         _$triggerWhenNoReviewers : undefined,
         _$cancelRunningBuilds : undefined,
+        _$cancelDependencies : undefined,
         _$downStreamTriggerDescription : undefined,
         _$downStreamTriggerType : undefined,
         _$downStreamTriggerTarget : undefined,
@@ -58,6 +59,7 @@ require([
             this._$triggerOnPullRequest = $('#triggerOnPullRequest');
             this._$hideOnPullRequest = $('#hideOnPullRequest');
             this._$cancelRunningBuilds = $('#cancelRunningBuilds');
+            this._$cancelDependencies = $('#cancelDependencies');
             this._$downStreamTriggerType = $('#downStreamTriggerType');
             this._$downStreamTriggerDescription = $('#downStreamTriggerDescription');
             this._$downStreamTriggerTarget = $('#downStreamTriggerTarget');
@@ -100,6 +102,9 @@ require([
             if(typeof trigger.triggerOnEmptyBranches === 'undefined'){
                 trigger.triggerOnEmptyBranches = true;
             }            
+            if(typeof trigger.cancelDependencies === 'undefined'){
+                trigger.cancelDependencies = false;
+            }            
             var $tableRow = $('<tr/>', {
                 html : [$('<td/>', {
                     html : $.proxy(function() {
@@ -135,6 +140,12 @@ require([
                             text : AJS.I18n.getText('triggers.column.cancel.builds')
                         }), $('<span/>', {
                             text : trigger.cancelRunningBuilds
+                        })]
+                    }), $('<span/>', {
+                        html : [$('<span/>', {
+                            text : AJS.I18n.getText('triggers.column.cancel.dependencies')
+                        }), $('<span/>', {
+                            text : trigger.cancelDependencies
                         })]
                     }), $('<span/>', {
                         html : [$('<span/>', {
@@ -239,6 +250,7 @@ require([
                 triggerOnPullRequest : this._$triggerOnPullRequest[0].checked,
                 hideOnPullRequest : this._$hideOnPullRequest[0].checked,
                 cancelRunningBuilds : this._$cancelRunningBuilds[0].checked,
+                cancelDependencies : this._$cancelDependencies[0].checked,
                 triggerInclusion : this._$triggerInclusion.val(),
                 triggerExclusion : this._$triggerExclusion.val(),
                 downStreamTriggerType : this._$downStreamTriggerType.val(),
@@ -258,6 +270,7 @@ require([
             this._$triggerOnPullRequest[0].checked = false;
             this._$hideOnPullRequest[0].checked = false;
             this._$cancelRunningBuilds[0].checked = false;
+            this._$cancelDependencies[0].checked = false;
 
             var triggerUUID = uuid();
             this._triggers[triggerUUID] = trigger;

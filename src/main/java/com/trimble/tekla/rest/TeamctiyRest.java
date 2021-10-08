@@ -283,7 +283,7 @@ public class TeamctiyRest extends RestResource {
           continue;
         }
         try {
-          final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings.get(), repository.getName());
+          final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings.get(), repository.getName(), false);
           final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTarget(), settings.get(), repository.getName());
           jObj.put(buildConfig.getTarget(), returnData);
           jObj.put(buildConfig.getTarget() + "_queue", queueData);
@@ -343,7 +343,7 @@ public class TeamctiyRest extends RestResource {
         for (final Trigger buildConfig : configurations) {
           if ("build".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
             final String depBuildId = buildConfig.getTarget();
-            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get(), repository.getName());
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get(), repository.getName(), false);
             final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get(), repository.getName());
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
             jObj.put(depBuildId + "_dep", returnData);
@@ -351,7 +351,7 @@ public class TeamctiyRest extends RestResource {
 
             final String [] downBuildIds = buildConfig.getDownStreamTriggerTarget().split(",");           
             for (String downBuildId : downBuildIds) {
-                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), downBuildId, settings.get(), repository.getName());
+                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), downBuildId, settings.get(), repository.getName(), false);
                 final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings.get(), repository.getName());
                 jObj.put(downBuildId + "_build", returnDataBuildDep);
                 jObj.put(downBuildId + "_build_branch", buildConfig.getBranchConfig());                
@@ -371,7 +371,7 @@ public class TeamctiyRest extends RestResource {
               "tab".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
             final String depBuildId = buildConfig.getTarget();
             
-            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get(), repository.getName());
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get(), repository.getName(), false);
             final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get(), repository.getName());
             jObj.put(depBuildId + "_dep", returnData);
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);

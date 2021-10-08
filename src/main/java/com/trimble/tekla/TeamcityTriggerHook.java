@@ -132,7 +132,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
             context,
             hookRequest.getRepository().getName(),
             "Trigger From Ref: " + referenceId + " Target: " + configuration.getTarget());
-          TriggerBuild(configuration, context, referenceId, conf, timeStamp, hookRequest.getRepository().getName(), isEmptyBranch);
+          TriggerBuild(configuration, context, referenceId, change.getToHash(), conf, timeStamp, hookRequest.getRepository().getName(), isEmptyBranch);
         }
       } catch (NoSuchCommitException ex) {
         TeamcityLogger.logError(          
@@ -197,6 +197,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
   private void TriggerBuild(final Trigger buildConfig,
                             final RepositoryHookContext context,
                             final String refId,
+                            final String revision,
                             final TeamcityConfiguration conf,
                             final String timestamp,
                             final String repoName,
@@ -225,8 +226,10 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
               context,
               buildConfig.getTarget(),
               buildConfig.getBranchConfig(),
+              revision,
               repoName,
               buildConfig.isCancelRunningBuilds(),
+              buildConfig.isCancelDependencies(),
               conf,
               timestamp,
               false,
@@ -251,8 +254,10 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
           final RepositoryHookContext context,
           final String buildIdIn,
           final String branch,
+          final String revision,
           final String repoName,
           final Boolean cancelRunningBuilds,
+          final Boolean cancelDependencies,
           final TeamcityConfiguration conf,
           final String timeStamp,
           final Boolean isDefault,
@@ -269,9 +274,9 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
     try {
       TeamcityLogger.logMessage(context, repoName, "Trigger BuildId: " + buildIdIn + " " + branch);
 
-      if (!this.connector.IsInQueue(conf, buildIdIn, branch, settings, repoName)) {
+      if (!this.connector.IsInQueue(conf, buildIdIn, branch, revision, settings, repoName)) {
         // check if build is running
-        final String buildData = this.connector.GetBuildsForBranch(conf, branch, buildIdIn, settings, repoName);
+        final String buildData = this.connector.GetBuildsForBranch(conf, branch, buildIdIn, settings, repoName, true);
 
         final JSONObject obj = new JSONObject(buildData);
         final String count = obj.getString("count");
@@ -281,9 +286,14 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
         } else {
           final JSONArray builds = obj.getJSONArray("build");
           for (int i = 0; i < builds.length(); i++) {
-            final Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
-            if (isRunning) {
-              final String id = builds.getJSONObject(i).getString("id");
+            final String buildState = builds.getJSONObject(i).getString("state");
+            final String id = builds.getJSONObject(i).getString("id");
+            if (buildState.equals("running")) {
+              this.connector.ReQueueBuild(conf, id, settings, false, repoName);
+            } else if (buildState.equals("queued")) {
+              if (cancelDependencies) {
+                this.connector.CancelDependenciesOfBuild(conf, id, settings, repoName);
+              }
               this.connector.ReQueueBuild(conf, id, settings, false, repoName);
             }
           }
