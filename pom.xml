@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.trimble.tekla</groupId>
     <artifactId>TeamCityTriggerHook</artifactId>
-    <version>4.10.2</version>
+    <version>4.11.0</version>
 
     <organization>
         <name>Tekla</name>
