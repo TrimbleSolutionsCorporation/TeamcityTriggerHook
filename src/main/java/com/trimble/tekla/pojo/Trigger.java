@@ -25,6 +25,7 @@ public class Trigger {
   private String triggerInclusion;
   private String triggerExclusion;
   private boolean cancelRunningBuilds;
+  private boolean cancelDependencies;
   private boolean triggerOnEmptyBranches;
   private boolean hideOnPullRequest;
   private boolean triggerWhenNoReviewers;
@@ -59,6 +60,14 @@ public class Trigger {
 
   public void setCancelRunningBuilds(final boolean cancelRunningBuilds) {
     this.cancelRunningBuilds = cancelRunningBuilds;
+  }
+
+  public boolean isCancelDependencies() {
+    return this.cancelDependencies;
+  }
+
+  public void setCancelDependencies(final boolean cancelDependencies) {
+    this.cancelDependencies = cancelDependencies;
   }
 
   public boolean isTriggerOnPullRequest() {

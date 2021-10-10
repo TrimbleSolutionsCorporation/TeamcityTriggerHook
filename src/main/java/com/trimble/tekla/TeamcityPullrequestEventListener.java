@@ -136,6 +136,7 @@ public class TeamcityPullrequestEventListener {
                     password);
 
     final String branch = pr.getFromRef().getId();
+    final String latestCommit = pr.getFromRef().getLatestCommit();
     final String repositoryTriggersJson = settings.get().getString(Field.REPOSITORY_TRIGGERS_JSON, StringUtils.EMPTY);
     if (repositoryTriggersJson.isEmpty()) {
       return;
@@ -170,7 +171,7 @@ public class TeamcityPullrequestEventListener {
 
         TeamcityLogger.logMessage(settings.get(), repo.getName(), "Trigger BuildId: " + buildConfig.getTarget() + " " + branch);
         try {
-          if (this.connector.IsInQueue(conf, buildConfig.getTarget(), buildConfig.getBranchConfig(), settings.get(), repo.getName())) {
+          if (this.connector.IsInQueue(conf, buildConfig.getTarget(), buildConfig.getBranchConfig(), latestCommit, settings.get(), repo.getName())) {
             TeamcityLogger.logMessage(settings.get(), repo.getName(), "Skip already in queue: " + buildConfig.getTarget()+ " " + branch);
             continue;
           }
@@ -178,13 +179,13 @@ public class TeamcityPullrequestEventListener {
           TeamcityLogger.logMessage(settings.get(), repo.getName(), "Exception: " + ex.getMessage() + " " + branch);
         }
 
-        // check if build is running
         final String buildData = this.connector.GetBuildsForBranch(
                 conf,
                 buildConfig.getBranchConfig(),
                 buildConfig.getTarget(),
                 settings.get(),
-                repo.getName());
+                repo.getName(),
+                true);
 
         final JSONObject obj = new JSONObject(buildData);
         final String count = obj.getString("count");
@@ -203,9 +204,14 @@ public class TeamcityPullrequestEventListener {
         } else {
           final JSONArray builds = obj.getJSONArray("build");
           for (int i = 0; i < builds.length(); i++) {
-            final Boolean isRunning = builds.getJSONObject(i).getString("state").equals("running");
-            if (isRunning) {
-              final String id = builds.getJSONObject(i).getString("id");
+            final String buildState = builds.getJSONObject(i).getString("state");
+            final String id = builds.getJSONObject(i).getString("id");
+            if (buildState.equals("running")) {
+              this.connector.ReQueueBuild(conf, id, settings.get(), false, repo.getName());
+            } else if (buildState.equals("queued")) {
+              if (buildConfig.isCancelDependencies()) {
+                this.connector.CancelDependenciesOfBuild(conf, id, settings.get(), repo.getName());
+              }
               this.connector.ReQueueBuild(conf, id, settings.get(), false, repo.getName());
             }
           }

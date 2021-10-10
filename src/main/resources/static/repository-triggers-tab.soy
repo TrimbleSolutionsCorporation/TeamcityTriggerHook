@@ -51,6 +51,10 @@
                 {param labelText: getText('triggers.cancel.builds') /}
             {/call}
             {call .toggle}
+                {param id: 'cancelDependencies' /}
+                {param labelText: getText('triggers.cancel.dependencies') /}
+            {/call}
+            {call .toggle}
                 {param id: 'triggerOnPullRequest' /}
                 {param labelText: getText('triggers.pull.request') /}
             {/call}
