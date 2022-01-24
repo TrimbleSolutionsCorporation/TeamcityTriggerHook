@@ -56,6 +56,8 @@ public class HttpConnector {
             }
             
             TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Post] Hook Reply: "  + line);
+            in.close();
+            content.close();
             
         } catch (Exception e) {
             TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Post] Hook Exception: "  + e.getMessage());
