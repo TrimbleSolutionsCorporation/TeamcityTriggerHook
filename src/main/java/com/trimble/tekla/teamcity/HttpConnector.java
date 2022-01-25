@@ -103,8 +103,10 @@ public class HttpConnector {
       }
 
       TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Get] Hook Reply: "  + line);
+      in.close();
+      content.close();
 
-      return dataout.toString();       
+      return dataout.toString();
     }
     
     public String Get(String url, Settings settings, String repoName) throws MalformedURLException, IOException {
@@ -127,6 +129,8 @@ public class HttpConnector {
       }
 
       TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][Get] Hook Reply: "  + line);
+      in.close();
+      content.close();
       return dataout.toString();
     }
     
@@ -159,6 +163,8 @@ public class HttpConnector {
         }
 
         TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][PostPayload] Hook Reply: "  + line);
+        in.close();
+        content.close();
         return line;
       } catch (Exception e) {
         TeamcityLogger.logMessage(settings, repoName, "[HttpConnector][PostPayload] Hook Exception: "  + e.getMessage());
