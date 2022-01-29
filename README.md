@@ -81,6 +81,3 @@ Check the catalina log for logs error messages like:
    * Type: build, rest, or newtab
       1. rest and newtab: will create a external build tabs in the build and test menu. A button per hook will be created so user can trigger. NewTab will open a new tab with the defined target.
       2. build: is a teamcity build id and will enable tests tab in build and test menu.
-
-
-
