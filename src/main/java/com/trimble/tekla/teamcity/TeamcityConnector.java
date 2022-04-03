@@ -169,28 +169,43 @@ public class TeamcityConnector  {
             if (isDefault) {
               builder.append("<build>");
             } else {
-              builder.append(String.format("<build branchName=\"%s\">", branch));
+              builder.append(String.format("<build branchName=\"%s\">", stringEscapeForXml(branch)));
             }
           
             builder.append(String.format("<buildType id=\"%s\"/>", buildid));
-            builder.append(String.format("<comment><text>%s</text></comment>", comment));
+            builder.append(String.format("<comment><text>%s</text></comment>", stringEscapeForXml(comment)));
             if (prInfo != null) {
                 builder.append("<properties>");
-                builder.append(String.format("<property name=\"bitbucket.pr.source.branch\" value=\"%s\"/>", branch));
-                builder.append(String.format("<property name=\"bitbucket.pr.target.branch\" value=\"%s\"/>", prInfo.getToRef().getId()));
+                builder.append(String.format("<property name=\"bitbucket.pr.source.branch\" value=\"%s\"/>", stringEscapeForXml(branch)));
+                builder.append(String.format("<property name=\"bitbucket.pr.target.branch\" value=\"%s\"/>", stringEscapeForXml(prInfo.getToRef().getId())));
                 builder.append(String.format("<property name=\"bitbucket.pr.number\" value=\"%s\"/>", prInfo.getId()));
-                builder.append(String.format("<property name=\"bitbucket.pr.title\" value=\"%s\"/>", prInfo.getTitle()));
+                builder.append(String.format("<property name=\"bitbucket.pr.title\" value=\"%s\"/>", stringEscapeForXml(prInfo.getTitle())));
                 builder.append("</properties>");
             }
             builder.append("</build>");
         } else {
             builder.append("<build>");
             builder.append(String.format("<buildType id=\"%s\"/>", buildid));
-            builder.append(String.format("<comment><text>%s</text></comment>", comment));
+            builder.append(String.format("<comment><text>%s</text></comment>", stringEscapeForXml(comment)));
             builder.append("</build>");        
         }
         
         return builder.toString();
+    }
+    
+    private static String stringEscapeForXml(String inStr) {
+        StringBuilder sb = new StringBuilder();
+        for(char c : inStr.toCharArray()){
+            switch(c) {
+                case '\"': sb.append("&quot;"); break;
+                case '\'': sb.append("&apos;"); break;
+                case '<': sb.append("&lt;"); break;
+                case '>': sb.append("&gt;"); break;
+                case '&': sb.append("&amp;"); break;
+                default: if(c>0x7e) {sb.append("&#"+((int)c)+";"); } else sb.append(c);
+            }
+        }
+        return sb.toString();
     }
 
   public String GetBuild(TeamcityConfiguration conf, String id, Settings settings, String repoName) throws IOException {
