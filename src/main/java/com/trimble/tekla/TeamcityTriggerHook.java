@@ -25,6 +25,7 @@ import com.atlassian.bitbucket.repository.RefChangeType;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.repository.StandardRefType;
 import com.atlassian.bitbucket.scm.git.GitScm;
+import com.atlassian.bitbucket.scm.git.command.GitScmCommandBuilder;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.trimble.tekla.helpers.ChangesetService;
@@ -41,16 +42,14 @@ import com.trimble.tekla.teamcity.TeamcityLogger;
  */
 public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookRequest> {
   private final TeamcityConnector connector;
-  private final GitScm gitScm;
   private final CommitService scmService;
   private final TeamcityConnectionSettings connectionSettings;
+  
 
   @Inject
   public TeamcityTriggerHook(
-          @ComponentImport final GitScm gitScm,
           @ComponentImport final CommitService scmService,
           final TeamcityConnectionSettings connectionSettings) {
-    this.gitScm = gitScm;
     this.scmService = scmService;
     this.connectionSettings = connectionSettings;
     this.connector = new TeamcityConnector(new HttpConnector());
@@ -156,41 +155,7 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
    * @return true if specified {@link RefChange change} is a branch and last commit on it belongs to multiple branches
    */
   private boolean isEmptyBranch(final PostRepositoryHookContext context, final String timeStamp, final Repository repository, final RefChange change) {
-    boolean isEmptyBranch = false;
-    
-    final String fromChange = change.getFromHash();
-    if ("0000000000000000000000000000000000000000".equals(fromChange) && StandardRefType.BRANCH == change.getRef().getType()) {
-      try {
-        isEmptyBranch = runExternalGitCommandToDetectBranchData(context, timeStamp, repository, change, isEmptyBranch, fromChange);  
-      } catch (com.atlassian.bitbucket.ServerException e) {
-        // lets assume in all cases that the branch is not empty to avoid loosing triggers
-      }      
-    }
-
-    return isEmptyBranch;
-  }
-
-  private boolean runExternalGitCommandToDetectBranchData(final PostRepositoryHookContext context, final String timeStamp,
-      final Repository repository, final RefChange change, boolean isEmptyBranch, final String fromChange) {
-    final String result = this.gitScm.getCommandBuilderFactory().builder(repository)
-            .command("branch")
-            .argument("--contains")
-            .argument(change.getToHash())
-            .build(new StringCommandOutputHandler())              
-            .call();
-
-    TeamcityLogger.logMessage(context, repository.getName(),  "" + timeStamp + " git branch: --contains " + change.getToHash());
-    TeamcityLogger.logMessage(context, repository.getName(), "" + timeStamp + " git result: '" + result + "'");
-
-    final String[] branches = result.trim().split("\n");
-
-    if (branches.length > 1) {
-      TeamcityLogger.logMessage(context, repository.getName(), "" + timeStamp + " No commits in branch: " + change.getRef().getId());
-      TeamcityLogger.logMessage(context, repository.getName(), "" + timeStamp + " From Hash: " + fromChange);
-      TeamcityLogger.logMessage(context, repository.getName(), "" + timeStamp + " RefChange Type: " + change.getType());
-      isEmptyBranch = true;
-    }
-    
+    boolean isEmptyBranch = false;   
     return isEmptyBranch;
   }
 

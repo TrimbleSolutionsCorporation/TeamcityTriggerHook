@@ -32,7 +32,6 @@ require([
          * Initializes repository triggers table controller
          */
         init : function(triggers, errors) {
-            console.log("startup Config");
             if (triggers) {
                 this._triggers = JSON.parse(triggers);
             } else {
@@ -349,6 +348,7 @@ require([
      * Trigger on dialog reload event "com.trimble.tekla.teamcity.hook.init"
      */
     events.on('com.trimble.tekla.teamcity.hook.init', function() {
+        
         var $repositoryTriggersJson = $('#repositoryTriggersJson');
         Object.defineProperty($repositoryTriggersJson[0], 'value', {
             get : function() {

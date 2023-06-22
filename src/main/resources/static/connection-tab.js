@@ -4,10 +4,9 @@
 require([
     'jquery',
     'bitbucket/util/events',
-    'bitbucket/util/navbuilder'
-], function ($, events, navBuilder) {
-    var testUrlNavBuilder = navBuilder.rest('teamcity').currentRepo().addPathComponents('testconnection');
-
+    'bitbucket/util/navbuilder',
+    'bitbucket/util/state'
+], function ($, events, navBuilder, pageState) {       
     /**
      * Trigger on dialog reload event "com.trimble.tekla.teamcity.hook.init"
      */
@@ -18,8 +17,17 @@ require([
         var $testTeamCityConnectionButton = $('#testTeamCityConnection');
         var $isDebugEnabled = $('#isDebugEnabled');
         var $testStatusDiv = $testTeamCityConnectionButton.next();
-        console.log("validate settings");
-
+        
+        var selectedProjectKey = pageState.getRepository()["project"]["key"];
+        var selectedRepositorySlug = pageState.getRepository()["slug"];
+                    
+        var testUrlNavBuilder = navBuilder.rest('teamcity')
+                .addPathComponents("projects")
+                .addPathComponents(selectedProjectKey)
+                .addPathComponents("repos")
+                .addPathComponents(selectedRepositorySlug)
+                .addPathComponents('testconnection');
+        
         /**
          * Connection validation button handler
          */
@@ -32,7 +40,7 @@ require([
                 password : $teamCityPasswordField.val(),
                 debugon : $isDebugEnabled[0].checked
             }).build();
-
+        
             $.ajax({
                 url : testUrl
             }).done(function(data) {
