@@ -126,7 +126,7 @@ public class TeamcityConnector  {
     } 
     
     public String TestTeamcityConnection(TeamcityConfiguration conf, Settings settings, String repoName) {
-      String restpoint = "/app/rest/builds?locator=lookupLimit:1";
+      String restpoint = "/app/rest/server";
       
       try
       {

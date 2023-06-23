@@ -1,4 +1,3 @@
-console.log("issueCreation Loaded");
 
 var disableTrigger = false;
 var dialogLoaded = true;
@@ -45,7 +44,6 @@ function GetBuildInformation(buildId, htmlId, callback) {
     contentType: "application/json",
     dataType: "json",
     success: function (result) {
-      console.log(result);
       callback(result, htmlId);
     },
     error: function (result) {
@@ -703,5 +701,3 @@ $(document).ready(function () {
   dialogLoaded = true;
   ReloadData();
 });
-
-console.log("index.js script loaded");

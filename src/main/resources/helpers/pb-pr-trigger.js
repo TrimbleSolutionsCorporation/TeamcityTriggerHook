@@ -32,7 +32,6 @@ define("teamcity/manual-build-pullrequest", [
 
   function buttonPluginFactory(pluginAPI, context) {
     var pullRequest = context.pullRequest;
-    console.log("buttonPluginFactory loaded");
 
     var hookUrl =
       getResourceUrl(context, "getHookEnabled") + "?prid=" + pullRequest.id;
