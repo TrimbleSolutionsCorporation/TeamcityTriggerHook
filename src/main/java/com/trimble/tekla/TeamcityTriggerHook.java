@@ -243,29 +243,36 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
         // check if build is running
         final String buildData = this.connector.GetBuildsForBranch(conf, branch, buildIdIn, settings, repoName, true);
 
-        final JSONObject obj = new JSONObject(buildData);
-        final String count = obj.getString("count");
+        try {       
+          final JSONObject obj = new JSONObject(buildData);
+          final String count = obj.getString("count");
 
-        if (count.equals("0") || !cancelRunningBuilds) {
-          this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings, repoName, null);
-        } else {
-          final JSONArray builds = obj.getJSONArray("build");
-          for (int i = 0; i < builds.length(); i++) {
-            final String buildState = builds.getJSONObject(i).getString("state");
-            final String id = builds.getJSONObject(i).getString("id");
-            if (buildState.equals("running")) {
-              this.connector.ReQueueBuild(conf, id, settings, false, repoName);
-            } else if (buildState.equals("queued")) {
-              if (cancelDependencies) {
-                this.connector.CancelDependenciesOfBuild(conf, id, settings, repoName);
+          if (count.equals("0") || !cancelRunningBuilds) {
+            this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings, repoName, null);
+          } else {
+            final JSONArray builds = obj.getJSONArray("build");
+            for (int i = 0; i < builds.length(); i++) {
+              final String buildState = builds.getJSONObject(i).getString("state");
+              final String id = builds.getJSONObject(i).getString("id");
+              if (buildState.equals("running")) {
+                this.connector.ReQueueBuild(conf, id, settings, false, repoName);
+              } else if (buildState.equals("queued")) {
+                if (cancelDependencies) {
+                  this.connector.CancelDependenciesOfBuild(conf, id, settings, repoName);
+                }
+                this.connector.ReQueueBuild(conf, id, settings, false, repoName);
               }
-              this.connector.ReQueueBuild(conf, id, settings, false, repoName);
             }
-          }
 
-          // at this point all builds were finished, so we need to trigger
+            // at this point all builds were finished, so we need to trigger
+            this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings, repoName, null);
+            TeamcityLogger.logMessage(context, repoName, "Queued: " + buildIdIn + " " + branch);
+          }
+        } catch (final Exception e) {
+          TeamcityLogger.logMessage(context, repoName, "Failed to Trigger will still try to trigger : Builddata : " + buildData + " Failed ");
+          TeamcityLogger.logMessage(context, repoName, "Error: " + e.getMessage());
+          TeamcityLogger.logMessage(context, repoName, "Will still try to trigger the build anyway just in case.");
           this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings, repoName, null);
-          TeamcityLogger.logMessage(context, repoName, "Queued: " + buildIdIn + " " + branch);
         }
       } else {
         TeamcityLogger.logMessage(context, repoName, "Skip already in queue: " + buildIdIn + " " + branch);
