@@ -100,7 +100,7 @@ public class TeamcityConnector  {
                 }
 
                 String buildType = queued.getString("buildTypeId");
-                String id = queued.getString("id");
+                final String id = Integer.toString(queued.getInt("id"));
                 String webUrl = queued.getString("webUrl");
                 TeamcityQueuedElement queuedElement = new TeamcityQueuedElement();
                 queuedElement.setBranch(branchName);

@@ -24,7 +24,6 @@ import com.atlassian.bitbucket.pull.PullRequestParticipant;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.setting.Settings;
-import com.atlassian.bitbucket.user.ApplicationUser;
 import com.atlassian.event.api.EventListener;
 import com.trimble.tekla.helpers.ChangesetService;
 import com.trimble.tekla.pojo.Trigger;
@@ -188,9 +187,9 @@ public class TeamcityPullrequestEventListener {
                 true);
 
         final JSONObject obj = new JSONObject(buildData);
-        final String count = obj.getString("count");
+        final Integer count = obj.getInt("count");
 
-        if (count.equals("0") || !buildConfig.isCancelRunningBuilds()) {
+        if (count == 0 || !buildConfig.isCancelRunningBuilds()) {
           this.connector.QueueBuild(
                   conf,
                   buildConfig.getBranchConfig(),
@@ -205,7 +204,7 @@ public class TeamcityPullrequestEventListener {
           final JSONArray builds = obj.getJSONArray("build");
           for (int i = 0; i < builds.length(); i++) {
             final String buildState = builds.getJSONObject(i).getString("state");
-            final String id = builds.getJSONObject(i).getString("id");
+            final String id = Integer.toString(builds.getJSONObject(i).getInt("id"));
             if (buildState.equals("running")) {
               this.connector.ReQueueBuild(conf, id, settings.get(), false, repo.getName());
             } else if (buildState.equals("queued")) {

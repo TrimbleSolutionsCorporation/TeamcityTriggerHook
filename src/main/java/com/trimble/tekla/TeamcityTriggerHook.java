@@ -243,17 +243,18 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
         // check if build is running
         final String buildData = this.connector.GetBuildsForBranch(conf, branch, buildIdIn, settings, repoName, true);
 
+        TeamcityLogger.logMessage(context, repoName, "Build Data Retrieved: " + buildData);
         try {       
           final JSONObject obj = new JSONObject(buildData);
-          final String count = obj.getString("count");
+          final Integer count = obj.getInt("count");
 
-          if (count.equals("0") || !cancelRunningBuilds) {
+          if (count == 0 || !cancelRunningBuilds) {
             this.connector.QueueBuild(conf, branch, buildIdIn, comment, isDefault, settings, repoName, null);
           } else {
             final JSONArray builds = obj.getJSONArray("build");
             for (int i = 0; i < builds.length(); i++) {
               final String buildState = builds.getJSONObject(i).getString("state");
-              final String id = builds.getJSONObject(i).getString("id");
+              final String id = Integer.toString(builds.getJSONObject(i).getInt("id"));
               if (buildState.equals("running")) {
                 this.connector.ReQueueBuild(conf, id, settings, false, repoName);
               } else if (buildState.equals("queued")) {
