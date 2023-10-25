@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.trimble.tekla</groupId>
     <artifactId>TeamCityTriggerHook</artifactId>
-    <version>5.0.1</version>
+    <version>5.0.0</version>
 
     <organization>
         <name>Tekla</name>
@@ -160,12 +160,12 @@
 
     <properties>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <bitbucket.data.version>8.9.5</bitbucket.data.version>
-        <bitbucket.version>8.9.5</bitbucket.version>
+        <bitbucket.data.version>8.7.0</bitbucket.data.version>
+        <bitbucket.version>8.7.0</bitbucket.version>
         <quick.reload.version>2.0.0</quick.reload.version>
-        <amps.version>8.9.2</amps.version>
+        <amps.version>8.0.0</amps.version>
         <plugin.testrunner.version>1.2.3</plugin.testrunner.version>
-        <atlassian.spring.scanner.version>3.0.0</atlassian.spring.scanner.version>
+        <atlassian.spring.scanner.version>2.2.2</atlassian.spring.scanner.version>
         <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
 
