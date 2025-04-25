@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v3
       - name: Run Contrast SCA Fingerprint
         id: fingerprint
-        uses: 'Contrast-Security-OSS/contrast-sca-action@v2'
+        uses: 'Contrast-Security-OSS/contrast-sca-action@v3'
         with:
           apiKey: ${{ secrets.CONTRAST_GITHUB_APP_API_KEY }}
           authHeader: ${{ secrets.CONTRAST_GITHUB_APP_AUTH_HEADER }}
