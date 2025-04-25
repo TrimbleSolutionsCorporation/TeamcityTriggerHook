@@ -49,6 +49,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.BeanParam;
 
+import org.glassfish.jersey;
+
 /**
  * REST configuration
  */

@@ -5,6 +5,7 @@ import org.junit.runner.RunWith;
 import com.atlassian.plugins.osgi.test.AtlassianPluginsTestRunner;
 import com.trimble.tekla.TeamcityTriggerHook;
 import com.atlassian.sal.api.ApplicationProperties;
+import org.glassfish.jersey;
 
 import static org.junit.Assert.assertEquals;
 
