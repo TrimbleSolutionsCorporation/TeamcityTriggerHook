@@ -10,15 +10,14 @@ import java.util.regex.PatternSyntaxException;
 import javax.inject.Inject;
 
 import org.apache.commons.lang3.StringUtils;
-import org.codehaus.jackson.map.ObjectMapper;
 
-import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.scope.Scope;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 import com.atlassian.bitbucket.setting.SettingsValidator;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import com.atlassian.sal.api.message.I18nResolver;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trimble.tekla.pojo.Trigger;
 
 /**

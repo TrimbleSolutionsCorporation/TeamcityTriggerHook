@@ -5,7 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 
-import javax.inject.Inject;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -21,8 +20,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
@@ -31,17 +28,13 @@ import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.repository.Repository;
-import com.atlassian.bitbucket.rest.RestResource;
-import com.atlassian.bitbucket.rest.util.ResourcePatterns;
-import com.atlassian.bitbucket.rest.util.RestUtils;
+import com.atlassian.bitbucket.rest.v2.api.util.ResourcePatterns;
 import com.atlassian.bitbucket.setting.Settings;
-import com.atlassian.plugins.rest.common.security.AnonymousAllowed;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.filter.HTTPBasicAuthFilter;
-import com.sun.jersey.spi.resource.Singleton;
 import com.trimble.tekla.Constant;
 import com.trimble.tekla.Field;
 import com.trimble.tekla.SettingsService;
@@ -53,15 +46,17 @@ import com.trimble.tekla.teamcity.TeamcityConnector;
 import java.util.Arrays;
 import java.util.Optional;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 /**
  * REST configuration
  */
 @Path(ResourcePatterns.REPOSITORY_URI)
 @Consumes({MediaType.APPLICATION_JSON})
-@Produces({RestUtils.APPLICATION_JSON_UTF8})
+@Produces({"application/json;charset=UTF-8"})
 @Singleton
-@AnonymousAllowed
-public class TeamctiyRest extends RestResource {
+public class TeamctiyRest {
   
   private final TeamcityConnector connector;
   private final SettingsService settingsService;
@@ -75,12 +70,10 @@ public class TeamctiyRest extends RestResource {
    * @param i18nService i18n Service
    */
   @Inject
-  public TeamctiyRest(final I18nService i18nService,
-                      final SettingsService settingsService,
+  public TeamctiyRest(final SettingsService settingsService,
                       final TeamcityConnectionSettings connectionSettings,
                       final AuthenticationContext authContext,
                       final PullRequestService pullRequestService) {
-    super(i18nService);
     this.connectionSettings = connectionSettings;
     this.settingsService = settingsService;
     this.authContext = authContext;

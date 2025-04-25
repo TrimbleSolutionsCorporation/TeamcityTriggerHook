@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.trimble.tekla</groupId>
     <artifactId>TeamCityTriggerHook</artifactId>
-    <version>5.0.2</version>
+    <version>6.0.0</version>
 
     <organization>
         <name>Tekla</name>
@@ -15,6 +15,26 @@
     <name>TeamCity Remote Trigger Hook</name>
     <description>A Bitbucket plugin for triggering build in TeamCity Continuous Integration.</description>
     <packaging>atlassian-plugin</packaging>
+
+    <properties>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <bitbucket.version>9.4.0</bitbucket.version>
+        <bitbucket.data.version>${bitbucket.version}</bitbucket.data.version>
+        <platform.dependencies.version>7.0.14</platform.dependencies.version>
+        
+        <quick.reload.version>2.0.0</quick.reload.version>
+        <amps.version>9.3.3</amps.version>
+        <plugin.testrunner.version>2.0.3</plugin.testrunner.version>
+        <atlassian.spring.scanner.version>2.2.2</atlassian.spring.scanner.version>
+        <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
+        <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
+
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
+        <sonar.sources>pom.xml,src/main</sonar.sources>
+    </properties>
 
     <repositories>
         <repository>
@@ -78,18 +98,19 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
+            <version>4.13.2</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.plugin</groupId>
             <artifactId>atlassian-spring-scanner-annotation</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.bitbucket.server</groupId>
+            <artifactId>bitbucket-rest-v2-spi</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -111,6 +132,13 @@
             <artifactId>atlassian-plugins-osgi-testrunner</artifactId>
             <version>${plugin.testrunner.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.sun.jersey</groupId>
+            <artifactId>jersey-client</artifactId>
+            <version>1.19.4</version>
+            <scope>compile</scope>
+            <type>jar</type>
         </dependency>
     </dependencies>
 
@@ -158,21 +186,5 @@
         </plugins>
     </build>
 
-    <properties>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
-        <bitbucket.data.version>8.7.0</bitbucket.data.version>
-        <bitbucket.version>8.7.0</bitbucket.version>
-        <quick.reload.version>2.0.0</quick.reload.version>
-        <amps.version>8.0.0</amps.version>
-        <plugin.testrunner.version>1.2.3</plugin.testrunner.version>
-        <atlassian.spring.scanner.version>2.2.2</atlassian.spring.scanner.version>
-        <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
-        <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
 
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <sonar.sources>pom.xml,src/main</sonar.sources>
-    </properties>
 </project>
