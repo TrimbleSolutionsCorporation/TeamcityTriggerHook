@@ -9,6 +9,10 @@
 
     <resource type="i18n" name="i18n" location="i18n/teamcity-trigger-hook"/>
 
+    <rest-migration key="teamcity-rest-migration-key">
+        <rest-v2/>
+    </rest-migration>
+
     <rest key="teamcity-rest" path="/teamcity" version="1.0">
         <dispatcher>REQUEST</dispatcher>
         <dispatcher>FORWARD</dispatcher>

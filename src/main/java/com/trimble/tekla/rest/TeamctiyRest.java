@@ -23,7 +23,6 @@ import org.json.JSONObject;
 
 import com.atlassian.bitbucket.auth.AuthenticationContext;
 import com.atlassian.bitbucket.hook.repository.RepositoryHook;
-import com.atlassian.bitbucket.i18n.I18nService;
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.pull.PullRequestService;
@@ -48,6 +47,7 @@ import java.util.Optional;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
+import javax.ws.rs.BeanParam;
 
 /**
  * REST configuration
@@ -90,7 +90,7 @@ public class TeamctiyRest {
   @GET
   @Path(value = "loadhtml")
   @Produces(MediaType.TEXT_HTML)
-  public String loadhtml(@Context final Repository repository, @QueryParam("page") final String page) {
+  public String loadhtml(@BeanParam final Repository repository, @QueryParam("page") final String page) {
 
     final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
     final InputStream is = classloader.getResourceAsStream("public/" + page);
@@ -108,7 +108,7 @@ public class TeamctiyRest {
   @GET
   @Path(value = "loadjs")
   @Produces("text/javascript")
-  public String loadjs(@Context final Repository repository, @QueryParam("page") final String page) {
+  public String loadjs(@BeanParam final Repository repository, @QueryParam("page") final String page) {
     final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
     final InputStream is = classloader.getResourceAsStream("public/" + page);
     final String file = convertStreamToString(is);
@@ -118,7 +118,7 @@ public class TeamctiyRest {
   @GET
   @Path(value = "loadcss")
   @Produces("text/css")
-  public String loadcss(@Context final Repository repository, @QueryParam("page") final String page) {
+  public String loadcss(@BeanParam final Repository repository, @QueryParam("page") final String page) {
     final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
     final InputStream is = classloader.getResourceAsStream("public/" + page);
     final String file = convertStreamToString(is);
@@ -167,7 +167,7 @@ public class TeamctiyRest {
   @Path(value = "triggerbuild")
   @Produces(MediaType.APPLICATION_JSON)
   public String triggerBuild(
-          @Context final Repository repository,
+          @BeanParam final Repository repository,
           @QueryParam("buildconfig") final String buildconfig,
           @QueryParam("branch") final String branch,
           @QueryParam("prid") final String prid) throws IOException {
@@ -233,7 +233,7 @@ public class TeamctiyRest {
   @Path(value = "builds")
   @Produces(MediaType.APPLICATION_JSON)
   public String getBuildsConfiguration(
-          @Context final Repository repository,
+          @BeanParam final Repository repository,
           @QueryParam("prid") final String prid,
           @QueryParam("branch") final String branch,
           @QueryParam("hash") final String hash) throws IOException {
@@ -476,7 +476,7 @@ public class TeamctiyRest {
    */
   @GET
   @Path(value = "build")
-  public String getbuild(@Context final Repository repository, @QueryParam("id") final String id) {
+  public String getbuild(@BeanParam final Repository repository, @QueryParam("id") final String id) {
 
     final Optional<Settings> settings = this.settingsService.getSettings(repository);
 
@@ -512,7 +512,7 @@ public class TeamctiyRest {
    */
   @POST
   @Path(value = "triggervcs")
-  public Response triggervcs(@Context final Repository repository, @QueryParam("vcs") final String vcs, @QueryParam("url") final String sha1, @QueryParam("username") final String username,
+  public Response triggervcs(@BeanParam final Repository repository, @QueryParam("vcs") final String vcs, @QueryParam("url") final String sha1, @QueryParam("username") final String username,
           @QueryParam("password") final String password) {
 
     try {
@@ -524,7 +524,7 @@ public class TeamctiyRest {
 
   @GET
   @Path(value = "getHookEnabled")
-  public Response getHookEnabled(@Context final Repository repository, @QueryParam("prid") final String prid) {
+  public Response getHookEnabled(@BeanParam final Repository repository, @QueryParam("prid") final String prid) {
       if (authContext.isAuthenticated()) {
 
         if (repository == null) {
