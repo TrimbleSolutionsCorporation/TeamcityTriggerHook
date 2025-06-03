@@ -11,7 +11,6 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -26,7 +25,7 @@ import com.atlassian.bitbucket.hook.repository.RepositoryHook;
 import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.pull.PullRequestService;
-import com.atlassian.bitbucket.repository.Repository;
+import com.atlassian.bitbucket.rest.v2.api.resolver.RepositoryResolver;
 import com.atlassian.bitbucket.rest.v2.api.util.ResourcePatterns;
 import com.atlassian.bitbucket.setting.Settings;
 import com.sun.jersey.api.client.Client;
@@ -90,7 +89,7 @@ public class TeamctiyRest {
   @GET
   @Path(value = "loadhtml")
   @Produces(MediaType.TEXT_HTML)
-  public String loadhtml(@BeanParam final Repository repository, @QueryParam("page") final String page) {
+  public String loadhtml(@BeanParam final RepositoryResolver repositoryResolver, @QueryParam("page") final String page) {
 
     final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
     final InputStream is = classloader.getResourceAsStream("public/" + page);
@@ -108,7 +107,7 @@ public class TeamctiyRest {
   @GET
   @Path(value = "loadjs")
   @Produces("text/javascript")
-  public String loadjs(@BeanParam final Repository repository, @QueryParam("page") final String page) {
+  public String loadjs(@BeanParam final RepositoryResolver repositoryResolver, @QueryParam("page") final String page) {
     final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
     final InputStream is = classloader.getResourceAsStream("public/" + page);
     final String file = convertStreamToString(is);
@@ -118,7 +117,7 @@ public class TeamctiyRest {
   @GET
   @Path(value = "loadcss")
   @Produces("text/css")
-  public String loadcss(@BeanParam final Repository repository, @QueryParam("page") final String page) {
+  public String loadcss(@BeanParam final RepositoryResolver repositoryResolver, @QueryParam("page") final String page) {
     final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
     final InputStream is = classloader.getResourceAsStream("public/" + page);
     final String file = convertStreamToString(is);
@@ -128,7 +127,7 @@ public class TeamctiyRest {
   @GET
   @Path(value = "loadimg")
   @Produces(MediaType.APPLICATION_OCTET_STREAM)
-  public Response loadimg(@Context final Repository repository, @QueryParam("img") final String img) {
+  public Response loadimg(@BeanParam final RepositoryResolver repositoryResolver, @QueryParam("img") final String img) {
     return Response.ok(getResourceAsFile("public/" + img), MediaType.APPLICATION_OCTET_STREAM).header("Content-Disposition", "attachment; filename=\"" + img + "\"").build();
   }
 
@@ -167,12 +166,12 @@ public class TeamctiyRest {
   @Path(value = "triggerbuild")
   @Produces(MediaType.APPLICATION_JSON)
   public String triggerBuild(
-          @BeanParam final Repository repository,
+          @BeanParam final RepositoryResolver repositoryResolver,
           @QueryParam("buildconfig") final String buildconfig,
           @QueryParam("branch") final String branch,
           @QueryParam("prid") final String prid) throws IOException {
 
-    final Optional<Settings> settings = this.settingsService.getSettings(repository);
+    final Optional<Settings> settings = this.settingsService.getSettings(repositoryResolver.getRepository());
 
     if (settings == null) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
@@ -180,7 +179,7 @@ public class TeamctiyRest {
 
     final String url = settings.get().getString(Field.TEAMCITY_URL, "");
     final String username = settings.get().getString(Field.TEAMCITY_USERNAME, "");
-    final String password = this.connectionSettings.getPassword(repository);
+    final String password = this.connectionSettings.getPassword(repositoryResolver.getRepository());
 
     if (url.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
@@ -216,7 +215,7 @@ public class TeamctiyRest {
                                                   "Manual Trigger from Bitbucket: Pull Request: " + prid,
                                                   false,
                                                   settings.get(),
-                                                  repository.getName(), null)); // handle error todo
+                                                  repositoryResolver.getRepository().getName(), null)); // handle error todo
       } else {
         builder.append(" trigger skipped ")
                 .append(buildconfig)
@@ -233,19 +232,19 @@ public class TeamctiyRest {
   @Path(value = "builds")
   @Produces(MediaType.APPLICATION_JSON)
   public String getBuildsConfiguration(
-          @BeanParam final Repository repository,
+          @BeanParam final RepositoryResolver repositoryResolver,
           @QueryParam("prid") final String prid,
           @QueryParam("branch") final String branch,
           @QueryParam("hash") final String hash) throws IOException {
 
-    final Optional<Settings> settings = this.settingsService.getSettings(repository);
+    final Optional<Settings> settings = this.settingsService.getSettings(repositoryResolver.getRepository());
     if(!settings.isPresent()) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
     }
 
     final String url = settings.get().getString(Field.TEAMCITY_URL, "");
     final String username = settings.get().getString("teamCityUserName", "");
-    final String password = this.connectionSettings.getPassword(repository);
+    final String password = this.connectionSettings.getPassword(repositoryResolver.getRepository());
 
     if (password.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"password is empty\"}";
@@ -276,8 +275,8 @@ public class TeamctiyRest {
           continue;
         }
         try {
-          final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings.get(), repository.getName(), false);
-          final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTarget(), settings.get(), repository.getName());
+          final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), buildConfig.getTarget(), settings.get(), repositoryResolver.getRepository().getName(), false);
+          final String queueData = this.connector.GetQueueDataForConfiguration(conf, buildConfig.getTarget(), settings.get(), repositoryResolver.getRepository().getName());
           jObj.put(buildConfig.getTarget(), returnData);
           jObj.put(buildConfig.getTarget() + "_queue", queueData);
           jObj.put(buildConfig.getTarget() + "_wref", url + "/viewType.html?buildTypeId=" + buildConfig);
@@ -296,14 +295,14 @@ public class TeamctiyRest {
   @GET
   @Path(value = "externalbuilds")
   public String getExternalConfiguration(
-          @Context final Repository repository,
+          @BeanParam final RepositoryResolver repositoryResolver,
           @QueryParam("id") final String id,
           @QueryParam("prid") final String prid,
           @QueryParam("branch") final String branch,
           @QueryParam("hash") final String hash) {
 
     
-    final Optional<Settings> settings = this.settingsService.getSettings(repository);
+    final Optional<Settings> settings = this.settingsService.getSettings(repositoryResolver.getRepository());
 
     if (!settings.isPresent()) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
@@ -311,7 +310,7 @@ public class TeamctiyRest {
 
     final String url = settings.get().getString(Field.TEAMCITY_URL, "");
     final String username = settings.get().getString("teamCityUserName", "");
-    final String password = this.connectionSettings.getPassword(repository);
+    final String password = this.connectionSettings.getPassword(repositoryResolver.getRepository());
 
     if (url.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
@@ -336,16 +335,16 @@ public class TeamctiyRest {
         for (final Trigger buildConfig : configurations) {
           if ("build".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
             final String depBuildId = buildConfig.getTarget();
-            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get(), repository.getName(), false);
-            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get(), repository.getName());
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get(), repositoryResolver.getRepository().getName(), false);
+            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get(), repositoryResolver.getRepository().getName());
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
             jObj.put(depBuildId + "_dep", returnData);
             jObj.put(depBuildId + "_dep_queue", queueData);
 
             final String [] downBuildIds = buildConfig.getDownStreamTriggerTarget().split(",");           
             for (String downBuildId : downBuildIds) {
-                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), downBuildId, settings.get(), repository.getName(), false);
-                final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings.get(), repository.getName());
+                final String returnDataBuildDep = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), downBuildId, settings.get(), repositoryResolver.getRepository().getName(), false);
+                final String queueDataBuildDep = this.connector.GetQueueDataForConfiguration(conf, downBuildId, settings.get(), repositoryResolver.getRepository().getName());
                 jObj.put(downBuildId + "_build", returnDataBuildDep);
                 jObj.put(downBuildId + "_build_branch", buildConfig.getBranchConfig());                
                 jObj.put(downBuildId + "_build_wref", url + "/viewType.html?buildTypeId=" + downBuildId);
@@ -364,8 +363,8 @@ public class TeamctiyRest {
               "tab".equals(buildConfig.getDownStreamTriggerType()) && !"".equals(buildConfig.getDownStreamTriggerTarget())) {
             final String depBuildId = buildConfig.getTarget();
             
-            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get(), repository.getName(), false);
-            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get(), repository.getName());
+            final String returnData = this.connector.GetBuildsForBranch(conf, buildConfig.getBranchConfig(), depBuildId, settings.get(), repositoryResolver.getRepository().getName(), false);
+            final String queueData = this.connector.GetQueueDataForConfiguration(conf, depBuildId, settings.get(), repositoryResolver.getRepository().getName());
             jObj.put(depBuildId + "_dep", returnData);
             jObj.put(depBuildId + "_dep_wref", url + "/viewType.html?buildTypeId=" + depBuildId);
             jObj.put(depBuildId + "_dep_queue", queueData);
@@ -408,18 +407,18 @@ public class TeamctiyRest {
    */
   @GET
   @Path(value = "triggerexternalurl")
-  public String triggerexternalurl(@Context final Repository repository, @QueryParam("url") final String url, @QueryParam("method") final String method) {
+  public String triggerexternalurl(@BeanParam final RepositoryResolver repositoryResolver, @QueryParam("url") final String url, @QueryParam("method") final String method) {
 
     final HttpConnector dummyConnector = new HttpConnector();
     String returnData;
     try {
-      final Optional<Settings> settings = this.settingsService.getSettings(repository);
+      final Optional<Settings> settings = this.settingsService.getSettings(repositoryResolver.getRepository());
 
       if (!settings.isPresent()) {
         return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
       }
     
-      returnData = dummyConnector.Get(url, settings.get(), repository.getName());
+      returnData = dummyConnector.Get(url, settings.get(), repositoryResolver.getRepository().getName());
       return "{\"status\": \"ok\", \"message\": \" " + returnData + "\" }";
     } catch (final IOException ex) {
       return "{\"status\": \"failed\", \"message\": \" " + ex.getMessage() + "\" }";
@@ -429,7 +428,7 @@ public class TeamctiyRest {
   /**
    * Trigger a build on the Teamcity instance using vcs root
    *
-   * @param repository - {@link Repository}
+   * @param repositoryResolver - {@link Repository}
    * @param url - url to TeamCity server
    * @param username - TeamCity user name
    * @param password - TeamCity user password
@@ -439,7 +438,7 @@ public class TeamctiyRest {
   @Path(value = "testconnection")
   @Produces("text/plain; charset=UTF-8")
   public Response testconnection(
-          @Context final Repository repository,
+          @BeanParam final RepositoryResolver repositoryResolver,
           @QueryParam("url") final String url,
           @QueryParam("username") final String username,
           @QueryParam("password") final String password,
@@ -447,7 +446,7 @@ public class TeamctiyRest {
 
     String realPasswordValue = password;
     if (Constant.TEAMCITY_PASSWORD_SAVED_VALUE.equals(realPasswordValue)) {
-      realPasswordValue = this.connectionSettings.getPassword(repository);
+      realPasswordValue = this.connectionSettings.getPassword(repositoryResolver.getRepository());
     }
 
     final Client restClient = Client.create(Constant.REST_CLIENT_CONFIG);
@@ -456,7 +455,7 @@ public class TeamctiyRest {
     try {
       final ClientResponse response = restClient.resource(url + "/app/rest/builds?locator=lookupLimit:0").accept(MediaType.APPLICATION_XML).get(ClientResponse.class);
       if (ClientResponse.Status.OK == response.getStatusInfo()) {
-        this.connectionSettings.savePassword(realPasswordValue, repository);
+        this.connectionSettings.savePassword(realPasswordValue, repositoryResolver.getRepository());
         return Response.ok(Constant.TEAMCITY_PASSWORD_SAVED_VALUE).build();
       } else {
         return Response.status(response.getStatusInfo()).entity(response.getEntity(String.class)).build();
@@ -471,14 +470,16 @@ public class TeamctiyRest {
   /**
    * Trigger a build on the Teamcity instance using vcs root
    *
-   * @param repository The repository to trigger
+   * @param repositoryResolver The repository to trigger
    * @return The response. Ok if it worked. Otherwise, an error.
    */
   @GET
   @Path(value = "build")
-  public String getbuild(@BeanParam final Repository repository, @QueryParam("id") final String id) {
+  public String getbuild(
+    @BeanParam final RepositoryResolver repositoryResolver,
+    @QueryParam("id") final String id) {
 
-    final Optional<Settings> settings = this.settingsService.getSettings(repository);
+    final Optional<Settings> settings = this.settingsService.getSettings(repositoryResolver.getRepository());
 
     if (!settings.isPresent()) {
       return "{\"status\": \"error\", \"message\": \"hook not configured\"}";
@@ -486,7 +487,7 @@ public class TeamctiyRest {
 
     final String url = settings.get().getString(Field.TEAMCITY_URL, "");
     final String username = settings.get().getString("teamCityUserName", "");
-    final String password = this.connectionSettings.getPassword(repository);
+    final String password = this.connectionSettings.getPassword(repositoryResolver.getRepository());
 
     if (url.isEmpty()) {
       return "{\"status\": \"error\", \"message\": \"invalid id\"}";
@@ -498,7 +499,7 @@ public class TeamctiyRest {
 
     final TeamcityConfiguration conf = new TeamcityConfiguration(url, username, password);
     try {     
-      return this.connector.GetBuild(conf, id, settings.get(), repository.getName());
+      return this.connector.GetBuild(conf, id, settings.get(), repositoryResolver.getRepository().getName());
     } catch (final IOException ex) {
       return "{\"status\": \"error\", \"message\": \"" + ex.getMessage() + "\"}";
     }
@@ -507,13 +508,17 @@ public class TeamctiyRest {
   /**
    * Trigger a build on the Teamcity instance using vcs root
    *
-   * @param repository The repository to trigger
+   * @param repositoryResolver The repository to trigger
    * @return The response. Ok if it worked. Otherwise, an error.
    */
   @POST
   @Path(value = "triggervcs")
-  public Response triggervcs(@BeanParam final Repository repository, @QueryParam("vcs") final String vcs, @QueryParam("url") final String sha1, @QueryParam("username") final String username,
-          @QueryParam("password") final String password) {
+  public Response triggervcs(
+    @BeanParam final RepositoryResolver repositoryResolver,
+    @QueryParam("vcs") final String vcs,
+    @QueryParam("url") final String sha1,
+    @QueryParam("username") final String username,
+    @QueryParam("password") final String password) {
 
     try {
       return Response.noContent().build();
@@ -524,15 +529,17 @@ public class TeamctiyRest {
 
   @GET
   @Path(value = "getHookEnabled")
-  public Response getHookEnabled(@BeanParam final Repository repository, @QueryParam("prid") final String prid) {
+  public Response getHookEnabled(
+    @BeanParam final RepositoryResolver repositoryResolver,
+    @QueryParam("prid") final String prid) {
       if (authContext.isAuthenticated()) {
 
-        if (repository == null) {
+        if (repositoryResolver.getRepository() == null) {
           return Response.ok(false).build();
         }
         try {    
-          final RepositoryHook hook = this.settingsService.getRepositoryHook(repository);
-          final Optional<Settings> settings = this.settingsService.getSettings(repository);
+          final RepositoryHook hook = this.settingsService.getRepositoryHook(repositoryResolver.getRepository());
+          final Optional<Settings> settings = this.settingsService.getSettings(repositoryResolver.getRepository());
           if(!settings.isPresent()) {
             return Response.ok(false).build();
           }      
@@ -541,7 +548,7 @@ public class TeamctiyRest {
             return Response.ok(false).build();
           }
           
-          final PullRequest pullRequest = pullRequestService.getById(repository.getId(), Long.parseLong(prid));
+          final PullRequest pullRequest = pullRequestService.getById(repositoryResolver.getRepository().getId(), Long.parseLong(prid));
           if (pullRequest == null) {
             return Response.ok(false).build();
           }

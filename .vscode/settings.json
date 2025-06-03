@@ -4,5 +4,6 @@
         "debugon",
         "testconnection",
         "triggervcs"
-    ]
+    ],
+    "java.compile.nullAnalysis.mode": "automatic"
 }
