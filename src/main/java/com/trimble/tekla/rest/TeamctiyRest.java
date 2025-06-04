@@ -26,6 +26,7 @@ import com.atlassian.bitbucket.pull.PullRequest;
 import com.atlassian.bitbucket.pull.PullRequestRef;
 import com.atlassian.bitbucket.pull.PullRequestService;
 import com.atlassian.bitbucket.rest.v2.api.resolver.RepositoryResolver;
+import com.atlassian.bitbucket.rest.v2.api.util.ResourcePatterns;
 import com.atlassian.bitbucket.setting.Settings;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.ClientHandlerException;
@@ -50,7 +51,7 @@ import javax.ws.rs.BeanParam;
 /**
  * REST configuration
  */
-@Path("projects/{projectKey}")
+@Path(ResourcePatterns.REPOSITORY_URI)
 @Consumes({MediaType.APPLICATION_JSON})
 @Produces({"application/json;charset=UTF-8"})
 @Singleton
@@ -79,10 +80,87 @@ public class TeamctiyRest {
     this.connector = new TeamcityConnector(new HttpConnector());
   }
 
-  @Path("/repos/{repositorySlug}/ui")
-  public Class<TeamctiyRestWebElements> uiRestDelegates() {
-    return TeamctiyRestWebElements.class;
-  }  
+  /**
+   * Trigger a build on the Teamcity instance using vcs root
+   *
+   * @param repository The repository to trigger
+   * @return The response. Ok if it worked. Otherwise, an error.
+   */
+  @GET
+  @Path(value = "loadhtml")
+  @Produces(MediaType.TEXT_HTML)
+  public String loadhtml(@BeanParam final RepositoryResolver repositoryResolver, @QueryParam("page") final String page) {
+
+    final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+    final InputStream is = classloader.getResourceAsStream("public/" + page);
+    final String file = convertStreamToString(is);
+    return file;
+  }
+
+  /**
+   * Trigger a build on the Teamcity instance using vcs root
+   *
+   * @param repository The repository to trigger
+     * @param page
+   * @return The response. Ok if it worked. Otherwise, an error.
+   */
+  @GET
+  @Path(value = "loadjs")
+  @Produces("text/javascript")
+  public String loadjs(@BeanParam final RepositoryResolver repositoryResolver, @QueryParam("page") final String page) {
+    final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+    final InputStream is = classloader.getResourceAsStream("public/" + page);
+    final String file = convertStreamToString(is);
+    return file;
+  }
+
+  @GET
+  @Path(value = "loadcss")
+  @Produces("text/css")
+  public String loadcss(@BeanParam final RepositoryResolver repositoryResolver, @QueryParam("page") final String page) {
+    final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+    final InputStream is = classloader.getResourceAsStream("public/" + page);
+    final String file = convertStreamToString(is);
+    return file;
+  }
+
+  @GET
+  @Path(value = "loadimg")
+  @Produces(MediaType.APPLICATION_OCTET_STREAM)
+  public Response loadimg(@BeanParam final RepositoryResolver repositoryResolver, @QueryParam("img") final String img) {
+    return Response.ok(getResourceAsFile("public/" + img), MediaType.APPLICATION_OCTET_STREAM).header("Content-Disposition", "attachment; filename=\"" + img + "\"").build();
+  }
+
+  public static File getResourceAsFile(final String resourcePath) {
+    try {
+      final ClassLoader classloader = Thread.currentThread().getContextClassLoader();
+      final InputStream in = classloader.getResourceAsStream(resourcePath);
+
+      if (in == null) {
+        return null;
+      }
+
+      final File tempFile = File.createTempFile(String.valueOf(in.hashCode()), ".tmp");
+      tempFile.deleteOnExit();
+
+      try (FileOutputStream out = new FileOutputStream(tempFile)) {
+        // copy stream
+        final byte[] buffer = new byte[1024];
+        int bytesRead;
+        while ((bytesRead = in.read(buffer)) != -1) {
+          out.write(buffer, 0, bytesRead);
+        }
+      }
+      return tempFile;
+    } catch (final IOException e) {
+      return null;
+    }
+  }
+
+  static String convertStreamToString(final java.io.InputStream is) {
+    final java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
+    return s.hasNext() ? s.next() : "";
+  }
 
   @GET
   @Path(value = "triggerbuild")

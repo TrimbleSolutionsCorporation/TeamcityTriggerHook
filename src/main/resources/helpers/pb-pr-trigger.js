@@ -71,7 +71,7 @@ define("teamcity/manual-build-pullrequest", [
 
       iframeElement.setAttribute(
         "src",
-        getResourceUrl(context, "ui/loadhtml") + "?page=index.html&" + paramsString
+        getResourceUrl(context, "loadhtml") + "?page=index.html&" + paramsString
       );
       modalContent.appendChild(iframeElement);
 
