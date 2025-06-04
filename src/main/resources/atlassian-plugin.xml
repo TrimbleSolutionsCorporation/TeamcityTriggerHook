@@ -62,6 +62,7 @@
     <web-resource key="pb-pr-trigger-resource">
         <resource type="download" name="pb-pr-trigger.js" location="/helpers/pb-pr-trigger.js"/>
         <dependency>${project.groupId}.${project.artifactId}:build-dialog</dependency>
+        <dependency>com.atlassian.plugins.atlassian-plugins-webresource-rest:web-resource-manager</dependency>
         <dependency>com.atlassian.plugins.atlassian-plugins-webresource-plugin:context-path</dependency>
         <context>bitbucket.ui.pullrequest.action</context>
         <context>pr-trigger-js</context>
