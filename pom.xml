@@ -20,7 +20,7 @@
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <bitbucket.version>9.4.0</bitbucket.version>
         <bitbucket.data.version>${bitbucket.version}</bitbucket.data.version>
-        <platform.dependencies.version>7.0.14</platform.dependencies.version>
+        <platform7.version>7.3.9</platform7.version>
         
         <quick.reload.version>2.0.0</quick.reload.version>
         <amps.version>9.3.3</amps.version>
@@ -36,25 +36,19 @@
         <sonar.sources>pom.xml,src/main</sonar.sources>
     </properties>
 
-    <repositories>
-        <repository>
-            <id>packages.atlassian.com</id>
-            <url>https://packages.atlassian.com/maven-external</url>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>packages.atlassian.com</id>
-            <url>https://packages.atlassian.com/maven-external</url>
-        </pluginRepository>
-    </pluginRepositories>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
-                <groupId>com.atlassian.bitbucket.server</groupId>
-                <artifactId>bitbucket-parent</artifactId>
-                <version>${bitbucket.version}</version>
+                <groupId>com.atlassian.platform.dependencies</groupId>
+                <artifactId>platform-public-api</artifactId>
+                <version>${platform7.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>com.atlassian.platform.dependencies</groupId>
+                <artifactId>platform-test-resources</artifactId>
+                <version>${platform7.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -66,36 +60,43 @@
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
             <scope>provided</scope>
+            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-api</artifactId>
             <scope>provided</scope>
+            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-spi</artifactId>
             <scope>provided</scope>
+            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-page-objects</artifactId>
             <scope>provided</scope>
+            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-git-api</artifactId>
             <scope>provided</scope>
+            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.event</groupId>
             <artifactId>atlassian-event</artifactId>
             <scope>provided</scope>
+            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.plugins</groupId>
             <artifactId>atlassian-plugins-webfragment-api</artifactId>
             <scope>provided</scope>
+            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -112,6 +113,7 @@
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-rest-v2-spi</artifactId>
             <scope>provided</scope>
+            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
@@ -121,12 +123,6 @@
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
             <artifactId>jackson-databind</artifactId>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.atlassian.bitbucket.server</groupId>
-            <artifactId>bitbucket-rest-v2-spi</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -195,7 +191,15 @@
                     <allowGoogleTracking>false</allowGoogleTracking>
                 </configuration>
             </plugin>
-
+            <plugin>
+                <groupId>com.atlassian.maven.plugins</groupId>
+                <artifactId>amps-maven-plugin</artifactId>
+                <version>${amps.version}</version>
+                <configuration>
+                    <Import-Package>javax.ws.rs*;version="[2.0.0,3.0.0)"
+                    </Import-Package>                    
+                </configuration>
+            </plugin>
             <plugin>
                 <groupId>com.atlassian.plugin</groupId>
                 <artifactId>atlassian-spring-scanner-maven-plugin</artifactId>
