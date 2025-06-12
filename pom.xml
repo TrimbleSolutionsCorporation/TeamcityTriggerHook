@@ -20,8 +20,7 @@
         <maven.javadoc.skip>true</maven.javadoc.skip>
         <bitbucket.version>9.4.0</bitbucket.version>
         <bitbucket.data.version>${bitbucket.version}</bitbucket.data.version>
-        <platform7.version>7.3.9</platform7.version>
-        
+        <atlassian-platform.version>7.3.12</atlassian-platform.version>
         <quick.reload.version>2.0.0</quick.reload.version>
         <amps.version>9.3.3</amps.version>
         <plugin.testrunner.version>2.0.3</plugin.testrunner.version>
@@ -41,14 +40,14 @@
             <dependency>
                 <groupId>com.atlassian.platform.dependencies</groupId>
                 <artifactId>platform-public-api</artifactId>
-                <version>${platform7.version}</version>
+                <version>${atlassian-platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>com.atlassian.platform.dependencies</groupId>
                 <artifactId>platform-test-resources</artifactId>
-                <version>${platform7.version}</version>
+                <version>${atlassian-platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
@@ -60,43 +59,36 @@
             <groupId>com.atlassian.sal</groupId>
             <artifactId>sal-api</artifactId>
             <scope>provided</scope>
-            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-api</artifactId>
             <scope>provided</scope>
-            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-spi</artifactId>
             <scope>provided</scope>
-            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-page-objects</artifactId>
             <scope>provided</scope>
-            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-git-api</artifactId>
             <scope>provided</scope>
-            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.event</groupId>
             <artifactId>atlassian-event</artifactId>
             <scope>provided</scope>
-            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.atlassian.plugins</groupId>
             <artifactId>atlassian-plugins-webfragment-api</artifactId>
             <scope>provided</scope>
-            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -113,7 +105,6 @@
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-rest-v2-spi</artifactId>
             <scope>provided</scope>
-            <version>${platform7.version}</version>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.core</groupId>
