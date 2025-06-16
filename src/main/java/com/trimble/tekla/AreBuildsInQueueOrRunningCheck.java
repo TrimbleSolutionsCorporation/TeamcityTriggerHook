@@ -25,7 +25,6 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import org.json.JSONException;
-import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -38,7 +37,6 @@ public class AreBuildsInQueueOrRunningCheck implements RepositoryMergeCheck {
   private final SettingsService settingsService;
   private final TeamcityConnector connector;
 
-  @Autowired
   @Inject
   public AreBuildsInQueueOrRunningCheck(@ComponentImport I18nService i18nService,
           final TeamcityConnectionSettings connectionSettings,

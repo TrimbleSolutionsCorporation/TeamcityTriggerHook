@@ -2,12 +2,10 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.trimble.tekla</groupId>
     <artifactId>TeamCityTriggerHook</artifactId>
     <version>6.0.0</version>
-
     <organization>
         <name>Tekla</name>
         <url>http://www.tekla.com/</url>
@@ -15,26 +13,23 @@
     <name>TeamCity Remote Trigger Hook</name>
     <description>A Bitbucket plugin for triggering build in TeamCity Continuous Integration.</description>
     <packaging>atlassian-plugin</packaging>
-
     <properties>
         <maven.javadoc.skip>true</maven.javadoc.skip>
-        <bitbucket.version>9.4.0</bitbucket.version>
+        <bitbucket.version>9.6.3</bitbucket.version>
         <bitbucket.data.version>${bitbucket.version}</bitbucket.data.version>
         <atlassian-platform.version>7.3.12</atlassian-platform.version>
         <quick.reload.version>2.0.0</quick.reload.version>
         <amps.version>9.3.3</amps.version>
         <plugin.testrunner.version>2.0.3</plugin.testrunner.version>
-        <atlassian.spring.scanner.version>2.2.2</atlassian.spring.scanner.version>
+        <atlassian.spring.scanner.version>6.0.0</atlassian.spring.scanner.version>
         <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
         <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
         <sonar.sources>pom.xml,src/main</sonar.sources>
     </properties>
-
     <dependencyManagement>
         <dependencies>
             <dependency>
@@ -53,7 +48,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
     <dependencies>
         <dependency>
             <groupId>com.atlassian.sal</groupId>
@@ -63,21 +57,25 @@
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-api</artifactId>
+            <version>${bitbucket.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-spi</artifactId>
+            <version>${bitbucket.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-page-objects</artifactId>
+            <version>${bitbucket.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-git-api</artifactId>
+            <version>${bitbucket.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -104,6 +102,7 @@
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
             <artifactId>bitbucket-rest-v2-spi</artifactId>
+            <version>${bitbucket.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -130,11 +129,16 @@
             <groupId>com.atlassian.plugins.rest</groupId>
             <artifactId>atlassian-rest-v2-api</artifactId>
             <scope>provided</scope>
-        </dependency>        
+        </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
             <artifactId>javax.inject</artifactId>
             <version>1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -143,7 +147,6 @@
             <version>20070829</version>
             <scope>provided</scope>
         </dependency>
-
         <!-- WIRED TEST RUNNER DEPENDENCIES -->
         <dependency>
             <groupId>com.atlassian.plugins</groupId>
@@ -159,7 +162,6 @@
             <type>jar</type>
         </dependency>
     </dependencies>
-
     <build>
         <plugins>
             <plugin>
@@ -176,7 +178,7 @@
                             <dataVersion>${bitbucket.data.version}</dataVersion>
                             <enableDevToolbox>false</enableDevToolbox>
                             <enableQuickReload>true</enableQuickReload>
-                            <dataHome>${bitbucket.home}</dataHome>
+                            <!--<dataHome>${bitbucket.home}</dataHome>-->
                         </product>
                     </products>
                     <allowGoogleTracking>false</allowGoogleTracking>
@@ -187,8 +189,11 @@
                 <artifactId>amps-maven-plugin</artifactId>
                 <version>${amps.version}</version>
                 <configuration>
-                    <Import-Package>javax.ws.rs*;version="[2.0.0,3.0.0)"
-                    </Import-Package>                    
+                    <instructions>
+                        <Import-Package>*;resolution:="optional"</Import-Package>
+                        <Spring-Context>*</Spring-Context>
+                        <Export-Package/>
+                    </instructions>
                 </configuration>
             </plugin>
             <plugin>
@@ -211,6 +216,4 @@
             </plugin>
         </plugins>
     </build>
-
-
 </project>
