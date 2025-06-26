@@ -44,6 +44,9 @@ import com.trimble.tekla.teamcity.TeamcityConnector;
 import java.util.Arrays;
 import java.util.Optional;
 
+import org.springframework.context.annotation.Bean;
+import static com.atlassian.plugins.osgi.javaconfig.OsgiServices.importOsgiService;
+
 import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.BeanParam;

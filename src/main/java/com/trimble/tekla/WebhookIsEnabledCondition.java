@@ -34,7 +34,7 @@ public class WebhookIsEnabledCondition implements Condition {
    * @param settingsService The settings service
    */
   @Inject
-  public WebhookIsEnabledCondition(final SettingsService settingsService, final RepositoryService repositoryService, final PullRequestService pullRequestService) {
+  public WebhookIsEnabledCondition(final SettingsService settingsService, @ComponentImport RepositoryService repositoryService, @ComponentImport PullRequestService pullRequestService) {
     this.settingsService = settingsService;
     this.repositoryService = repositoryService;
     this.pullRequestService = pullRequestService;

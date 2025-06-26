@@ -190,7 +190,12 @@
                 <version>${amps.version}</version>
                 <configuration>
                     <instructions>
-                        <Import-Package>*;resolution:="optional"</Import-Package>
+                        <Import-Package>
+                          com.atlassian.bitbucket.project.*;resolution:="optional",
+                          com.atlassian.bitbucket.repository.*;resolution:="optional",
+                          com.atlassian.bitbucket.i18n.*;resolution:="optional",
+                          *;resolution:="optional"
+                        </Import-Package>
                         <Spring-Context>*</Spring-Context>
                         <Export-Package/>
                     </instructions>

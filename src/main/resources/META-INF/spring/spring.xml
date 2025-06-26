@@ -1,14 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<beans xmlns="http://www.springframework.org/schema/beans"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xmlns:context="http://www.springframework.org/schema/context"
-       xmlns:atlassian-scanner="http://www.atlassian.com/schema/atlassian-scanner/2"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans
-       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
-       http://www.springframework.org/schema/context
-		https://www.springframework.org/schema/context/spring-context.xsd
-        http://www.atlassian.com/schema/atlassian-scanner/2
-        http://www.atlassian.com/schema/atlassian-scanner/2/atlassian-scanner.xsd">
+<beans
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns="http://www.springframework.org/schema/beans"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:osgi="http://www.springframework.org/schema/osgi"
+        xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/osgi
+            http://www.springframework.org/schema/osgi/spring-osgi.xsd">
+
     <atlassian-scanner:scan-indexes/>
+    <context:annotation-config/>
+
+    <osgi:reference id="i18nService" interface="com.atlassian.bitbucket.i18n.I18nService"/>
+    <osgi:reference id="repositoryService" interface="com.atlassian.bitbucket.repository.RepositoryService"/>
+    <osgi:reference id="projectService" interface="com.atlassian.bitbucket.project.ProjectService"/>
     <context:component-scan base-package="com.trimble.tekla"/>
-</beans>
+</beans>   
