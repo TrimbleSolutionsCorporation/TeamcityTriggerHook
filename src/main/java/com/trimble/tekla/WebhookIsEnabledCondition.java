@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 
 public class WebhookIsEnabledCondition implements Condition {
   private static final Pattern REPOREGEX = Pattern.compile(".*?/projects/(.*?)/repos/(.*?)/pull-requests/(.*?)/.*");

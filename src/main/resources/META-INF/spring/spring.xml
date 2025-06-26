@@ -11,8 +11,7 @@
             http://www.springframework.org/schema/context/spring-context.xsd
             http://www.springframework.org/schema/osgi
             http://www.springframework.org/schema/osgi/spring-osgi.xsd">
-
-    <atlassian-scanner:scan-indexes/>
+    
     <context:annotation-config/>
 
     <osgi:reference id="i18nService" interface="com.atlassian.bitbucket.i18n.I18nService"/>
