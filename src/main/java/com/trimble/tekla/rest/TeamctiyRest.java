@@ -46,6 +46,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 import javax.ws.rs.BeanParam;
 
+import com.atlassian.bitbucket.hook.repository.RepositoryHookService;
+
 /**
  * REST configuration
  */
@@ -615,6 +617,7 @@ public class TeamctiyRest {
     @BeanParam final RepositoryResolver repositoryResolver,
     @BeanParam final SettingsService settingsService,
     @BeanParam final PullRequestService pullRequestService,
+    @BeanParam final RepositoryHookService hookService,
     @QueryParam("prid") final String prid) {
 
       if (repositoryResolver.getRepository() == null) {
@@ -622,7 +625,7 @@ public class TeamctiyRest {
       }
       try {    
         final RepositoryHook hook = settingsService.getRepositoryHook(repositoryResolver.getRepository());
-        final Optional<Settings> settings = settingsService.getSettings(repositoryResolver.getRepository());
+        final Optional<Settings> settings = settingsService.getSettings2(repositoryResolver.getRepository(), hookService);
         if(!settings.isPresent()) {
           return Response.ok(false).build();
         }      

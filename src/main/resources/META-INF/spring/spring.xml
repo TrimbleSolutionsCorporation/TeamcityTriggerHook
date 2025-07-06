@@ -17,7 +17,9 @@
     <osgi:reference id="repositoryService" interface="com.atlassian.bitbucket.repository.RepositoryService"/>
     <osgi:reference id="i18nService" interface="com.atlassian.bitbucket.i18n.I18nService"/>    
     <osgi:reference id="commitService" interface="com.atlassian.bitbucket.commit.CommitService"/>
+    <osgi:reference id="pullRequestService" interface="com.atlassian.bitbucket.pull.PullRequestService"/>    
     <osgi:reference id="repositoryHookService" interface="com.atlassian.bitbucket.hook.repository.RepositoryHookService"/>
     <osgi:reference id="securityService" interface="com.atlassian.bitbucket.user.SecurityService"/>
     <osgi:reference id="pluginsSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>
+    PullRequestService
 </beans>   

@@ -124,6 +124,7 @@
                             com.atlassian.bitbucket.repository.*;resolution:="optional",
                             com.atlassian.bitbucket.i18n.*;resolution:="optional",
                             com.atlassian.bitbucket.commit.*;resolution:="optional",
+                            com.atlassian.bitbucket.pull.*;resolution:="optional",
                             com.atlassian.bitbucket.user.*;resolution:="optional",
                             com.atlassian.bitbucket.hook.*;resolution:="optional",
                             om.atlassian.sal.api.pluginsettings.*;resolution:="optional",

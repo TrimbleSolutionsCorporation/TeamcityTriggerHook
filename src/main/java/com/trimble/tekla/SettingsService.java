@@ -70,10 +70,45 @@ public class SettingsService {
     }
   }
 
-  public Optional<Settings> getSettings(final Repository repository) {
+  public Optional<Settings> getSettings2(final Repository repository, final RepositoryHookService hookService2) {
     try {
       final RepositoryHookSettings settings =
           this.securityService
+              .withPermission(Permission.REPO_ADMIN, "Retrieving settings")
+              .call(
+                  new Operation<RepositoryHookSettings, Exception>() {
+                    @Override
+                    public RepositoryHookSettings perform() throws Exception {
+
+                      final RepositoryHook hook =
+                          hookService2.getByKey(
+                              new RepositoryScope(repository), SettingsService.KEY);
+                      if (!hook.isEnabled() || !hook.isEnabled()) {
+                        return null;
+                      }
+                      final GetRepositoryHookSettingsRequest req =
+                          new GetRepositoryHookSettingsRequest.Builder(
+                                  new RepositoryScope(repository), SettingsService.KEY)
+                              .build();
+                      return hookService2.getSettings(req);
+                    }
+                  });
+      if (settings == null) {
+        return empty();
+      }
+
+      LOGGER.info("Using settings:\n" + settings);
+      return Optional.of(settings.getSettings());
+    } catch (final Exception e) {
+      LOGGER.error("Unexpected exception trying to get repository settings", e);
+      return empty();
+    }
+  }   
+
+  public Optional<Settings> getSettings(final Repository repository) {
+    try {
+      final RepositoryHookSettings settings =
+          SettingsService.this.securityService
               .withPermission(Permission.REPO_ADMIN, "Retrieving settings")
               .call(
                   new Operation<RepositoryHookSettings, Exception>() {
