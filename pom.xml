@@ -86,13 +86,6 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.sun.jersey</groupId>
-            <artifactId>jersey-client</artifactId>
-            <version>1.19.4</version>
-            <scope>compile</scope>
-            <type>jar</type>
-        </dependency>
-        <dependency>
             <groupId>com.atlassian.plugins</groupId>
             <artifactId>atlassian-plugins-webfragment-api</artifactId>
             <scope>provided</scope>
