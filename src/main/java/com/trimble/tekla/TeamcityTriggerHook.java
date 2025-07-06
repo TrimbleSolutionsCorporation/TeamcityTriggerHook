@@ -33,6 +33,7 @@ import com.trimble.tekla.teamcity.HttpConnector;
 import com.trimble.tekla.teamcity.TeamcityConfiguration;
 import com.trimble.tekla.teamcity.TeamcityConnector;
 import com.trimble.tekla.teamcity.TeamcityLogger;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
 
 /**
  * Note that hooks can implement RepositorySettingsValidator directly.
@@ -46,9 +47,9 @@ public class TeamcityTriggerHook implements PostRepositoryHook<RepositoryHookReq
   @Inject
   public TeamcityTriggerHook(
           @ComponentImport final CommitService scmService,
-          final TeamcityConnectionSettings connectionSettings) {
+          @ComponentImport PluginSettingsFactory pluginSettingsFactory) {
     this.scmService = scmService;
-    this.connectionSettings = connectionSettings;
+    this.connectionSettings = new TeamcityConnectionSettings(pluginSettingsFactory);
     this.connector = new TeamcityConnector(new HttpConnector());
   }
 

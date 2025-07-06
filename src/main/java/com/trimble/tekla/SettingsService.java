@@ -15,8 +15,10 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.bitbucket.scope.RepositoryScope;
 import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.user.SecurityService;
+
 import com.atlassian.bitbucket.util.Operation;
 import java.util.Optional;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 import static java.util.Optional.empty;
 
 /**
@@ -41,7 +43,9 @@ public class SettingsService {
    * @param securityService The security service
    */
   @Inject
-  public SettingsService(final RepositoryHookService hookService, final SecurityService securityService) {
+  public SettingsService(
+    final RepositoryHookService hookService,
+    final SecurityService securityService) {
     this.hookService = hookService;
     this.securityService = securityService;
   }

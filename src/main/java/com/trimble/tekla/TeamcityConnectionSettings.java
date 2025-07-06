@@ -10,6 +10,7 @@ import com.atlassian.bitbucket.repository.Repository;
 import com.atlassian.event.api.EventListener;
 import com.atlassian.sal.api.pluginsettings.PluginSettings;
 import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
 
 /**
  * Manages storing and retrieving of TeamCity user password
@@ -25,8 +26,8 @@ public class TeamcityConnectionSettings {
      * @param factory - auto injected {@link PluginSettingsFactory}
      */
     @Inject
-    public TeamcityConnectionSettings(final PluginSettingsFactory factory) {
-        this.pluginSettings = factory.createSettingsForKey(SettingsService.KEY);
+    public TeamcityConnectionSettings(PluginSettingsFactory pluginSettingsFactory) {
+        this.pluginSettings = pluginSettingsFactory.createSettingsForKey(SettingsService.KEY);
     }
 
     /**

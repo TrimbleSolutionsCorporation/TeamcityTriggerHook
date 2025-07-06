@@ -16,7 +16,7 @@ import com.atlassian.bitbucket.setting.Settings;
 import com.atlassian.bitbucket.setting.SettingsValidationErrors;
 import com.atlassian.bitbucket.setting.SettingsValidator;
 import com.atlassian.plugin.spring.scanner.annotation.imports.ComponentImport;
-import com.atlassian.sal.api.message.I18nResolver;
+import com.atlassian.bitbucket.i18n.I18nService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.trimble.tekla.pojo.Trigger;
 
@@ -28,15 +28,15 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
     private static final Pattern URL_VALIDATION_PATTERN = Pattern.compile("^https?://[^\\s/$.?#].[^\\s]*$", Pattern.CASE_INSENSITIVE);
     private static final String BRANCH_TEST_STRING = "refs/heads/master";
 
-    private final I18nResolver i18n;
+    private final I18nService i18n;
 
     /**
      * Class constructor
      *
-     * @param i18n - {@link I18nResolver} injected via component-import in atlassian-plugin.xml
+     * @param i18n - {@link I18nService} injected via component-import in atlassian-plugin.xml
      */
     @Inject
-    public RepositoryHookSettingsValidator(@ComponentImport final I18nResolver i18n) {
+    public RepositoryHookSettingsValidator(@ComponentImport final I18nService i18n) {
         this.i18n = i18n;
     }
 
@@ -62,26 +62,27 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
                 
         final String bitbucketUrl = settings.getString(Field.BITBUCKET_URL, StringUtils.EMPTY);
         if (!URL_VALIDATION_PATTERN.matcher(bitbucketUrl).matches()) {
-            errors.addFieldError(Field.BITBUCKET_URL, this.i18n.getText("error.invalid.url"));
+            errors.addFieldError(Field.BITBUCKET_URL, this.i18n.getText("error.invalid.url", "Invalid url"));
         }
 
         final String urlTeamcity = settings.getString(Field.TEAMCITY_URL, StringUtils.EMPTY);
         if (!URL_VALIDATION_PATTERN.matcher(urlTeamcity).matches()) {
-            errors.addFieldError(Field.TEAMCITY_URL, this.i18n.getText("error.invalid.url"));
+            errors.addFieldError(Field.TEAMCITY_URL, this.i18n.getText("error.invalid.url", "Invalid url"));
         }
 
         final String teamCityUserName = settings.getString(Field.TEAMCITY_USERNAME, StringUtils.EMPTY);
         if (StringUtils.EMPTY.equals(teamCityUserName)) {
-            errors.addFieldError(Field.TEAMCITY_USERNAME, this.i18n.getText("error.required.field"));
+            errors.addFieldError(Field.TEAMCITY_USERNAME, this.i18n.getText("error.required.field", "field required"));
         }
 
         final String teamCityPassword = settings.getString(Field.TEAMCITY_PASSWORD, StringUtils.EMPTY);
         if (StringUtils.EMPTY.equals(teamCityPassword)) {
-            errors.addFieldError(Field.TEAMCITY_PASSWORD, this.i18n.getText("error.required.field"));
+            errors.addFieldError(Field.TEAMCITY_PASSWORD, this.i18n.getText("error.required.field", "field required"));
         }
 
         if (!Constant.TEAMCITY_PASSWORD_SAVED_VALUE.equals(teamCityPassword)) {
-            errors.addFieldError(Field.TEAMCITY_PASSWORD, this.i18n.getText("error.require.validation", this.i18n.getText("connetion.test.button")));
+            errors.addFieldError(Field.TEAMCITY_PASSWORD,
+                this.i18n.getText("error.require.validation", this.i18n.getText("connetion.test.button", "test")));
         }
     }
 
@@ -99,15 +100,15 @@ public class RepositoryHookSettingsValidator implements SettingsValidator {
         for (final Map.Entry<String, Trigger> triggerEntry : triggerMap.entrySet()) {
             final Trigger trigger = triggerEntry.getValue();
             if (StringUtils.isBlank(trigger.getTarget())) {
-                errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.string.empty"));
+                errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.string.empty", "empty"));
             } else if (StringUtils.containsWhitespace(trigger.getTarget())) {
-                errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.string.contains.whitespace"));
+                errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.string.contains.whitespace", "contains whitespace"));
             }
             try {
                 final Pattern pattern = Pattern.compile(triggerEntry.getValue().getRegex(), Pattern.CASE_INSENSITIVE);
                 final Matcher matcher = pattern.matcher(BRANCH_TEST_STRING);
                 if (matcher.groupCount() != 1) {
-                    errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.regex.needs.capturing"));
+                    errors.addFieldError(triggerEntry.getKey(), this.i18n.getText("error.regex.needs.capturing", "capturing"));
                 }
             } catch (final PatternSyntaxException e) {
                 errors.addFieldError(triggerEntry.getKey(), e.getLocalizedMessage());

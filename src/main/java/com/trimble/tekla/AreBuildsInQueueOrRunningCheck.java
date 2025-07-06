@@ -25,6 +25,9 @@ import java.util.Optional;
 import javax.annotation.Nonnull;
 import javax.inject.Inject;
 import org.json.JSONException;
+import com.atlassian.sal.api.pluginsettings.PluginSettingsFactory;
+import com.atlassian.bitbucket.user.SecurityService;
+import com.atlassian.bitbucket.hook.repository.RepositoryHookService;
 
 /**
  *
@@ -38,11 +41,13 @@ public class AreBuildsInQueueOrRunningCheck implements RepositoryMergeCheck {
   private final TeamcityConnector connector;
 
   @Inject
-  public AreBuildsInQueueOrRunningCheck(@ComponentImport I18nService i18nService,
-          final TeamcityConnectionSettings connectionSettings,
-          final SettingsService settingsService) {
-      this.connectionSettings = connectionSettings;
-      this.settingsService = settingsService;    
+  public AreBuildsInQueueOrRunningCheck(
+    @ComponentImport I18nService i18nService,
+    @ComponentImport PluginSettingsFactory pluginSettingsFactory,
+    @ComponentImport RepositoryHookService hookService,
+    @ComponentImport SecurityService securityService) {
+      this.connectionSettings = new TeamcityConnectionSettings(pluginSettingsFactory);
+      this.settingsService = new SettingsService(hookService, securityService);    
       this.i18nService = i18nService;
       this.connector = new TeamcityConnector(new HttpConnector());
   }

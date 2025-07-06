@@ -13,9 +13,11 @@
             http://www.springframework.org/schema/osgi/spring-osgi.xsd">
     
     <context:annotation-config/>
-
-    <osgi:reference id="i18nService" interface="com.atlassian.bitbucket.i18n.I18nService"/>
-    <osgi:reference id="repositoryService" interface="com.atlassian.bitbucket.repository.RepositoryService"/>
     <osgi:reference id="projectService" interface="com.atlassian.bitbucket.project.ProjectService"/>
-    <context:component-scan base-package="com.trimble.tekla"/>
+    <osgi:reference id="repositoryService" interface="com.atlassian.bitbucket.repository.RepositoryService"/>
+    <osgi:reference id="i18nService" interface="com.atlassian.bitbucket.i18n.I18nService"/>    
+    <osgi:reference id="commitService" interface="com.atlassian.bitbucket.commit.CommitService"/>
+    <osgi:reference id="repositoryHookService" interface="com.atlassian.bitbucket.hook.repository.RepositoryHookService"/>
+    <osgi:reference id="securityService" interface="com.atlassian.bitbucket.user.SecurityService"/>
+    <osgi:reference id="pluginsSettingsFactory" interface="com.atlassian.sal.api.pluginsettings.PluginSettingsFactory"/>
 </beans>   

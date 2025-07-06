@@ -10,48 +10,25 @@
         <name>Tekla</name>
         <url>http://www.tekla.com/</url>
     </organization>
-    <name>TeamCity Remote Trigger Hook</name>
+    <name>com.trimble.tekla.TeamCityTriggerHook</name>
     <description>A Bitbucket plugin for triggering build in TeamCity Continuous Integration.</description>
     <packaging>atlassian-plugin</packaging>
-    <properties>
-        <maven.javadoc.skip>true</maven.javadoc.skip>
-        <bitbucket.version>9.6.3</bitbucket.version>
-        <bitbucket.data.version>${bitbucket.version}</bitbucket.data.version>
-        <atlassian-platform.version>7.3.12</atlassian-platform.version>
-        <quick.reload.version>2.0.0</quick.reload.version>
-        <amps.version>9.3.3</amps.version>
-        <plugin.testrunner.version>2.0.3</plugin.testrunner.version>
-        <atlassian.spring.scanner.version>6.0.0</atlassian.spring.scanner.version>
-        <!-- This key is used to keep the consistency between the key in atlassian-plugin.xml and the key to generate bundle. -->
-        <atlassian.plugin.key>${project.groupId}.${project.artifactId}</atlassian.plugin.key>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-        <maven.compiler.source>17</maven.compiler.source>
-        <maven.compiler.target>17</maven.compiler.target>
-        <sonar.sources>pom.xml,src/main</sonar.sources>
-    </properties>
+
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>com.atlassian.platform.dependencies</groupId>
                 <artifactId>platform-public-api</artifactId>
-                <version>${atlassian-platform.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-            <dependency>
-                <groupId>com.atlassian.platform.dependencies</groupId>
-                <artifactId>platform-test-resources</artifactId>
-                <version>${atlassian-platform.version}</version>
+                <version>${platform.version}</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
-    <dependencies>
+<dependencies>
         <dependency>
-            <groupId>com.atlassian.sal</groupId>
-            <artifactId>sal-api</artifactId>
+            <groupId>com.atlassian.plugin</groupId>
+            <artifactId>atlassian-spring-scanner-annotation</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -62,78 +39,18 @@
         </dependency>
         <dependency>
             <groupId>com.atlassian.bitbucket.server</groupId>
-            <artifactId>bitbucket-spi</artifactId>
+            <artifactId>bitbucket-rest-v2-api</artifactId>
             <version>${bitbucket.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.bitbucket.server</groupId>
-            <artifactId>bitbucket-page-objects</artifactId>
-            <version>${bitbucket.version}</version>
+            <groupId>com.atlassian.sal</groupId>
+            <artifactId>sal-api</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>com.atlassian.bitbucket.server</groupId>
-            <artifactId>bitbucket-git-api</artifactId>
-            <version>${bitbucket.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.event</groupId>
-            <artifactId>atlassian-event</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.plugins</groupId>
-            <artifactId>atlassian-plugins-webfragment-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.plugin</groupId>
-            <artifactId>atlassian-spring-scanner-annotation</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.bitbucket.server</groupId>
-            <artifactId>bitbucket-rest-v2-spi</artifactId>
-            <version>${bitbucket.version}</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.inject</groupId>
-            <artifactId>jakarta.inject-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.ws.rs</groupId>
-            <artifactId>jakarta.ws.rs-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.atlassian.plugins.rest</groupId>
-            <artifactId>atlassian-rest-v2-api</artifactId>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
+            <groupId>org.osgi</groupId>
+            <artifactId>osgi.core</artifactId>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -142,17 +59,31 @@
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>org.json</groupId>
-            <artifactId>json</artifactId>
-            <version>20070829</version>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- WIRED TEST RUNNER DEPENDENCIES -->
+        <dependency>
+            <groupId>jakarta.inject</groupId>
+            <artifactId>jakarta.inject-api</artifactId>
+            <scope>provided</scope>
+        </dependency>
         <dependency>
             <groupId>com.atlassian.plugins</groupId>
-            <artifactId>atlassian-plugins-osgi-testrunner</artifactId>
-            <version>${plugin.testrunner.version}</version>
-            <scope>test</scope>
+            <artifactId>atlassian-plugins-osgi-javaconfig</artifactId>
+            <version>${atlassian-plugins-osgi-javaconfig.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.atlassian.bitbucket.server</groupId>
+            <artifactId>bitbucket-page-objects</artifactId>
+            <version>${bitbucket.version}</version>
+            <scope>provided</scope>
+        </dependency>        
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.sun.jersey</groupId>
@@ -161,43 +92,51 @@
             <scope>compile</scope>
             <type>jar</type>
         </dependency>
+        <dependency>
+            <groupId>com.atlassian.plugins</groupId>
+            <artifactId>atlassian-plugins-webfragment-api</artifactId>
+            <scope>provided</scope>
+        </dependency>        
     </dependencies>
-    <build>
+<build>
         <plugins>
+
             <plugin>
                 <groupId>com.atlassian.maven.plugins</groupId>
                 <artifactId>bitbucket-maven-plugin</artifactId>
                 <version>${amps.version}</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <products>
-                        <product>
-                            <id>bitbucket</id>
-                            <instanceId>bitbucket</instanceId>
-                            <version>${bitbucket.version}</version>
-                            <dataVersion>${bitbucket.data.version}</dataVersion>
-                            <enableDevToolbox>false</enableDevToolbox>
-                            <enableQuickReload>true</enableQuickReload>
-                            <!--<dataHome>${bitbucket.home}</dataHome>-->
-                        </product>
-                    </products>
+                    <productVersion>${bitbucket.version}</productVersion>
+                    <systemPropertyVariables>
+                        <atlassian.dev.mode>false</atlassian.dev.mode>
+                        <atlassian.disable.caches>false</atlassian.disable.caches>
+                    </systemPropertyVariables>
+                    <!--<productDataPath>${basedir}/src/test/resources/generated-test-resources.zip</productDataPath>-->
+                    <enableQuickReload>true</enableQuickReload>
+                    <jvmArgs>-Xmx2g -Xms1g</jvmArgs>
+                    <jvmDebugPort>5005</jvmDebugPort>
+                    <enableDevToolbox>false</enableDevToolbox>
+                    <enablePde>false</enablePde>
+                    <skipRestDocGeneration>true</skipRestDocGeneration>
                     <allowGoogleTracking>false</allowGoogleTracking>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>com.atlassian.maven.plugins</groupId>
-                <artifactId>amps-maven-plugin</artifactId>
-                <version>${amps.version}</version>
-                <configuration>
+                    <skipManifestValidation>true</skipManifestValidation>
+                    <extractDependencies>false</extractDependencies>
+
                     <instructions>
+                        <Atlassian-Plugin-Key>com.trimble.tekla.TeamCityTriggerHook</Atlassian-Plugin-Key>
+                        <Export-Package/>
                         <Import-Package>
-                          com.atlassian.bitbucket.project.*;resolution:="optional",
-                          com.atlassian.bitbucket.repository.*;resolution:="optional",
-                          com.atlassian.bitbucket.i18n.*;resolution:="optional",
-                          *;resolution:="optional"
+                            com.atlassian.bitbucket.project.*;resolution:="optional",
+                            com.atlassian.bitbucket.repository.*;resolution:="optional",
+                            com.atlassian.bitbucket.i18n.*;resolution:="optional",
+                            com.atlassian.bitbucket.commit.*;resolution:="optional",
+                            com.atlassian.bitbucket.user.*;resolution:="optional",
+                            com.atlassian.bitbucket.hook.*;resolution:="optional",
+                            om.atlassian.sal.api.pluginsettings.*;resolution:="optional",
+                            *;resolution:="optional"
                         </Import-Package>
                         <Spring-Context>*</Spring-Context>
-                        <Export-Package/>
                     </instructions>
                 </configuration>
             </plugin>
@@ -213,12 +152,20 @@
                         <phase>process-classes</phase>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-surefire-plugin</artifactId>
-                <version>2.15</version>
-            </plugin>
+            </plugin>            
         </plugins>
     </build>
+
+    <properties>
+        <platform.version>7.3.12</platform.version>
+        <bitbucket.version>9.6.3</bitbucket.version>
+        <atlassian.spring.scanner.version>6.0.0</atlassian.spring.scanner.version>
+        <atlassian-plugins-osgi-javaconfig.version>0.6.0</atlassian-plugins-osgi-javaconfig.version>
+        <amps.version>9.3.3</amps.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <maven.javadoc.skip>true</maven.javadoc.skip>
+        <atlassian.plugin.key>ccom.trimble.tekla.TeamCityTriggerHook</atlassian.plugin.key>
+    </properties>    
 </project>
